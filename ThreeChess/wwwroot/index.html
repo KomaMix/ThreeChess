@@ -1,0 +1,193 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Полигоны клеток</title>
+    <style>
+        svg {
+            border: 1px solid #000;
+        }
+
+        .cell-white {
+            fill: #b58863;
+            stroke: #000;
+            stroke-width: 2;
+            transition: all 0.3s ease;
+        }
+
+        .cell-white:hover {
+            filter: brightness(90%);
+            cursor: pointer;
+        }
+
+        .cell-black {
+            fill: #f0d9b5;
+            stroke: #000;
+            stroke-width: 2;
+            transition: all 0.3s ease;
+        }
+
+        .cell-black:hover {
+            filter: brightness(90%);
+            cursor: pointer;
+        }
+
+        .cell-label {
+            font-family: Arial, sans-serif;
+            font-size: 14px;
+            fill: #5d432c;
+            text-anchor: middle;
+            dominant-baseline: central;
+            pointer-events: none;
+            user-select: none;
+        }
+    </style>
+</head>
+<body>
+
+    <svg width="800" height="800" viewBox="0 0 800 800" alignment-baseline="central">
+        <g id="board"></g>
+    </svg>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/6.0.1/signalr.js"></script>
+    <script>
+        const hubConnection = new signalR.HubConnectionBuilder()
+            .withUrl("/move")
+            .build();
+
+
+        const VIEWBOX_SIZE = 800;
+        const CENTER_OFFSET = 400;
+
+        async function loadCells() {
+            try {
+                const response = await fetch('/api/cells');
+                const cells = await response.json();
+                renderBoard(cells);
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        function renderBoard(cells) {
+            const board = document.getElementById('board');
+            board.innerHTML = '';
+            let cnt = 0;
+            let k = 0;
+
+            cells.forEach(cell => {
+                if (!validatePolygon(cell.polygon.points)) return;
+
+                // Масштабирование точек
+                const scaledPoints = cell.polygon.points.map(p => ({
+                    x: p.x * VIEWBOX_SIZE / 2 + CENTER_OFFSET,
+                    y: p.y * VIEWBOX_SIZE / 2 + CENTER_OFFSET
+                }));
+
+                // Создание пути
+                const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                path.setAttribute('d', generatePathData(scaledPoints));
+
+                path.addEventListener('click', async () => {
+                    try {
+                        await hubConnection.invoke("Send", cell.id);
+                    } catch (err) {
+                        console.error("Error sending cell click:", err);
+                    }
+                });
+
+                // Создание текстовой метки
+                const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                const centroid = findMidlinesIntersection(scaledPoints);
+                label.setAttribute('x', centroid.x);
+                label.setAttribute('y', centroid.y);
+                label.textContent = cell.id;
+                label.classList.add('cell-label');
+
+                // Определение класса ячейки
+                if (cnt % 2 === 0) {
+                    path.classList.add('cell-white');
+                } else {
+                    path.classList.add('cell-black');
+                }
+
+                // Обновление счетчиков
+                cnt++; k++;
+                if (k % 4 === 0) cnt++;
+                if (k % 16 === 0) cnt++;
+
+                // Добавление элементов
+                board.appendChild(path);
+                board.appendChild(label);
+            });
+        }
+
+        function generatePathData(points) {
+            let path = `M${points[0].x},${points[0].y}`;
+            for (let i = 1; i < points.length; i++) {
+                path += ` L${points[i].x},${points[i].y}`;
+            }
+            return `${path} Z`;
+        }
+
+        function findMidlinesIntersection(points) {
+            // Находим середины двух пар противоположных сторон
+            const mid1 = getMidpoint(points[0], points[1]);
+            const mid2 = getMidpoint(points[2], points[3]);
+            const mid3 = getMidpoint(points[1], points[2]);
+            const mid4 = getMidpoint(points[3], points[0]);
+
+            // Строим уравнения прямых для серединных линий
+            const line1 = { p1: mid1, p2: mid2 };
+            const line2 = { p1: mid3, p2: mid4 };
+
+            // Находим точку пересечения
+            return lineIntersection(line1, line2);
+        }
+
+        function getMidpoint(p1, p2) {
+            return {
+                x: (p1.x + p2.x) / 2,
+                y: (p1.y + p2.y) / 2
+            };
+        }
+
+        function lineIntersection(line1, line2) {
+            // Формула пересечения двух прямых
+            const x1 = line1.p1.x, y1 = line1.p1.y;
+            const x2 = line1.p2.x, y2 = line1.p2.y;
+            const x3 = line2.p1.x, y3 = line2.p1.y;
+            const x4 = line2.p2.x, y4 = line2.p2.y;
+
+            const denominator = (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4);
+            if (denominator === 0) return null; // Прямые параллельны
+
+            const px = ((x1 * y2 - y1 * x2) * (x3 - x4) - (x1 - x2) * (x3 * y4 - y3 * x4)) / denominator;
+            const py = ((x1 * y2 - y1 * x2) * (y3 - y4) - (y1 - y2) * (x3 * y4 - y3 * x4)) / denominator;
+
+            return { x: px, y: py };
+        }
+
+        function validatePolygon(points) {
+            if (points.length < 3) return false;
+            const first = points[0];
+            const last = points[points.length - 1];
+            if (first.x !== last.x || first.y !== last.y) {
+                points.push({ ...first });
+            }
+            return true;
+        }
+
+        window.addEventListener('DOMContentLoaded', loadCells);
+        hubConnection.start()
+            .then(function () {
+                
+            })
+            .catch(function (err) {
+                return console.error(err.toString());
+            });
+    </script>
+
+</body>
+</html>
