@@ -17,13 +17,22 @@ namespace ThreeChess.Controllers
         }
 
 
-        [HttpGet("cells")]
-        public IActionResult Get()
+        [HttpGet("cells-location")]
+        public IActionResult GetCellsLocation()
         {
-            var rightCells = _boardCreateService.CreateBoardCells();
+            var cells = _boardCreateService.CreateBoardCells();
 
 
-            return Ok(rightCells);
+            return Ok(cells);
+        }
+
+        [HttpGet("figures-location")]
+        public IActionResult GetCells()
+        {
+            var figures = _boardCreateService.CreateFigures();
+
+
+            return Ok(figures);
         }
     }
 }

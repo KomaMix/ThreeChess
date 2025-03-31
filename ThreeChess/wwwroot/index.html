@@ -46,6 +46,11 @@
         .cell-highlighted {
             filter: brightness(100);
         }
+
+        .cell-figure {
+            pointer-events: none;
+            user-select: none;
+        }
     </style>
 </head>
 <body>
@@ -79,15 +84,25 @@
 
         async function loadCells() {
             try {
-                const response = await fetch('/api/cells');
-                const cells = await response.json();
-                renderBoard(cells);
+                const [cellsResponse, figuresResponse] = await Promise.all([
+                    fetch('/api/cells-location'),
+                    fetch('/api/figures-location')
+                ]);
+
+                const cells = await cellsResponse.json();
+                const figuresMap = await figuresResponse.json();
+
+                console.log(cells);
+                console.log(figuresMap);
+                
+
+                renderBoard(cells, figuresMap);
             } catch (error) {
                 console.error('Error:', error);
             }
         }
 
-        function renderBoard(cells) {
+        function renderBoard(cells, figuresMap) {
             const board = document.getElementById('board');
             board.innerHTML = '';
 
@@ -106,6 +121,12 @@
                 path.setAttribute('d', generatePathData(scaledPoints));
                 path.setAttribute('data-cell-id', cell.id);
 
+                if (cell.isWhite) {
+                    path.classList.add('cell-white');
+                } else {
+                    path.classList.add('cell-black');
+                }
+
                 path.addEventListener('click', async () => {
                     try {
                          // тут нужно добавить изменения цвета
@@ -117,25 +138,33 @@
                     }
                 });
 
-                // Создание текстовой метки
-                const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-                const centroid = findMidlinesIntersection(scaledPoints);
-                label.setAttribute('x', centroid.x);
-                label.setAttribute('y', centroid.y);
-                label.textContent = cell.id;
-                label.classList.add('cell-label');
 
-                // Определение класса ячейки
-                if (cell.isWhite) {
-                    path.classList.add('cell-white');
+                const centroid = findMidlinesIntersection(scaledPoints);
+                const figurePath = figuresMap[cell.id.toString()];
+                
+                let visualElement;
+                if (figurePath) {
+                    visualElement = document.createElementNS('http://www.w3.org/2000/svg', 'image');
+                    visualElement.setAttributeNS('http://www.w3.org/1999/xlink', 'xlink:href', figurePath);
+                    visualElement.setAttribute('x', centroid.x - 20);
+                    visualElement.setAttribute('y', centroid.y - 20);
+                    visualElement.setAttribute('width', '40');
+                    visualElement.setAttribute('height', '40');
+                    visualElement.classList.add('cell-figure');
                 } else {
-                    path.classList.add('cell-black');
+                    visualElement = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                    visualElement.setAttribute('x', centroid.x);
+                    visualElement.setAttribute('y', centroid.y);
+                    visualElement.textContent = cell.id;
+                    visualElement.classList.add('cell-label');
                 }
 
+                
 
-                // Добавление элементов
+
                 board.appendChild(path);
-                board.appendChild(label);
+                board.appendChild(visualElement);
+
             });
         }
 
