@@ -10,6 +10,8 @@ namespace ThreeChess.Hubs
 
             Console.WriteLine(message);
 
+            await Clients.All.SendAsync("Receive", message);
+
             await Task.CompletedTask;
         }
 

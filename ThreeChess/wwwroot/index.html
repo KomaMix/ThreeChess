@@ -16,10 +16,10 @@
             transition: all 0.3s ease;
         }
 
-        .cell-white:hover {
+/*        .cell-white:hover {
             filter: brightness(90%);
             cursor: pointer;
-        }
+        }*/
 
         .cell-black {
             fill: #f0d9b5;
@@ -28,10 +28,10 @@
             transition: all 0.3s ease;
         }
 
-        .cell-black:hover {
+/*        .cell-black:hover {
             filter: brightness(90%);
             cursor: pointer;
-        }
+        }*/
 
         .cell-label {
             font-family: Arial, sans-serif;
@@ -41,6 +41,10 @@
             dominant-baseline: central;
             pointer-events: none;
             user-select: none;
+        }
+
+        .cell-highlighted {
+            filter: brightness(100);
         }
     </style>
 </head>
@@ -55,6 +59,19 @@
         const hubConnection = new signalR.HubConnectionBuilder()
             .withUrl("/move")
             .build();
+
+
+        hubConnection.on("Receive", function (id) {
+            try {
+                document.querySelectorAll('path').forEach(path => {
+                    if (path.getAttribute('data-cell-id') === id.toString()) {
+                        path.classList.add('cell-highlighted');
+                    }
+                });
+            } catch (error) {
+                console.error('Error in Receive handler:', error);
+            }
+        });
 
 
         const VIEWBOX_SIZE = 800;
@@ -73,8 +90,7 @@
         function renderBoard(cells) {
             const board = document.getElementById('board');
             board.innerHTML = '';
-            let cnt = 0;
-            let k = 0;
+
 
             cells.forEach(cell => {
                 if (!validatePolygon(cell.polygon.points)) return;
@@ -88,9 +104,13 @@
                 // Создание пути
                 const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
                 path.setAttribute('d', generatePathData(scaledPoints));
+                path.setAttribute('data-cell-id', cell.id);
 
                 path.addEventListener('click', async () => {
                     try {
+                         // тут нужно добавить изменения цвета
+                        path.classList.toggle('cell-highlighted');
+
                         await hubConnection.invoke("Send", cell.id);
                     } catch (err) {
                         console.error("Error sending cell click:", err);
@@ -106,16 +126,12 @@
                 label.classList.add('cell-label');
 
                 // Определение класса ячейки
-                if (cnt % 2 === 0) {
+                if (cell.isWhite) {
                     path.classList.add('cell-white');
                 } else {
                     path.classList.add('cell-black');
                 }
 
-                // Обновление счетчиков
-                cnt++; k++;
-                if (k % 4 === 0) cnt++;
-                if (k % 16 === 0) cnt++;
 
                 // Добавление элементов
                 board.appendChild(path);
