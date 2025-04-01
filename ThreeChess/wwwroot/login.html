@@ -1,0 +1,161 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <title>Chess for Three - Вход</title>
+    <link rel="stylesheet" href="styles.css" />
+    <style>
+        /* Сброс стилей */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* Основные настройки */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #4F4F4F;
+            color: #fff;
+            min-height: 100vh;
+        }
+
+        /* Шапка сайта */
+        header {
+            background-color: #3F3F3F;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* Логотип */
+        .logo {
+            font-size: 1.4rem;
+            font-weight: bold;
+        }
+
+        /* Навигационные ссылки */
+        nav {
+            display: flex;
+            gap: 30px; /* увеличенный gap */
+        }
+
+        .nav-link,
+        header a.signup {
+            color: #ccc; /* более светлый цвет ссылок */
+            text-decoration: none;
+            font-size: 1rem;
+            transition: color 0.2s ease;
+        }
+
+            .nav-link:hover,
+            header a.signup:hover {
+                color: #fff;
+            }
+
+        /* Блок формы */
+        .login-wrapper {
+            max-width: 400px;
+            margin: 80px auto;
+            background-color: #E0E0E0;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Стили для формы */
+        .login-form label {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+            font-weight: 500;
+        }
+
+        .login-form input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: none;
+            border-radius: 5px;
+            background-color: #f5f5f5;
+            color: #333;
+            font-size: 1rem;
+        }
+
+        /* Кнопка входа */
+        .btn-submit {
+            display: inline-block;
+            width: 100%;
+            padding: 12px 0;
+            border: none;
+            border-radius: 5px;
+            background-color: #333;
+            color: #fff;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+            .btn-submit:hover {
+                background-color: #444;
+            }
+
+        /* Адаптивность */
+        @media (max-width: 480px) {
+            header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .login-wrapper {
+                margin: 40px 20px;
+                padding: 20px;
+            }
+
+            .btn-submit {
+                font-size: 0.9rem;
+            }
+        }
+
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">Chess for Three</div>
+        <nav>
+            <a href="#" class="nav-link">Обучение</a>
+            <a href="#" class="nav-link">Правила игры</a>
+            <a href="#" class="nav-link">Личный кабинет</a>
+            <a href="#" class="signup">Регистрация</a>
+        </nav>
+    </header>
+
+    <main>
+        <section class="login-wrapper">
+            <form class="login-form" action="#" method="post">
+                <div class="form-group">
+                    <label for="login">Логин:</label>
+                    <input type="text"
+                           id="login"
+                           name="login"
+                           placeholder="Введите логин"
+                           required />
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Пароль:</label>
+                    <input type="password"
+                           id="password"
+                           name="password"
+                           placeholder="Введите пароль"
+                           required />
+                </div>
+
+                <button type="submit" class="btn-submit">Войти</button>
+            </form>
+        </section>
+    </main>
+</body>
+</html>

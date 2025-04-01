@@ -146,11 +146,12 @@
                 if (figurePath) {
                     visualElement = document.createElementNS('http://www.w3.org/2000/svg', 'image');
                     visualElement.setAttributeNS('http://www.w3.org/1999/xlink', 'xlink:href', figurePath);
-                    visualElement.setAttribute('x', centroid.x - 20);
-                    visualElement.setAttribute('y', centroid.y - 20);
-                    visualElement.setAttribute('width', '40');
-                    visualElement.setAttribute('height', '40');
+                    visualElement.setAttribute('x', centroid.x - 25);
+                    visualElement.setAttribute('y', centroid.y - 25);
+                    visualElement.setAttribute('width', '50');
+                    visualElement.setAttribute('height', '50');
                     visualElement.classList.add('cell-figure');
+                    //visualElement.setAttribute('visibility', 'hidden');
                 } else {
                     visualElement = document.createElementNS('http://www.w3.org/2000/svg', 'text');
                     visualElement.setAttribute('x', centroid.x);
