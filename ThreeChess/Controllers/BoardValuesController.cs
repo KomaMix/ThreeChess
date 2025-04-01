@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using ThreeChess.Models;
@@ -8,6 +9,7 @@ namespace ThreeChess.Controllers
 {
     [Route("api/")]
     [ApiController]
+    [Authorize]
     public class BoardValuesController : ControllerBase
     {
         private BoardCreateService _boardCreateService;

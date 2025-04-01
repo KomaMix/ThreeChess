@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using ThreeChess.Data;
 using ThreeChess.Hubs;
+using ThreeChess.Interfaces;
 using ThreeChess.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -27,7 +28,7 @@ builder.Services.AddIdentity<AppUser, IdentityRole>()
 
 
 builder.Services.AddTransient<BoardCreateService>();
-
+builder.Services.AddTransient<IMoveHandlerService, MoveHandlerService>();
 
 var app = builder.Build();
 
