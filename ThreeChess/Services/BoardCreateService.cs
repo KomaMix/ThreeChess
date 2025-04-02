@@ -134,6 +134,8 @@ namespace ThreeChess.Services
                     IsWhite = cnt % 2 == 0
                 });
 
+                AddedCenters(resultCells);
+
 
                 cnt++;
                 if (i % 4 == 3)
@@ -144,6 +146,72 @@ namespace ThreeChess.Services
 
 
             return resultCells;
+        }
+
+        private void AddedCenters(List<CellItem> cells)
+        {
+            foreach (var cell in cells)
+            {
+                cell.Center = FindMidLinesIntersection(cell.Polygon.Points);
+            }
+        }
+
+        private Point FindMidLinesIntersection(List<Point> points)
+        {
+            Point mid1 = GetMidPoint(points[0], points[1]);
+            Point mid2 = GetMidPoint(points[2], points[3]);
+            Point mid3 = GetMidPoint(points[1], points[2]);
+            Point mid4 = GetMidPoint(points[3], points[0]);
+
+            Line line1 = new Line
+            {
+                Start = mid1,
+                End = mid2,
+            };
+
+            Line line2 = new Line
+            {
+                Start = mid3,
+                End = mid4,
+            };
+
+            return LineIntersection(line1 , line2); 
+        }
+
+        private class Line
+        {
+            public Point Start { get; set; }
+            public Point End { get; set; }
+        }
+
+        private Point GetMidPoint(Point p1, Point p2)
+        {
+            return new Point
+            {
+                X = (p1.X + p2.X) / 2,
+                Y = (p1.Y + p2.Y) / 2
+            };
+        }
+
+        private Point LineIntersection(Line line1, Line line2)
+        {
+            double x1 = line1.Start.X, y1 = line1.Start.Y;
+            double x2 = line1.End.X, y2 = line1.End.Y;
+            double x3 = line2.Start.X, y3 = line2.Start.Y;
+            double x4 = line2.End.X, y4 = line2.End.Y;
+
+            double denominator = (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4);
+
+            if (denominator == 0) throw new Exception("lines parallel");
+
+            double px = ((x1 * y2 - y1 * x2) * (x3 - x4) - (x1 - x2) * (x3 * y4 - y3 * x4)) / denominator;
+            double py = ((x1 * y2 - y1 * x2) * (y3 - y4) - (y1 - y2) * (x3 * y4 - y3 * x4)) / denominator;
+
+            return new Point
+            {
+                X = px,
+                Y = py
+            };
         }
 
         private List<CellItem> GetUpperLeftTriangleCells()
@@ -202,6 +270,7 @@ namespace ThreeChess.Services
                 }
             }
 
+            AddedCenters(cellItems);
 
             return cellItems;
         }

@@ -7,5 +7,6 @@ namespace ThreeChess.Models
         public string Id { get; set; }
         public bool IsWhite { get; set; }
         public Polygon Polygon { get; set; }
+        public Point Center { get; set; }
     }
 }

@@ -93,7 +93,11 @@
                 });
 
 
-                const centroid = findMidlinesIntersection(scaledPoints);
+                const centroid = {
+                    x: cell.center.x * VIEWBOX_SIZE / 2 + CENTER_OFFSET,
+                    y: cell.center.y * VIEWBOX_SIZE / 2 + CENTER_OFFSET,
+                };
+
                 const figurePath = figuresMap[cell.id.toString()];
                 
                 let visualElement;
@@ -129,44 +133,6 @@
                 path += ` L${points[i].x},${points[i].y}`;
             }
             return `${path} Z`;
-        }
-
-        function findMidlinesIntersection(points) {
-            // Находим середины двух пар противоположных сторон
-            const mid1 = getMidpoint(points[0], points[1]);
-            const mid2 = getMidpoint(points[2], points[3]);
-            const mid3 = getMidpoint(points[1], points[2]);
-            const mid4 = getMidpoint(points[3], points[0]);
-
-            // Строим уравнения прямых для серединных линий
-            const line1 = { p1: mid1, p2: mid2 };
-            const line2 = { p1: mid3, p2: mid4 };
-
-            // Находим точку пересечения
-            return lineIntersection(line1, line2);
-        }
-
-        function getMidpoint(p1, p2) {
-            return {
-                x: (p1.x + p2.x) / 2,
-                y: (p1.y + p2.y) / 2
-            };
-        }
-
-        function lineIntersection(line1, line2) {
-            // Формула пересечения двух прямых
-            const x1 = line1.p1.x, y1 = line1.p1.y;
-            const x2 = line1.p2.x, y2 = line1.p2.y;
-            const x3 = line2.p1.x, y3 = line2.p1.y;
-            const x4 = line2.p2.x, y4 = line2.p2.y;
-
-            const denominator = (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4);
-            if (denominator === 0) return null; // Прямые параллельны
-
-            const px = ((x1 * y2 - y1 * x2) * (x3 - x4) - (x1 - x2) * (x3 * y4 - y3 * x4)) / denominator;
-            const py = ((x1 * y2 - y1 * x2) * (y3 - y4) - (y1 - y2) * (x3 * y4 - y3 * x4)) / denominator;
-
-            return { x: px, y: py };
         }
 
         function validatePolygon(points) {
