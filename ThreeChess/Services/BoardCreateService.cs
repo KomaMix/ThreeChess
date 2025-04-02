@@ -8,60 +8,60 @@ namespace ThreeChess.Services
         {
             Dictionary<string, string> figuresMap = new Dictionary<string, string>();
             
-            figuresMap["A8"] = "images/white_rook.svg";
-            figuresMap["L8"] = "images/white_rook.svg";
+            figuresMap["A8"] = "/images/white_rook.svg";
+            figuresMap["L8"] = "/images/white_rook.svg";
 
-            figuresMap["B8"] = "images/white_knight.svg";
-            figuresMap["K8"] = "images/white_knight.svg";
+            figuresMap["B8"] = "/images/white_knight.svg";
+            figuresMap["K8"] = "/images/white_knight.svg";
 
-            figuresMap["C8"] = "images/white_bishop.svg";
-            figuresMap["J8"] = "images/white_bishop.svg";
+            figuresMap["C8"] = "/images/white_bishop.svg";
+            figuresMap["J8"] = "/images/white_bishop.svg";
 
-            figuresMap["D8"] = "images/white_king.svg";
-            figuresMap["I8"] = "images/white_queen.svg";
+            figuresMap["D8"] = "/images/white_king.svg";
+            figuresMap["I8"] = "/images/white_queen.svg";
 
             foreach (var c in "ABCDIJKL")
             {
                 string id = c + "7";
-                figuresMap[id] = "images/white_pawn.svg";
+                figuresMap[id] = "/images/white_pawn.svg";
             }
 
 
-            figuresMap["L12"] = "images/black_rook.svg";
-            figuresMap["H12"] = "images/black_rook.svg";
+            figuresMap["L12"] = "/images/black_rook.svg";
+            figuresMap["H12"] = "/images/black_rook.svg";
 
-            figuresMap["G12"] = "images/black_knight.svg";
-            figuresMap["K12"] = "images/black_knight.svg";
+            figuresMap["G12"] = "/images/black_knight.svg";
+            figuresMap["K12"] = "/images/black_knight.svg";
 
-            figuresMap["J12"] = "images/black_bishop.svg";
-            figuresMap["F12"] = "images/black_bishop.svg";
+            figuresMap["J12"] = "/images/black_bishop.svg";
+            figuresMap["F12"] = "/images/black_bishop.svg";
 
-            figuresMap["I12"] = "images/black_king.svg";
-            figuresMap["E12"] = "images/black_queen.svg";
+            figuresMap["I12"] = "/images/black_king.svg";
+            figuresMap["E12"] = "/images/black_queen.svg";
 
             foreach (var c in "EFGHIJKL")
             {
                 string id = c + "11";
-                figuresMap[id] = "images/black_pawn.svg";
+                figuresMap[id] = "/images/black_pawn.svg";
             }
 
 
-            figuresMap["A1"] = "images/red_rook.svg";
-            figuresMap["H1"] = "images/red_rook.svg";
+            figuresMap["A1"] = "/images/red_rook.svg";
+            figuresMap["H1"] = "/images/red_rook.svg";
 
-            figuresMap["B1"] = "images/red_knight.svg";
-            figuresMap["G1"] = "images/red_knight.svg";
+            figuresMap["B1"] = "/images/red_knight.svg";
+            figuresMap["G1"] = "/images/red_knight.svg";
 
-            figuresMap["C1"] = "images/red_bishop.svg";
-            figuresMap["F1"] = "images/red_bishop.svg";
+            figuresMap["C1"] = "/images/red_bishop.svg";
+            figuresMap["F1"] = "/images/red_bishop.svg";
 
-            figuresMap["D1"] = "images/red_king.svg";
-            figuresMap["E1"] = "images/red_queen.svg";
+            figuresMap["D1"] = "/images/red_king.svg";
+            figuresMap["E1"] = "/images/red_queen.svg";
 
             foreach (var c in "ABCDEFGH")
             {
                 string id = c + "2";
-                figuresMap[id] = "images/red_pawn.svg";
+                figuresMap[id] = "/images/red_pawn.svg";
             }
 
 

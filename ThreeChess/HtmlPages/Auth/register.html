@@ -171,7 +171,7 @@
             const password = document.getElementById('password').value;
 
             try {
-                const response = await fetch('/api/account/register', {
+                const response = await fetch('/Account/Register', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -182,11 +182,19 @@
 
                 const data = await response.json();
                 if (response.ok) {
-                    alert(data.message || 'Регистрация выполнена успешно');
-                    // Перенаправление после успешной регистрации
-                    window.location.href = '/index.html';
+                    // Получаем ReturnUrl из параметров запроса
+                    const urlParams = new URLSearchParams(window.location.search);
+                    let returnUrl = urlParams.get('ReturnUrl');
+
+                    // Если нет ReturnUrl, используем дефолтный путь
+                    if (!returnUrl || returnUrl === '/') {
+                        returnUrl = '/Home/Index';
+                    }
+
+                    // Декодируем URL и перенаправляем
+                    window.location.href = decodeURIComponent(returnUrl);
                 } else {
-                    alert(data.message || 'Ошибка регистрации');
+                    alert(data.message || 'Ошибка аутентификации');
                 }
             } catch (error) {
                 console.error('Ошибка при выполнении запроса:', error);

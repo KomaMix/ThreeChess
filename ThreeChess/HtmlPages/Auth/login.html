@@ -155,7 +155,7 @@
             const password = document.getElementById('password').value;
 
             try {
-                const response = await fetch('/api/account/login', {
+                const response = await fetch('/Account/Login', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -166,9 +166,17 @@
 
                 const data = await response.json();
                 if (response.ok) {
-                    alert(data.message || 'Вход выполнен успешно');
-                    // Перенаправление после успешного входа
-                    window.location.href = '/index.html';
+                    // Получаем ReturnUrl из параметров запроса
+                    const urlParams = new URLSearchParams(window.location.search);
+                    let returnUrl = urlParams.get('ReturnUrl');
+
+                    // Если нет ReturnUrl, используем дефолтный путь
+                    if (!returnUrl || returnUrl === '/') {
+                        returnUrl = '/Home/Index';
+                    }
+
+                    // Декодируем URL и перенаправляем
+                    window.location.href = decodeURIComponent(returnUrl);
                 } else {
                     alert(data.message || 'Ошибка аутентификации');
                 }

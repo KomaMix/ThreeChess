@@ -33,7 +33,6 @@ namespace ThreeChess.Controllers
         {
             var figures = _boardCreateService.CreateFigures();
 
-
             return Ok(figures);
         }
     }

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using ThreeChess.Data;
@@ -6,20 +7,28 @@ using ThreeChess.Models.Account;
 
 namespace ThreeChess.Controllers
 {
-    [ApiController]
-    [Route("api/[controller]")]
     public class AccountController : Controller
     {
         private readonly UserManager<AppUser> _userManager;
         private readonly SignInManager<AppUser> _signInManager;
+        IWebHostEnvironment _env;
 
-        public AccountController(UserManager<AppUser> userManager, SignInManager<AppUser> signInManager)
+        public AccountController(IWebHostEnvironment env, UserManager<AppUser> userManager, SignInManager<AppUser> signInManager)
         {
             _userManager = userManager;
             _signInManager = signInManager;
+
+            _env = env;
         }
 
-        [HttpPost("login")]
+        [AllowAnonymous]
+        public IActionResult Login()
+        {
+            var filePath = Path.Combine(_env.ContentRootPath, "HtmlPages/Auth/login.html");
+            return PhysicalFile(filePath, "text/html");
+        }
+
+        [HttpPost]
         public async Task<IActionResult> Login([FromBody] LoginDto loginDto)
         {
             if (!ModelState.IsValid)
@@ -39,7 +48,14 @@ namespace ThreeChess.Controllers
             return Unauthorized(new { message = "Неверная пара логин/пароль" });
         }
 
-        [HttpPost("register")]
+        [AllowAnonymous]
+        public IActionResult Register()
+        {
+            var filePath = Path.Combine(_env.ContentRootPath, "HtmlPages/Auth/register.html");
+            return PhysicalFile(filePath, "text/html");
+        }
+
+        [HttpPost]
         public async Task<IActionResult> Register([FromBody] RegisterDto registerDto)
         {
             if (!ModelState.IsValid)

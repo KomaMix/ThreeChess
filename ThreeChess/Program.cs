@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using ThreeChess.Data;
@@ -29,6 +30,12 @@ builder.Services.AddIdentity<AppUser, IdentityRole>()
 
 builder.Services.AddTransient<BoardCreateService>();
 builder.Services.AddTransient<IMoveHandlerService, MoveHandlerService>();
+
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(options =>
+    {
+        options.LoginPath = "/Account/Login";
+    });
 
 var app = builder.Build();
 
