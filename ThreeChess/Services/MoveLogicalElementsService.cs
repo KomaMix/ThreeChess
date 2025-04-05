@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
 
 namespace ThreeChess.Services
 {
@@ -277,16 +278,16 @@ namespace ThreeChess.Services
         {
             List<List<string>> lines = new List<List<string>>();
 
-            lines.AddRange(GetBlackRedLines());
+            lines.AddRange(GetBlackRedMainLines());
 
-            lines.AddRange(GetBlackWhiteLines());
+            lines.AddRange(GetBlackWhiteMainLines());
 
-            lines.AddRange(GetWhiteRedLines());
+            lines.AddRange(GetWhiteRedMainLines());
 
             return lines;
         }
 
-        private List<List<string>> GetBlackRedLines()
+        private List<List<string>> GetBlackRedMainLines()
         {
             List<List<string>> lines = new List<List<string>>();
 
@@ -305,7 +306,7 @@ namespace ThreeChess.Services
             return lines;
         }
 
-        private List<List<string>> GetBlackWhiteLines()
+        private List<List<string>> GetBlackWhiteMainLines()
         {
             List<List<string>> lines = new List<List<string>>();
 
@@ -324,7 +325,7 @@ namespace ThreeChess.Services
             return lines;
         }
 
-        private List<List<string>> GetWhiteRedLines()
+        private List<List<string>> GetWhiteRedMainLines()
         {
             List<List<string>> lines = new List<List<string>>();
 
@@ -335,6 +336,76 @@ namespace ThreeChess.Services
                 foreach (var num in "12345678")
                 {
                     line.Add(alpha.ToString() + num.ToString());
+                }
+
+                lines.Add(line);
+            }
+
+            return lines;
+        }
+
+        public List<List<string>> GetSecondaryLines()
+        {
+            List<List<string>> lines = new List<List<string>>();
+
+            lines.AddRange(GetRedSecondaryLines());
+
+            lines.AddRange(GetWhiteSecondaryLines());
+
+            lines.AddRange(GetBlackSecondaryLines());
+
+            return lines;
+        }
+
+        private List<List<string>> GetRedSecondaryLines()
+        {
+            List<List<string>> lines = new List<List<string>>();
+
+            foreach (var num in "1234")
+            {
+                List<string> line = new List<string>();
+
+                foreach (var alpha in new List<string> { "H", "G", "F", "E", "D", "C", "B", "A" })
+                {
+                    line.Add(alpha + num);
+                }
+
+                lines.Add(line);
+            }
+
+            return lines;
+        }
+
+        private List<List<string>> GetWhiteSecondaryLines()
+        {
+            List<List<string>> lines = new List<List<string>>();
+
+            foreach (var num in "5678")
+            {
+                List<string> line = new List<string>();
+
+                foreach (var alpha in new List<string> { "A", "B", "C", "D", "I", "J", "K", "L" })
+                {
+                    line.Add(alpha + num);
+                }
+
+                lines.Add(line);
+            }
+
+            return lines;
+        }
+
+        private List<List<string>> GetBlackSecondaryLines()
+        {
+            List<List<string>> lines = new List<List<string>>();
+
+            foreach (var num in new List<string> { "9", "10", "11", "12" })
+            {
+                List<string> line = new List<string>();
+
+                foreach (var alpha in new List<string> { "H", "G", "F", "E", "I", "J", "K", "L" })
+                {
+                    line.Add(alpha + num);
                 }
 
                 lines.Add(line);

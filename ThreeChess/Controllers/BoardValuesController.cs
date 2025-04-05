@@ -57,5 +57,14 @@ namespace ThreeChess.Controllers
 
             return Ok(lines);
         }
+
+        [HttpGet("secondary-lines")]
+        public IActionResult GetSecondaryLines()
+        {
+            // diag = { "A1", "A2" }
+            List<List<string>> lines = _moveElementsService.GetSecondaryLines();
+
+            return Ok(lines);
+        }
     }
 }
