@@ -271,5 +271,76 @@ namespace ThreeChess.Services
 
             return diagonals;
         }
+
+
+        public List<List<string>> GetMainLines()
+        {
+            List<List<string>> lines = new List<List<string>>();
+
+            lines.AddRange(GetBlackRedLines());
+
+            lines.AddRange(GetBlackWhiteLines());
+
+            lines.AddRange(GetWhiteRedLines());
+
+            return lines;
+        }
+
+        private List<List<string>> GetBlackRedLines()
+        {
+            List<List<string>> lines = new List<List<string>>();
+
+            foreach (var alpha in "HGFE")
+            {
+                List<string> line = new List<string>();
+
+                foreach (var num in new List<string> { "1", "2", "3", "4", "9", "10", "11", "12"})
+                {
+                    line.Add(alpha + num);
+                }
+
+                lines.Add(line);
+            }
+
+            return lines;
+        }
+
+        private List<List<string>> GetBlackWhiteLines()
+        {
+            List<List<string>> lines = new List<List<string>>();
+
+            foreach (var alpha in "IJKL")
+            {
+                List<string> line = new List<string>();
+
+                foreach (var num in new List<string> { "12", "11", "10", "9", "5", "6", "7", "8" })
+                {
+                    line.Add(alpha + num);
+                }
+
+                lines.Add(line);
+            }
+
+            return lines;
+        }
+
+        private List<List<string>> GetWhiteRedLines()
+        {
+            List<List<string>> lines = new List<List<string>>();
+
+            foreach (var alpha in "ABCD")
+            {
+                List<string> line = new List<string>();
+
+                foreach (var num in "12345678")
+                {
+                    line.Add(alpha.ToString() + num.ToString());
+                }
+
+                lines.Add(line);
+            }
+
+            return lines;
+        }
     }
 }

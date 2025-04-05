@@ -48,5 +48,14 @@ namespace ThreeChess.Controllers
 
             return Ok(diagonals);
         }
+
+        [HttpGet("main-lines")]
+        public IActionResult GetMainLines()
+        {
+            // diag = { "A1", "A2" }
+            List<List<string>> lines = _moveElementsService.GetMainLines();
+
+            return Ok(lines);
+        }
     }
 }
