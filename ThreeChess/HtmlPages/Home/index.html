@@ -45,16 +45,21 @@
 
         async function loadCells() {
             try {
-                const [cellsResponse, figuresResponse] = await Promise.all([
+                const [cellsResponse, figuresResponse, diagonalsResponse] = await Promise.all([
                     fetch('/api/cells-location'),
-                    fetch('/api/figures-location')
+                    fetch('/api/figures-location'),
+                    fetch('/api/diagonals')
                 ]);
 
                 const cells = await cellsResponse.json();
                 const figuresMap = await figuresResponse.json();
+                const diagonals = await diagonalsResponse.json();
 
-                console.log(cells);
-                console.log(figuresMap);
+                console.log("Клетки:", cells);
+                console.log("Фигуры:", figuresMap);
+                console.log("Диагонали:", diagonals);
+
+                state.diagonals = diagonals;
                 
 
                 renderBoard(cells, figuresMap);
@@ -123,12 +128,12 @@
                     y: cell.center.y * VIEWBOX_SIZE / 2 + CENTER_OFFSET,
                 };
 
-                const figurePath = figuresMap[cell.id.toString()];
+                const figureInfo = figuresMap[cell.id.toString()];
 
                 let figureImage = undefined;
-                if (figurePath) {
+                if (figureInfo) {
                     figureImage = document.createElementNS('http://www.w3.org/2000/svg', 'image');
-                    figureImage.setAttributeNS('http://www.w3.org/1999/xlink', 'xlink:href', figurePath);
+                    figureImage.setAttributeNS('http://www.w3.org/1999/xlink', 'xlink:href', figureInfo.path);
                     figureImage.setAttribute('x', centroid.x - 25);
                     figureImage.setAttribute('y', centroid.y - 25);
                     figureImage.setAttribute('width', '50');
@@ -145,30 +150,35 @@
                 labelText.textContent = cell.id;
                 labelText.classList.add('cell-label');
 
-                if (figurePath) {
+                if (figureInfo) {
                     labelText.style.visibility = 'hidden';
                 }
-
+                
 
                 state.cells[cell.id] = {
                     id: cell.id,
                     center: { x: centroid.x, y: centroid.y },
                     elements: {
                         path: path,
-                        figure: figureImage || null,
+                        figure: figureInfo ? {
+                            figureImage: figureImage || null,
+                            figureInfo: figureInfo
+                        } : null,
                         label: labelText
                     }
                 };
 
 
                 cellsLayer.appendChild(path);
-                if (figurePath) {
+                if (figureInfo) {
                     figuresLayer.appendChild(figureImage);
                 }
                 
                 labelsLayer.appendChild(labelText);
 
             });
+
+            console.log("State:", state);
         }
 
         function moveFigure(startId, endId) {

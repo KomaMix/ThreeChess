@@ -13,9 +13,11 @@ namespace ThreeChess.Controllers
     public class BoardValuesController : ControllerBase
     {
         private BoardCreateService _boardCreateService;
-        public BoardValuesController(BoardCreateService boardCreateService)
+        private MoveLogicalElementsService _moveElementsService;
+        public BoardValuesController(BoardCreateService boardCreateService, MoveLogicalElementsService moveElementsService)
         {
             _boardCreateService = boardCreateService;
+            _moveElementsService = moveElementsService;
         }
 
 
@@ -34,6 +36,15 @@ namespace ThreeChess.Controllers
             var figures = _boardCreateService.CreateFigures();
 
             return Ok(figures);
+        }
+
+        [HttpGet("diagonals")]
+        public IActionResult GetDiagonals()
+        {
+            // diag = { "A1", "A2" }
+            List<List<string>> diagonals = _moveElementsService.GetDiagonals();
+
+            return Ok(diagonals);
         }
     }
 }

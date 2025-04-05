@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -13,7 +14,11 @@ builder.WebHost.UseUrls(
     $"http://0.0.0.0:{7288}"
 );
 
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+    }); ;
 builder.Services.AddSignalR();
 
 
@@ -29,6 +34,7 @@ builder.Services.AddIdentity<AppUser, IdentityRole>()
 
 
 builder.Services.AddTransient<BoardCreateService>();
+builder.Services.AddTransient<MoveLogicalElementsService>();
 builder.Services.AddTransient<IMoveHandlerService, MoveHandlerService>();
 
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
