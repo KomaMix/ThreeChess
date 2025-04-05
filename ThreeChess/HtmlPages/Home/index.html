@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chess for Three - Игровая доска</title>
-    <link rel="stylesheet" href="/styles/board.css" />
+    <link rel="stylesheet" href="/styles/board.css?v=1.0" />
 </head>
 <body>
 
@@ -16,8 +16,12 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/6.0.1/signalr.js"></script>
     <script>
-        const state = {
+        const boardElementsState = {
             cells: {}
+        };
+
+        const movedElements = {
+            diagonals: { }
         };
 
         let last_click_id = undefined;
@@ -59,7 +63,7 @@
                 console.log("Фигуры:", figuresMap);
                 console.log("Диагонали:", diagonals);
 
-                state.diagonals = diagonals;
+                movedElements.diagonals = diagonals;
                 
 
                 renderBoard(cells, figuresMap);
@@ -105,16 +109,22 @@
 
                         // Если это первый клик
                         if (last_click_id === undefined) {
-                            // Проверяем есть ли фигура в ячейке
-                            if (state.cells[cell.id].elements.figure) {
+                            // Если в ячейке есть фигура
+                            if (boardElementsState.cells[cell.id].elements.figure) {
+                                const piece = boardElementsState.cells[cell.id].elements.figure;
+                                // Проверяем тип фигуры (сравнение с ожидаемыми строковыми значениями, например 'Queen' или 'Bishop')
+                                if (piece.figureInfo.figureType === 'Queen' || piece.figureInfo.figureType === 'Bishop') {
+                                    console.log("This increzable figure");
+                                    // Выделяем диагональные ячейки, доступные для хода
+                                    highlightDiagonalMoves(cell.id);
+                                }
                                 last_click_id = cell.id;
                             }
                         }
                         // Если это второй клик
                         else {
-                            // Выполняем перемещение
+                            clearHighlightedCells();
                             moveFigure(last_click_id, cell.id);
-
                             last_click_id = undefined;
                         }
                     } catch (err) {
@@ -155,7 +165,7 @@
                 }
                 
 
-                state.cells[cell.id] = {
+                boardElementsState.cells[cell.id] = {
                     id: cell.id,
                     center: { x: centroid.x, y: centroid.y },
                     elements: {
@@ -178,14 +188,14 @@
 
             });
 
-            console.log("State:", state);
+            console.log("State:", boardElementsState);
         }
 
         function moveFigure(startId, endId) {
             console.log('Attempt to move from', startId, 'to', endId);
 
-            const cellFrom = state.cells[startId];
-            const cellTo = state.cells[endId];
+            const cellFrom = boardElementsState.cells[startId];
+            const cellTo = boardElementsState.cells[endId];
 
             
 
@@ -215,8 +225,8 @@
             cellTo.elements.label.style.visibility = 'hidden';
 
             // Позиционируем фигуру в новой ячейке
-            cellTo.elements.figure.setAttribute('x', cellTo.center.x - 25);
-            cellTo.elements.figure.setAttribute('y', cellTo.center.y - 25);
+            cellTo.elements.figure.figureImage.setAttribute('x', cellTo.center.x - 25);
+            cellTo.elements.figure.figureImage.setAttribute('y', cellTo.center.y - 25);
 
             console.log('Moved successfully');
         }
@@ -237,6 +247,56 @@
                 points.push({ ...first });
             }
             return true;
+        }
+
+        function clearHighlightedCells() {
+            document.querySelectorAll('path').forEach(path => {
+                path.classList.remove('cell-highlighted');
+            });
+        }
+
+        function highlightDiagonalMoves(cellId) {
+            // Получаем массив диагоналей из глобального состояния
+            const diagonals = movedElements.diagonals; // предполагается, что это массив массивов строк
+            clearHighlightedCells();
+
+            // Фильтруем только те диагонали, в которых присутствует текущая ячейка
+            const relevantDiagonals = diagonals.filter(diagonal => diagonal.includes(cellId));
+
+            console.log("relevantDiagonals:", relevantDiagonals);
+
+            relevantDiagonals.forEach(diagonal => {
+                const currentIndex = diagonal.indexOf(cellId);
+
+                // Проходим в сторону начала диагонали
+                for (let i = currentIndex - 1; i >= 0; i--) {
+                    const targetCellId = diagonal[i];
+                    const cell = boardElementsState.cells[targetCellId];
+                    if (!cell) break;
+                    // Если в ячейке есть фигура, выделяем её (как потенциальное взятие) и прекращаем поиск в этом направлении
+                    if (cell.elements.figure) {
+                        cell.elements.path.classList.add('cell-highlighted');
+                        console.log(`added light ${targetCellId}`);
+                        break;
+                    } else {
+                        cell.elements.path.classList.add('cell-highlighted');
+                        console.log(`added light ${targetCellId}`);
+                    }
+                }
+
+                // Проходим в сторону конца диагонали
+                for (let i = currentIndex + 1; i < diagonal.length; i++) {
+                    const targetCellId = diagonal[i];
+                    const cell = boardElementsState.cells[targetCellId];
+                    if (!cell) break;
+                    if (cell.elements.figure) {
+                        cell.elements.path.classList.add('cell-highlighted');
+                        break;
+                    } else {
+                        cell.elements.path.classList.add('cell-highlighted');
+                    }
+                }
+            });
         }
 
         window.addEventListener('DOMContentLoaded', loadCells);

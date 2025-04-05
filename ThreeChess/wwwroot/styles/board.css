@@ -40,3 +40,9 @@
     pointer-events: none;
     user-select: none;
 }
+
+
+.cell-highlighted {
+    fill: #a9d18e;
+    cursor: pointer;
+}

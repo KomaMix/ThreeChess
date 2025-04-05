@@ -20,6 +20,8 @@ namespace ThreeChess.Services
 
             diagonals.AddRange(GetLeftUpDiagonals());
 
+            diagonals.AddRange(GetMainDiagonals());
+
             return diagonals;
         }
 
@@ -227,6 +229,44 @@ namespace ThreeChess.Services
             diagonals.Add(new List<string>
             {
                 "A7", "B6", "C5", "D4", "E3", "F2", "G1"
+            });
+
+            return diagonals;
+        }
+
+        private List<List<string>> GetMainDiagonals()
+        {
+            var diagonals = new List<List<string>>();
+
+            diagonals.Add(new List<string>
+            {
+                "H1", "G2", "F3", "E4", "D5", "C6", "B7", "A8"
+            });
+
+            diagonals.Add(new List<string>
+            {
+                "H1", "G2", "F3", "E4", "I9", "J10", "K11", "L12"
+            });
+
+            diagonals.Add(new List<string>
+            {
+                "A8", "B7", "C6", "D5", "I9", "J10", "K11", "L12"
+            });
+
+
+            diagonals.Add(new List<string>
+            {
+                "A1", "B2", "C3", "D4", "E9", "F10", "G11", "H12"
+            });
+
+            diagonals.Add(new List<string>
+            {
+                "A1", "B2", "C3", "D4", "I5", "J6", "K7", "L8"
+            });
+
+            diagonals.Add(new List<string>
+            {
+                "H12", "G11", "F10", "E9", "I5", "J6", "K7", "L8"
             });
 
             return diagonals;

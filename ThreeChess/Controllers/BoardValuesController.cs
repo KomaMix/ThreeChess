@@ -35,6 +35,8 @@ namespace ThreeChess.Controllers
         {
             var figures = _boardCreateService.CreateFigures();
 
+            //figures = new Dictionary<string, FigureInfo>();
+
             return Ok(figures);
         }
 
