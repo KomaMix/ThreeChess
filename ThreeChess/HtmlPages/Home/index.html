@@ -15,7 +15,7 @@
     </svg>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/6.0.1/signalr.js"></script>
-    <script src="/scripts/moveHandler.js?v=1.0"></script>
+    <script src="/scripts/moveHandler.js?v=1.1"></script>
     <script src="/scripts/loadCells.js?v=1.0"></script>
     <script src="/scripts/validatePolygon.js?v=1.0"></script>
     <script>
@@ -87,8 +87,10 @@
                     try {
                         console.log('Clicked cell:', cell.id, 'Last clicked:', last_click_id);
 
+                        const cellTo = boardElementsState.cells[cell.id];
+
                         // Если это первый клик
-                        if (last_click_id === undefined) {
+                        if (last_click_id === undefined || cellTo.elements.figure) {
                             // Если в ячейке есть фигура
                             if (boardElementsState.cells[cell.id].elements.figure) {
                                 clearHighlightedCells();
@@ -113,6 +115,11 @@
                                     || piece.figureInfo.figureType === 'King') {
                                     highlightSecondaryLinesMoves(cell.id, piece.figureInfo.figureType);
                                 }
+
+                                if (piece.figureInfo.figureType === 'Knight') {
+                                    highlightKnightMoves(cell.id);
+                                }
+
                                 last_click_id = cell.id;
                             }
                         }
@@ -122,14 +129,6 @@
                                 const cellTo = boardElementsState.cells[cell.id];
 
                                 clearHighlightedCells();
-
-                                if (cellTo.elements.figure) {
-                                    last_click_id = cell.id;
-
-                                    console.log(`new last id ${last_click_id}`);
-
-                                    return;
-                                }
 
                                 moveFigure(last_click_id, cell.id);
                                 last_click_id = undefined;
@@ -246,9 +245,6 @@
             }
             return `${path} Z`;
         }
-
-        
-
 
 
         window.addEventListener('DOMContentLoaded', loadCells);
