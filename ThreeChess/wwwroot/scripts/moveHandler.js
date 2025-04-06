@@ -256,6 +256,152 @@ function highlightKnightMoves(cellId) {
     });
 }
 
+function highlightPawnMoves(cellId) {
+    const cellState = boardElementsState.cells[cellId];
+    if (!cellState || !cellState.elements || !cellState.elements.figure) {
+        console.error("Нет фигуры в клетке " + cellId);
+        return;
+    }
+    const pawn = cellState.elements.figure;
+    // По умолчанию, если не задано, считается, что пешка не прошла половину доски
+    if (typeof pawn.hasPassedHalfBoard === 'undefined') {
+        pawn.hasPassedHalfBoard = false;
+    }
+
+
+    // Шаг 1: Находим основную линию, где находится пешка
+    let pawnMainLine = null;
+    let mainLineIndex = -1;
+    for (let line of movedElements.mainLines) {
+        const idx = line.indexOf(cellId);
+        if (idx !== -1) {
+            pawnMainLine = line;
+            mainLineIndex = idx;
+            break;
+        }
+    }
+    if (!pawnMainLine) {
+        console.error("Основная линия для пешки не найдена.");
+        return;
+    }
+
+    // Определяем, в каком направлении должна идти пешка
+    // Если пешка не прошла половину доски (hasPassedHalfBoard == false), то
+    // ожидается, что ход вперед — к увеличению индекса, иначе — к уменьшению.
+    if (!pawn.hasPassedHalfBoard) {
+        // Если пешка находится ближе к концу массива (то есть её индекс больше половины длины),
+        // переворачиваем массив, чтобы ход вперед был к увеличению индекса.
+        if (mainLineIndex > 3) {
+            pawnMainLine = pawnMainLine.slice().reverse();
+            mainLineIndex = pawnMainLine.indexOf(cellId);
+        }
+    } else {
+        // Если пешка уже прошла половину доски, ожидается ход в обратном направлении.
+        // Если её индекс меньше половины длины массива, переворачиваем, чтобы
+        // ход вперед был к увеличению индекса.
+        if (mainLineIndex < 4) {
+            pawnMainLine = pawnMainLine.slice().reverse();
+            mainLineIndex = pawnMainLine.indexOf(cellId);
+        }
+    }
+
+    // Шаг 2: Находим побочную линию, где стоит пешка
+    let pawnSecondaryLine = null;
+    let secondaryLineIndex = -1;
+    for (let line of movedElements.secondaryLines) {
+        const idx = line.indexOf(cellId);
+        if (idx !== -1) {
+            pawnSecondaryLine = line;
+            secondaryLineIndex = idx;
+            break;
+        }
+    }
+    if (!pawnSecondaryLine) {
+        console.error("Побочная линия для пешки не найдена.");
+        return;
+    }
+
+    // Шаг 3: Находим соседние клетки на побочной линии (они будут базой для диагональных ходов)
+    const neighborSecondaryCells = [];
+    if (secondaryLineIndex - 1 >= 0) neighborSecondaryCells.push(pawnSecondaryLine[secondaryLineIndex - 1]);
+    if (secondaryLineIndex + 1 < pawnSecondaryLine.length) neighborSecondaryCells.push(pawnSecondaryLine[secondaryLineIndex + 1]);
+
+    // Шаг 4: Для каждой соседней клетки ищем соответствующую основную линию и приводим её к нужной ориентации
+    let neighborMainLines = [];
+    neighborSecondaryCells.forEach(neighborCellId => {
+        movedElements.mainLines.forEach(line => {
+            if (line.indexOf(neighborCellId) !== -1) {
+                let candidateLine = line;
+                let idx = candidateLine.indexOf(neighborCellId);
+                // Если индекс в найденной линии не совпадает с индексом пешки (mainLineIndex),
+                // переворачиваем линию, чтобы "лицевой" стороной совпал порядок
+                if (idx !== mainLineIndex) {
+                    candidateLine = candidateLine.slice().reverse();
+                    idx = candidateLine.indexOf(neighborCellId);
+                }
+                neighborMainLines.push({ line: candidateLine, cellId: neighborCellId, index: idx });
+            }
+        });
+    });
+
+    // Шаг 5: Определяем возможный ход вперед по основной линии.
+    // Вычисляем индекс целевой клетки по основной линии.
+    let possibleForwardCell = null;
+    const targetIndex = mainLineIndex + 1;
+    if (targetIndex >= 0 && targetIndex < pawnMainLine.length) {
+        possibleForwardCell = pawnMainLine[targetIndex];
+    }
+
+    // Определяем диагональные ходы (для взятия):
+    // Для каждой соседней основной линии (neighborMainLines) ищем клетку, находящуюся на шаг вперед.
+    const captureMoves = [];
+    neighborMainLines.forEach(item => {
+        const line = item.line;
+        // Определяем индекс соседней клетки в этой линии
+        const idx = line.indexOf(item.cellId);
+        // Целевая клетка для взятия – сдвиг на forwardDirection относительно соседней клетки
+        const targetNeighborIndex = idx + 1;
+        if (targetNeighborIndex >= 0 && targetNeighborIndex < line.length) {
+            captureMoves.push(line[targetNeighborIndex]);
+        }
+    });
+
+    const centralCells = ['E4', 'D4', 'D5', 'I5', 'I9', 'E9'];
+    if (!pawn.hasPassedHalfBoard && centralCells.includes(cellId)) {
+        const centralIndex = centralCells.indexOf(cellId);
+        const extraIndex1 = (centralIndex + 2) % centralCells.length;
+        const extraIndex2 = (centralIndex - 2 + centralCells.length) % centralCells.length;
+        const extraCells = [centralCells[extraIndex1], centralCells[extraIndex2]];
+        extraCells.forEach(extraCell => {
+            if (!captureMoves.includes(extraCell)) {
+                captureMoves.push(extraCell);
+            }
+        });
+    }
+
+    // Шаг 6: Подсвечиваем найденные ходы
+
+    // Подсветка прямого хода – если клетка пуста
+    if (possibleForwardCell) {
+        const forwardCellState = boardElementsState.cells[possibleForwardCell];
+        if (forwardCellState && !forwardCellState.elements.figure) {
+            forwardCellState.elements.path.classList.add('cell-highlighted');
+            console.log("Пешка может пойти вперед в " + possibleForwardCell);
+        }
+    }
+
+    // Подсветка диагональных ходов (взятие):
+    // Подсвечиваем, если в клетке имеется фигура (здесь можно добавить проверку на противника)
+    captureMoves.forEach(targetCellId => {
+        const targetCellState = boardElementsState.cells[targetCellId];
+        if (targetCellState && targetCellState.elements.figure) {
+            targetCellState.elements.path.classList.add('cell-highlighted');
+            console.log("Пешка может взять в " + targetCellId);
+        }
+    });
+}
+
+
 
 function clearHighlightedCells() {
     document.querySelectorAll('path').forEach(path => {

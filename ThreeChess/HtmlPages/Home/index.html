@@ -15,7 +15,7 @@
     </svg>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/6.0.1/signalr.js"></script>
-    <script src="/scripts/moveHandler.js?v=1.1"></script>
+    <script src="/scripts/moveHandler.js?v=1.9"></script>
     <script src="/scripts/loadCells.js?v=1.0"></script>
     <script src="/scripts/validatePolygon.js?v=1.0"></script>
     <script>
@@ -120,6 +120,10 @@
                                     highlightKnightMoves(cell.id);
                                 }
 
+                                if (piece.figureInfo.figureType === 'Pawn') {
+                                    highlightPawnMoves(cell.id);
+                                }
+
                                 last_click_id = cell.id;
                             }
                         }
@@ -204,9 +208,6 @@
             const cellFrom = boardElementsState.cells[startId];
             const cellTo = boardElementsState.cells[endId];
 
-
-
-
             if (!cellFrom || !cellTo) {
                 console.error('Cells not found');
                 return;
@@ -218,14 +219,34 @@
                 return;
             }
 
-            // Переносим фигуру
+            const figure = cellFrom.elements.figure;
+
+            // Если фигура является пешкой, проверяем, прошла ли она половину доски.
+            // Для этого ищем главную линию, в которой находится ячейка и смотрим индексы.
+            if (figure.figureInfo.figureType === 'Pawn') {
+                for (let line of movedElements.mainLines) {
+                    const startIndex = line.indexOf(startId);
+                    const endIndex = line.indexOf(endId);
+                    // Если обе ячейки принадлежат одной и той же главной линии
+                    if (startIndex !== -1 && endIndex !== -1) {
+                        // Если пешка переходила между индексами 3 и 4 (в любом направлении)
+                        if ((startIndex === 3 && endIndex === 4) || (startIndex === 4 && endIndex === 3)) {
+                            figure.hasPassedHalfBoard = true;
+                            console.log('Pawn has passed half board.');
+                        }
+                        break;
+                    }
+                }
+            }
+
+            // Переносим фигуру, если целевая клетка пуста
             if (cellTo.elements.figure) {
                 console.log('Target cell occupied');
                 return;
             }
 
-            // Обновляем DOM
-            cellTo.elements.figure = cellFrom.elements.figure;
+            // Обновляем DOM: перемещаем фигуру из одной ячейки в другую
+            cellTo.elements.figure = figure;
             cellFrom.elements.figure = null;
 
             cellFrom.elements.label.style.visibility = 'visible';
