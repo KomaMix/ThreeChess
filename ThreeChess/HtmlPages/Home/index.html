@@ -15,7 +15,13 @@
     </svg>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/6.0.1/signalr.js"></script>
+    <script src="/scripts/moveHandler.js?v=1.0"></script>
+    <script src="/scripts/loadCells.js?v=1.0"></script>
+    <script src="/scripts/validatePolygon.js?v=1.0"></script>
     <script>
+        const VIEWBOX_SIZE = 800;
+        const CENTER_OFFSET = 400;
+
         const boardElementsState = {
             cells: {}
         };
@@ -45,45 +51,6 @@
             }
         });
 
-
-        const VIEWBOX_SIZE = 800;
-        const CENTER_OFFSET = 400;
-
-        async function loadCells() {
-            try {
-                const [cellsResponse,
-                    figuresResponse,
-                    diagonalsResponse,
-                    mainLinesResponse,
-                    secondaryLinesResponse] = await Promise.all([
-                    fetch('/api/cells-location'),
-                    fetch('/api/figures-location'),
-                    fetch('/api/diagonals'),
-                    fetch('/api/main-lines'),
-                    fetch('/api/secondary-lines')
-                ]);
-
-                const cells = await cellsResponse.json();
-                const figuresMap = await figuresResponse.json();
-                const diagonals = await diagonalsResponse.json();
-                const mainLines = await mainLinesResponse.json();
-                const secondaryLines = await secondaryLinesResponse.json();
-
-                console.log("Клетки:", cells);
-                console.log("Фигуры:", figuresMap);
-                console.log("Диагонали:", diagonals);
-                console.log("Главные линии:", mainLines);
-
-                movedElements.diagonals = diagonals;
-                movedElements.mainLines = mainLines;
-                movedElements.secondaryLines = secondaryLines;
-                
-
-                renderBoard(cells, figuresMap);
-            } catch (error) {
-                console.error('Error:', error);
-            }
-        }
 
         function renderBoard(cells, figuresMap) {
             const cellsLayer = document.getElementById('cells-layer');
@@ -152,7 +119,18 @@
                         // Если это второй клик
                         else {
                             if (last_click_id !== cell.id) {
+                                const cellTo = boardElementsState.cells[cell.id];
+
                                 clearHighlightedCells();
+
+                                if (cellTo.elements.figure) {
+                                    last_click_id = cell.id;
+
+                                    console.log(`new last id ${last_click_id}`);
+
+                                    return;
+                                }
+
                                 moveFigure(last_click_id, cell.id);
                                 last_click_id = undefined;
                             }
@@ -180,10 +158,10 @@
                     figureImage.setAttribute('height', '50');
                     figureImage.classList.add('cell-figure');
                 }
-                
-                
 
-                let labelText; 
+
+
+                let labelText;
                 labelText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
                 labelText.setAttribute('x', centroid.x);
                 labelText.setAttribute('y', centroid.y);
@@ -193,7 +171,7 @@
                 if (figureInfo) {
                     labelText.style.visibility = 'hidden';
                 }
-                
+
 
                 boardElementsState.cells[cell.id] = {
                     id: cell.id,
@@ -213,7 +191,7 @@
                 if (figureInfo) {
                     figuresLayer.appendChild(figureImage);
                 }
-                
+
                 labelsLayer.appendChild(labelText);
 
             });
@@ -227,7 +205,7 @@
             const cellFrom = boardElementsState.cells[startId];
             const cellTo = boardElementsState.cells[endId];
 
-            
+
 
 
             if (!cellFrom || !cellTo) {
@@ -269,199 +247,14 @@
             return `${path} Z`;
         }
 
-        function validatePolygon(points) {
-            if (points.length < 3) return false;
-            const first = points[0];
-            const last = points[points.length - 1];
-            if (first.x !== last.x || first.y !== last.y) {
-                points.push({ ...first });
-            }
-            return true;
-        }
-
-        function clearHighlightedCells() {
-            document.querySelectorAll('path').forEach(path => {
-                path.classList.remove('cell-highlighted');
-            });
-        }
-
-        function highlightDiagonalMoves(cellId, figureType) {
-            isKing = false;
-
-            if (figureType === 'King') {
-                isKing = true;
-            }
-
-            // Получаем массив диагоналей из глобального состояния
-            const diagonals = movedElements.diagonals; // предполагается, что это массив массивов строк
-
-            // Фильтруем только те диагонали, в которых присутствует текущая ячейка
-            const relevantDiagonals = diagonals.filter(diagonal => diagonal.includes(cellId));
-
-            console.log("relevantDiagonals:", relevantDiagonals);
-
-            relevantDiagonals.forEach(diagonal => {
-                const currentIndex = diagonal.indexOf(cellId);
-
-                // Проходим в сторону начала диагонали
-                for (let i = currentIndex - 1; i >= 0; i--) {
-                    const targetCellId = diagonal[i];
-                    const cell = boardElementsState.cells[targetCellId];
-                    if (!cell) break;
-                    // Если в ячейке есть фигура, выделяем её (как потенциальное взятие) и прекращаем поиск в этом направлении
-                    if (cell.elements.figure) {
-                        cell.elements.path.classList.add('cell-highlighted');
-                        console.log(`added light ${targetCellId}`);
-                        break;
-                    } else {
-                        cell.elements.path.classList.add('cell-highlighted');
-                        console.log(`added light ${targetCellId}`);
-                    }
-
-                    if (isKing) {
-                        break;
-                    }
-                }
-
-                // Проходим в сторону конца диагонали
-                for (let i = currentIndex + 1; i < diagonal.length; i++) {
-                    const targetCellId = diagonal[i];
-                    const cell = boardElementsState.cells[targetCellId];
-                    if (!cell) break;
-                    if (cell.elements.figure) {
-                        cell.elements.path.classList.add('cell-highlighted');
-                        break;
-                    } else {
-                        cell.elements.path.classList.add('cell-highlighted');
-                    }
-
-                    if (isKing) {
-                        break;
-                    }
-                }
-            });
-        }
-
-        function highlightMainLinesMoves(cellId, figureType) {
-            isKing = false;
-
-            if (figureType === 'King') {
-                isKing = true;
-            }
-
-            // Получаем массив диагоналей из глобального состояния
-            const mainLines = movedElements.mainLines; // предполагается, что это массив массивов строк
-
-            // Фильтруем только те диагонали, в которых присутствует текущая ячейка
-            const relevantLines = mainLines.filter(line => line.includes(cellId));
-
-            console.log("relevantLines:", relevantLines);
-
-            relevantLines.forEach(line => {
-                const currentIndex = line.indexOf(cellId);
-
-                // Проходим в сторону начала диагонали
-                for (let i = currentIndex - 1; i >= 0; i--) {
-                    const targetCellId = line[i];
-                    const cell = boardElementsState.cells[targetCellId];
-                    if (!cell) break;
-                    // Если в ячейке есть фигура, выделяем её (как потенциальное взятие) и прекращаем поиск в этом направлении
-                    if (cell.elements.figure) {
-                        cell.elements.path.classList.add('cell-highlighted');
-                        console.log(`added light ${targetCellId}`);
-                        break;
-                    } else {
-                        cell.elements.path.classList.add('cell-highlighted');
-                        console.log(`added light ${targetCellId}`);
-                    }
-
-                    if (isKing) {
-                        break;
-                    }
-                }
-
-                // Проходим в сторону конца диагонали
-                for (let i = currentIndex + 1; i < line.length; i++) {
-                    const targetCellId = line[i];
-                    const cell = boardElementsState.cells[targetCellId];
-                    if (!cell) break;
-                    if (cell.elements.figure) {
-                        cell.elements.path.classList.add('cell-highlighted');
-                        break;
-                    } else {
-                        cell.elements.path.classList.add('cell-highlighted');
-                    }
-
-                    if (isKing) { 
-                        break;
-                    }
-                }
-            });
-        }
-
-        function highlightSecondaryLinesMoves(cellId, figureType) {
-            isKing = false;
-
-            if (figureType === 'King') {
-                isKing = true;
-            }
-
-            // Получаем массив диагоналей из глобального состояния
-            const secondaryLines = movedElements.secondaryLines; // предполагается, что это массив массивов строк
-
-            // Фильтруем только те диагонали, в которых присутствует текущая ячейка
-            const relevantLines = secondaryLines.filter(line => line.includes(cellId));
-
-            console.log("relevantLines:", relevantLines);
-
-            relevantLines.forEach(line => {
-                const currentIndex = line.indexOf(cellId);
-
-                // Проходим в сторону начала диагонали
-                for (let i = currentIndex - 1; i >= 0; i--) {
-                    const targetCellId = line[i];
-                    const cell = boardElementsState.cells[targetCellId];
-                    if (!cell) break;
-                    // Если в ячейке есть фигура, выделяем её (как потенциальное взятие) и прекращаем поиск в этом направлении
-                    if (cell.elements.figure) {
-                        cell.elements.path.classList.add('cell-highlighted');
-                        console.log(`added light ${targetCellId}`);
-                        break;
-                    } else {
-                        cell.elements.path.classList.add('cell-highlighted');
-                        console.log(`added light ${targetCellId}`);
-                    }
-
-                    if (isKing) {
-                        break;
-                    }
-                }
-
-                // Проходим в сторону конца диагонали
-                for (let i = currentIndex + 1; i < line.length; i++) {
-                    const targetCellId = line[i];
-                    const cell = boardElementsState.cells[targetCellId];
-                    if (!cell) break;
-                    if (cell.elements.figure) {
-                        cell.elements.path.classList.add('cell-highlighted');
-                        break;
-                    } else {
-                        cell.elements.path.classList.add('cell-highlighted');
-                    }
-
-                    if (isKing) {
-                        break;
-                    }
-                }
-            });
-        }
-
         
+
+
 
         window.addEventListener('DOMContentLoaded', loadCells);
         hubConnection.start()
             .then(function () {
-                
+
             })
             .catch(function (err) {
                 return console.error(err.toString());
