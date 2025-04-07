@@ -1,40 +1,31 @@
 ﻿async function loadCells() {
     try {
-        const [cellsResponse,
-            figuresResponse,
-            diagonalsResponse,
-            mainLinesResponse,
-            secondaryLinesResponse,
-            gameConfigResponse] = await Promise.all([
-                fetch('/api/cells-location'),
-                fetch('/api/figures-location'),
-                fetch('/api/diagonals'),
-                fetch('/api/main-lines'),
-                fetch('/api/secondary-lines'),
+        const [gameConfigResponse] = await Promise.all([
                 fetch('/api/game-config')
             ]);
 
-        const cells = await cellsResponse.json();
-        const figuresMap = await figuresResponse.json();
-        const diagonals = await diagonalsResponse.json();
-        const mainLines = await mainLinesResponse.json();
-        const secondaryLines = await secondaryLinesResponse.json();
+        //const cells = await cellsResponse.json();
+        //const figuresMap = await figuresResponse.json();
+        //const diagonals = await diagonalsResponse.json();
+        //const mainLines = await mainLinesResponse.json();
+        //const secondaryLines = await secondaryLinesResponse.json();
         const gameConf = await gameConfigResponse.json();
 
-        console.log("Клетки:", cells);
-        console.log("Фигуры:", figuresMap);
-        console.log("Диагонали:", diagonals);
-        console.log("Главные линии:", mainLines);
+        console.log("Клетки:", gameConf.cellsLocation);
+        console.log("Фигуры:", gameConf.figuresLocation);
+        console.log("Диагонали:", gameConf.diagonals);
+        console.log("Главные линии:", gameConf.mainLines);
+        console.log("Побочные линии:", gameConf.secondaryLines);
 
-        movedElements.diagonals = diagonals;
-        movedElements.mainLines = mainLines;
-        movedElements.secondaryLines = secondaryLines;
+        movedElements.diagonals = gameConf.diagonals;
+        movedElements.mainLines = gameConf.mainLines;
+        movedElements.secondaryLines = gameConf.secondaryLines;
 
         gameConfig.color = gameConf.color;
 
 
 
-        renderBoard(cells, figuresMap);
+        renderBoard(gameConf.cellsLocation, gameConf.figuresLocation);
     } catch (error) {
         console.error('Error:', error);
     }
