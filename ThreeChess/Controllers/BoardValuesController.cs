@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
+using ThreeChess.Enums;
 using ThreeChess.Models;
 using ThreeChess.Services;
 
@@ -65,6 +66,18 @@ namespace ThreeChess.Controllers
             List<List<string>> lines = _moveElementsService.GetSecondaryLines();
 
             return Ok(lines);
+        }
+
+        [HttpGet("game-config")]
+        public IActionResult GetGameConfig()
+        {
+            // diag = { "A1", "A2" }
+            GameConfig gameConfig = new GameConfig
+            {
+                Color = FigureColor.Black
+            };
+
+            return Ok(gameConfig);
         }
     }
 }

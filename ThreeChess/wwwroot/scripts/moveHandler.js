@@ -13,44 +13,42 @@
 
     console.log("relevantDiagonals:", relevantDiagonals);
 
+    function processCell(targetCellId) {
+        const cell = boardElementsState.cells[targetCellId];
+        if (!cell) return true; // если клетка не найдена, прекращаем обход
+        if (cell.elements.figure) {
+            // Если клетка занята – проверяем цвет фигуры
+            if (cell.elements.figure.figureInfo.figureColor !== gameConfig.color) {
+                cell.elements.path.classList.add('cell-capture-highlight');
+                console.log(`Подсвечена клетка (атака) ${targetCellId}`);
+            }
+            return true; // в любом случае прекращаем обход в этом направлении
+        } else {
+            // Если клетка пуста – обычная подсветка
+            cell.elements.path.classList.add('cell-highlighted');
+            console.log(`Подсвечена клетка ${targetCellId}`);
+            return false; // продолжаем обход
+        }
+    }
+
+    // Обходим каждую релевантную диагональ
     relevantDiagonals.forEach(diagonal => {
         const currentIndex = diagonal.indexOf(cellId);
 
-        // Проходим в сторону начала диагонали
+        // Обход в сторону начала диагонали (уменьшение индекса)
         for (let i = currentIndex - 1; i >= 0; i--) {
             const targetCellId = diagonal[i];
-            const cell = boardElementsState.cells[targetCellId];
-            if (!cell) break;
-            // Если в ячейке есть фигура, выделяем её (как потенциальное взятие) и прекращаем поиск в этом направлении
-            if (cell.elements.figure) {
-                cell.elements.path.classList.add('cell-highlighted');
-                console.log(`added light ${targetCellId}`);
-                break;
-            } else {
-                cell.elements.path.classList.add('cell-highlighted');
-                console.log(`added light ${targetCellId}`);
-            }
-
-            if (isKing) {
-                break;
-            }
+            const shouldBreak = processCell(targetCellId);
+            if (shouldBreak) break;
+            if (isKing) break;
         }
 
-        // Проходим в сторону конца диагонали
+        // Обход в сторону конца диагонали (увеличение индекса)
         for (let i = currentIndex + 1; i < diagonal.length; i++) {
             const targetCellId = diagonal[i];
-            const cell = boardElementsState.cells[targetCellId];
-            if (!cell) break;
-            if (cell.elements.figure) {
-                cell.elements.path.classList.add('cell-highlighted');
-                break;
-            } else {
-                cell.elements.path.classList.add('cell-highlighted');
-            }
-
-            if (isKing) {
-                break;
-            }
+            const shouldBreak = processCell(targetCellId);
+            if (shouldBreak) break;
+            if (isKing) break;
         }
     });
 }
@@ -70,44 +68,40 @@ function highlightMainLinesMoves(cellId, figureType) {
 
     console.log("relevantLines:", relevantLines);
 
+    function processCell(targetCellId) {
+        const cell = boardElementsState.cells[targetCellId];
+        if (!cell) return true;
+        if (cell.elements.figure) {
+            if (cell.elements.figure.figureInfo.figureColor !== gameConfig.color) {
+                cell.elements.path.classList.add('cell-capture-highlight');
+                console.log(`Подсвечена клетка (атака) ${targetCellId}`);
+            }
+            return true;
+        } else {
+            cell.elements.path.classList.add('cell-highlighted');
+            console.log(`Подсвечена клетка ${targetCellId}`);
+            return false;
+        }
+    }
+
+    // Обход каждой найденной линии, где присутствует cellId
     relevantLines.forEach(line => {
         const currentIndex = line.indexOf(cellId);
 
-        // Проходим в сторону начала диагонали
+        // Проходим в сторону начала линии (уменьшение индекса)
         for (let i = currentIndex - 1; i >= 0; i--) {
             const targetCellId = line[i];
-            const cell = boardElementsState.cells[targetCellId];
-            if (!cell) break;
-            // Если в ячейке есть фигура, выделяем её (как потенциальное взятие) и прекращаем поиск в этом направлении
-            if (cell.elements.figure) {
-                cell.elements.path.classList.add('cell-highlighted');
-                console.log(`added light ${targetCellId}`);
-                break;
-            } else {
-                cell.elements.path.classList.add('cell-highlighted');
-                console.log(`added light ${targetCellId}`);
-            }
-
-            if (isKing) {
-                break;
-            }
+            const shouldBreak = processCell(targetCellId);
+            if (shouldBreak) break;
+            if (isKing) break;
         }
 
-        // Проходим в сторону конца диагонали
+        // Проходим в сторону конца линии (увеличение индекса)
         for (let i = currentIndex + 1; i < line.length; i++) {
             const targetCellId = line[i];
-            const cell = boardElementsState.cells[targetCellId];
-            if (!cell) break;
-            if (cell.elements.figure) {
-                cell.elements.path.classList.add('cell-highlighted');
-                break;
-            } else {
-                cell.elements.path.classList.add('cell-highlighted');
-            }
-
-            if (isKing) {
-                break;
-            }
+            const shouldBreak = processCell(targetCellId);
+            if (shouldBreak) break;
+            if (isKing) break;
         }
     });
 }
@@ -127,44 +121,40 @@ function highlightSecondaryLinesMoves(cellId, figureType) {
 
     console.log("relevantLines:", relevantLines);
 
+    function processCell(targetCellId) {
+        const cell = boardElementsState.cells[targetCellId];
+        if (!cell) return true; // если клетка не найдена, прерываем поиск
+        if (cell.elements.figure) {
+            if (cell.elements.figure.figureInfo.figureColor !== gameConfig.color) {
+                cell.elements.path.classList.add('cell-capture-highlight');
+                console.log(`Подсвечена клетка (атака) ${targetCellId}`);
+            }
+            return true; // встретили фигуру – прекращаем поиск в этом направлении
+        } else {
+            cell.elements.path.classList.add('cell-highlighted');
+            console.log(`Подсвечена клетка ${targetCellId}`);
+            return false;
+        }
+    }
+
+    // Для каждой релевантной линии запускаем поиск в обе стороны
     relevantLines.forEach(line => {
         const currentIndex = line.indexOf(cellId);
 
-        // Проходим в сторону начала диагонали
+        // Проходим в сторону начала линии (уменьшение индекса)
         for (let i = currentIndex - 1; i >= 0; i--) {
             const targetCellId = line[i];
-            const cell = boardElementsState.cells[targetCellId];
-            if (!cell) break;
-            // Если в ячейке есть фигура, выделяем её (как потенциальное взятие) и прекращаем поиск в этом направлении
-            if (cell.elements.figure) {
-                cell.elements.path.classList.add('cell-highlighted');
-                console.log(`added light ${targetCellId}`);
-                break;
-            } else {
-                cell.elements.path.classList.add('cell-highlighted');
-                console.log(`added light ${targetCellId}`);
-            }
-
-            if (isKing) {
-                break;
-            }
+            const shouldBreak = processCell(targetCellId);
+            if (shouldBreak) break;
+            if (isKing) break;
         }
 
-        // Проходим в сторону конца диагонали
+        // Проходим в сторону конца линии (увеличение индекса)
         for (let i = currentIndex + 1; i < line.length; i++) {
             const targetCellId = line[i];
-            const cell = boardElementsState.cells[targetCellId];
-            if (!cell) break;
-            if (cell.elements.figure) {
-                cell.elements.path.classList.add('cell-highlighted');
-                break;
-            } else {
-                cell.elements.path.classList.add('cell-highlighted');
-            }
-
-            if (isKing) {
-                break;
-            }
+            const shouldBreak = processCell(targetCellId);
+            if (shouldBreak) break;
+            if (isKing) break;
         }
     });
 }
@@ -180,9 +170,18 @@ function highlightKnightMoves(cellId) {
     // Функция-помощник: подсвечивает ячейку, если она существует на доске.
     function highlightCell(targetCellId, note = '') {
         const cell = boardElementsState.cells[targetCellId];
-        if (cell) {
+        if (!cell) return;
+        if (cell.elements.figure) {
+            // Если в клетке есть фигура, проверяем её цвет
+            if (cell.elements.figure.figureInfo.figureColor !== gameConfig.color) {
+                // Если фигура чужая, подсвечиваем как возможность атаки
+                cell.elements.path.classList.add('cell-capture-highlight');
+                console.log(`Подсвечена клетка (атака) ${targetCellId} ${note}`);
+            }
+        } else {
+            // Если клетка пуста – обычная подсветка
             cell.elements.path.classList.add('cell-highlighted');
-            console.log(`Подсвечена ячейка ${targetCellId} ${note}`);
+            console.log(`Подсвечена клетка ${targetCellId} ${note}`);
         }
     }
 
@@ -262,6 +261,12 @@ function highlightPawnMoves(cellId) {
         console.error("Нет фигуры в клетке " + cellId);
         return;
     }
+
+    if (cellState.elements.figure.figureInfo.figureColor !== gameConfig.color) {
+        console.log("Нельзя ходить чужими фигурами");
+        return;
+    }
+
     const pawn = cellState.elements.figure;
     // По умолчанию, если не задано, считается, что пешка не прошла половину доски
     if (typeof pawn.hasPassedHalfBoard === 'undefined') {
@@ -395,7 +400,7 @@ function highlightPawnMoves(cellId) {
     captureMoves.forEach(targetCellId => {
         const targetCellState = boardElementsState.cells[targetCellId];
         if (targetCellState && targetCellState.elements.figure) {
-            targetCellState.elements.path.classList.add('cell-highlighted');
+            targetCellState.elements.path.classList.add('cell-capture-highlight');
             console.log("Пешка может взять в " + targetCellId);
         }
     });
@@ -406,5 +411,6 @@ function highlightPawnMoves(cellId) {
 function clearHighlightedCells() {
     document.querySelectorAll('path').forEach(path => {
         path.classList.remove('cell-highlighted');
+        path.classList.remove('cell-capture-highlight');
     });
 }
