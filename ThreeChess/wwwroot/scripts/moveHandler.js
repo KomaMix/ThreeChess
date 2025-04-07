@@ -1,4 +1,10 @@
 ﻿function highlightDiagonalMoves(cellId, figureType) {
+    const cellState = boardElementsState.cells[cellId];
+    if (cellState.elements.figure.figureInfo.figureColor !== gameConfig.color) {
+        console.log("Нельзя ходить чужими фигурами");
+        return;
+    }
+
     isKing = false;
 
     if (figureType === 'King') {
@@ -54,6 +60,12 @@
 }
 
 function highlightMainLinesMoves(cellId, figureType) {
+    const cellState = boardElementsState.cells[cellId];
+    if (cellState.elements.figure.figureInfo.figureColor !== gameConfig.color) {
+        console.log("Нельзя ходить чужими фигурами");
+        return;
+    }
+
     isKing = false;
 
     if (figureType === 'King') {
@@ -107,6 +119,12 @@ function highlightMainLinesMoves(cellId, figureType) {
 }
 
 function highlightSecondaryLinesMoves(cellId, figureType) {
+    const cellState = boardElementsState.cells[cellId];
+    if (cellState.elements.figure.figureInfo.figureColor !== gameConfig.color) {
+        console.log("Нельзя ходить чужими фигурами");
+        return;
+    }
+
     isKing = false;
 
     if (figureType === 'King') {
@@ -160,8 +178,12 @@ function highlightSecondaryLinesMoves(cellId, figureType) {
 }
 
 function highlightKnightMoves(cellId) {
-    // Массив комбинаций: сначала primary = mainLines, secondary = secondaryLines,
-    // затем наоборот: primary = secondaryLines, secondary = mainLines.
+    const cellState = boardElementsState.cells[cellId];
+    if (cellState.elements.figure.figureInfo.figureColor !== gameConfig.color) {
+        console.log("Нельзя ходить чужими фигурами");
+        return;
+    }
+
     const lineCombos = [
         { primary: movedElements.mainLines, secondary: movedElements.secondaryLines },
         { primary: movedElements.secondaryLines, secondary: movedElements.mainLines }
