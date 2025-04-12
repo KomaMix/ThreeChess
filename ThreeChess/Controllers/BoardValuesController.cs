@@ -82,7 +82,7 @@ namespace ThreeChess.Controllers
             // diag = { "A1", "A2" }
             InitializingGameDto gameConfig = new InitializingGameDto
             {
-                Color = GetFigureColor(),
+                ControlledColor = GetFigureColor(),
                 CellsLocation = GetBoardCells(),
                 FiguresLocation = _boardCreateService.CreateFigures(),
                 Diagonals = _moveElementsService.GetDiagonals(),

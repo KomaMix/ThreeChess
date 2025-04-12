@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using ThreeChess.Data;
 using ThreeChess.Hubs;
-using ThreeChess.Interfaces;
 using ThreeChess.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -35,7 +34,6 @@ builder.Services.AddIdentity<AppUser, IdentityRole>()
 
 builder.Services.AddTransient<BoardElementsService>();
 builder.Services.AddTransient<MoveLogicalElementsService>();
-builder.Services.AddTransient<IMoveHandlerService, MoveHandlerService>();
 
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>

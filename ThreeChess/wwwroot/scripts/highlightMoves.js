@@ -1,18 +1,11 @@
 ﻿function highlightDiagonalMoves(cellId, figureType) {
-    const cellState = boardElementsState.cells[cellId];
-    if (cellState.elements.figure.figureInfo.figureColor !== gameConfig.color) {
-        console.log("Нельзя ходить чужими фигурами");
-        return;
-    }
-
     isKing = false;
 
     if (figureType === 'King') {
         isKing = true;
     }
 
-    // Получаем массив диагоналей из глобального состояния
-    const diagonals = movedElements.diagonals; // предполагается, что это массив массивов строк
+    const diagonals = movedElements.diagonals;
 
     // Фильтруем только те диагонали, в которых присутствует текущая ячейка
     const relevantDiagonals = diagonals.filter(diagonal => diagonal.includes(cellId));
@@ -24,7 +17,7 @@
         if (!cell) return true; // если клетка не найдена, прекращаем обход
         if (cell.elements.figure) {
             // Если клетка занята – проверяем цвет фигуры
-            if (cell.elements.figure.figureInfo.figureColor !== gameConfig.color) {
+            if (cell.elements.figure.figureInfo.figureColor !== gameConfig.controlledColor) {
                 cell.elements.path.classList.add('cell-capture-highlight');
                 console.log(`Подсвечена клетка (атака) ${targetCellId}`);
             }
@@ -60,12 +53,6 @@
 }
 
 function highlightMainLinesMoves(cellId, figureType) {
-    const cellState = boardElementsState.cells[cellId];
-    if (cellState.elements.figure.figureInfo.figureColor !== gameConfig.color) {
-        console.log("Нельзя ходить чужими фигурами");
-        return;
-    }
-
     isKing = false;
 
     if (figureType === 'King') {
@@ -84,7 +71,7 @@ function highlightMainLinesMoves(cellId, figureType) {
         const cell = boardElementsState.cells[targetCellId];
         if (!cell) return true;
         if (cell.elements.figure) {
-            if (cell.elements.figure.figureInfo.figureColor !== gameConfig.color) {
+            if (cell.elements.figure.figureInfo.figureColor !== gameConfig.controlledColor) {
                 cell.elements.path.classList.add('cell-capture-highlight');
                 console.log(`Подсвечена клетка (атака) ${targetCellId}`);
             }
@@ -119,12 +106,6 @@ function highlightMainLinesMoves(cellId, figureType) {
 }
 
 function highlightSecondaryLinesMoves(cellId, figureType) {
-    const cellState = boardElementsState.cells[cellId];
-    if (cellState.elements.figure.figureInfo.figureColor !== gameConfig.color) {
-        console.log("Нельзя ходить чужими фигурами");
-        return;
-    }
-
     isKing = false;
 
     if (figureType === 'King') {
@@ -143,7 +124,7 @@ function highlightSecondaryLinesMoves(cellId, figureType) {
         const cell = boardElementsState.cells[targetCellId];
         if (!cell) return true; // если клетка не найдена, прерываем поиск
         if (cell.elements.figure) {
-            if (cell.elements.figure.figureInfo.figureColor !== gameConfig.color) {
+            if (cell.elements.figure.figureInfo.figureColor !== gameConfig.controlledColor) {
                 cell.elements.path.classList.add('cell-capture-highlight');
                 console.log(`Подсвечена клетка (атака) ${targetCellId}`);
             }
@@ -178,12 +159,6 @@ function highlightSecondaryLinesMoves(cellId, figureType) {
 }
 
 function highlightKnightMoves(cellId) {
-    const cellState = boardElementsState.cells[cellId];
-    if (cellState.elements.figure.figureInfo.figureColor !== gameConfig.color) {
-        console.log("Нельзя ходить чужими фигурами");
-        return;
-    }
-
     const lineCombos = [
         { primary: movedElements.mainLines, secondary: movedElements.secondaryLines },
         { primary: movedElements.secondaryLines, secondary: movedElements.mainLines }
@@ -195,7 +170,7 @@ function highlightKnightMoves(cellId) {
         if (!cell) return;
         if (cell.elements.figure) {
             // Если в клетке есть фигура, проверяем её цвет
-            if (cell.elements.figure.figureInfo.figureColor !== gameConfig.color) {
+            if (cell.elements.figure.figureInfo.figureColor !== gameConfig.controlledColor) {
                 // Если фигура чужая, подсвечиваем как возможность атаки
                 cell.elements.path.classList.add('cell-capture-highlight');
                 console.log(`Подсвечена клетка (атака) ${targetCellId} ${note}`);
@@ -279,16 +254,6 @@ function highlightKnightMoves(cellId) {
 
 function highlightPawnMoves(cellId) {
     const cellState = boardElementsState.cells[cellId];
-    if (!cellState || !cellState.elements || !cellState.elements.figure) {
-        console.error("Нет фигуры в клетке " + cellId);
-        return;
-    }
-
-    if (cellState.elements.figure.figureInfo.figureColor !== gameConfig.color) {
-        console.log("Нельзя ходить чужими фигурами");
-        return;
-    }
-
     const pawn = cellState.elements.figure;
     // По умолчанию, если не задано, считается, что пешка не прошла половину доски
     if (typeof pawn.hasPassedHalfBoard === 'undefined') {
@@ -422,7 +387,7 @@ function highlightPawnMoves(cellId) {
     captureMoves.forEach(targetCellId => {
         const targetCellState = boardElementsState.cells[targetCellId];
         if (targetCellState && targetCellState.elements.figure
-            && targetCellState.elements.figure.figureInfo.figureColor !== gameConfig.color) {
+            && targetCellState.elements.figure.figureInfo.figureColor !== gameConfig.controlledColor) {
             targetCellState.elements.path.classList.add('cell-capture-highlight');
             console.log("Пешка может взять в " + targetCellId);
         }
