@@ -421,7 +421,8 @@ function highlightPawnMoves(cellId) {
     // Подсвечиваем, если в клетке имеется фигура (здесь можно добавить проверку на противника)
     captureMoves.forEach(targetCellId => {
         const targetCellState = boardElementsState.cells[targetCellId];
-        if (targetCellState && targetCellState.elements.figure) {
+        if (targetCellState && targetCellState.elements.figure
+            && targetCellState.elements.figure.figureInfo.figureColor !== gameConfig.color) {
             targetCellState.elements.path.classList.add('cell-capture-highlight');
             console.log("Пешка может взять в " + targetCellId);
         }

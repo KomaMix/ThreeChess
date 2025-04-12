@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.SignalR;
+using ThreeChess.Data;
 using ThreeChess.Enums;
 using ThreeChess.Models;
 using ThreeChess.Services;
@@ -15,10 +15,17 @@ namespace ThreeChess.Controllers
     {
         private BoardCreateService _boardCreateService;
         private MoveLogicalElementsService _moveElementsService;
-        public BoardValuesController(BoardCreateService boardCreateService, MoveLogicalElementsService moveElementsService)
+        private AppDbContext _appContext;
+        private static int _id = 0;
+
+        public BoardValuesController(
+            BoardCreateService boardCreateService, 
+            MoveLogicalElementsService moveElementsService,
+            AppDbContext appContext)
         {
             _boardCreateService = boardCreateService;
             _moveElementsService = moveElementsService;
+            _appContext = appContext;
         }
 
 
@@ -74,8 +81,8 @@ namespace ThreeChess.Controllers
             // diag = { "A1", "A2" }
             GameConfig gameConfig = new GameConfig
             {
-                Color = FigureColor.Black,
-                CellsLocation = _boardCreateService.CreateBoardCells(),
+                Color = GetFigureColor(),
+                CellsLocation = GetBoardCells(),
                 FiguresLocation = _boardCreateService.CreateFigures(),
                 Diagonals = _moveElementsService.GetDiagonals(),
                 MainLines = _moveElementsService.GetMainLines(),
@@ -83,6 +90,40 @@ namespace ThreeChess.Controllers
             };
 
             return Ok(gameConfig);
+        }
+
+        private List<CellItem> GetBoardCells()
+        {
+            if (_id % 3 == 0)
+            {
+                _id++;
+                return _boardCreateService.CreateBoardCellsForWhite();
+            }
+
+            if (_id % 3 == 1)
+            {
+                _id++;
+                return _boardCreateService.CreateBoardCellsForBlack();
+            }
+
+            _id++;
+            return _boardCreateService.CreateBoardCellsForRed();
+            
+        }
+
+        private FigureColor GetFigureColor()
+        {
+            if (_id % 3 == 0)
+            {
+                return FigureColor.White;
+            }
+
+            if (_id % 3 == 1)
+            {
+                return FigureColor.Black;
+            }
+
+            return FigureColor.Red;
         }
     }
 }

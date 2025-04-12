@@ -15,7 +15,7 @@
     </svg>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/6.0.1/signalr.js"></script>
-    <script src="/scripts/moveHandler.js?v=2.7"></script>
+    <script src="/scripts/moveHandler.js?v=2.8"></script>
     <script src="/scripts/loadCells.js?v=1.5"></script>
     <script src="/scripts/validatePolygon.js?v=1.1"></script>
     <script>
@@ -43,13 +43,9 @@
             .build();
 
 
-        hubConnection.on("Receive", function (id) {
+        hubConnection.on("handleMove", function (startId, endId) {
             try {
-                document.querySelectorAll('path').forEach(path => {
-                    if (path.getAttribute('data-cell-id') === id.toString()) {
-                        path.classList.add('cell-highlighted');
-                    }
-                });
+                moveFigure(startId, endId);
             } catch (error) {
                 console.error('Error in Receive handler:', error);
             }
@@ -134,13 +130,9 @@
                         // Если это второй клик
                         else {
                             if (last_click_id !== cell.id) {
-                                const cellTo = boardElementsState.cells[cell.id];
-
-                                
-
-                                moveFigure(last_click_id, cell.id);
+                                localMove(last_click_id, cell.id);
+                               
                                 last_click_id = undefined;
-
                                 clearHighlightedCells();
                             }
                         }
@@ -220,11 +212,11 @@
             }
 
             // Проверяем, что целевая клетка помечена как возможный ход (подсвечена)
-            if (!(cellTo.elements.path.classList.contains('cell-highlighted') ||
-                cellTo.elements.path.classList.contains('cell-capture-highlight'))) {
-                console.log('Invalid move: target cell is not highlighted as valid.');
-                return;
-            }
+            //if (!(cellTo.elements.path.classList.contains('cell-highlighted') ||
+            //    cellTo.elements.path.classList.contains('cell-capture-highlight'))) {
+            //    console.log('Invalid move: target cell is not highlighted as valid.');
+            //    return;
+            //}
 
             // Если в исходной ячейке нет фигуры
             if (!cellFrom.elements.figure) {
@@ -281,6 +273,11 @@
             cellTo.elements.figure.figureImage.setAttribute('y', cellTo.center.y - 25);
 
             console.log('Moved successfully');
+        }
+
+        function localMove(startId, endId) {
+            moveFigure(startId, endId);
+            hubConnection.invoke("HandleMove", startId, endId);
         }
 
         function generatePathData(points) {

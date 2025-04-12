@@ -12,7 +12,7 @@ using ThreeChess.Data;
 namespace ThreeChess.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250331165654_InitialCreate")]
+    [Migration("20250409103931_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -20,7 +20,7 @@ namespace ThreeChess.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.14")
+                .HasAnnotation("ProductVersion", "8.0.11")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);

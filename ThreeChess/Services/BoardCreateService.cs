@@ -214,7 +214,47 @@ namespace ThreeChess.Services
             return figuresMap;
         }
 
-        public List<CellItem> CreateBoardCells()
+        public List<CellItem> CreateBoardCellsForWhite()
+        {
+            var cells = CreateBoardCellsForBlack();
+
+            int rotate = 120;
+
+            foreach (var cell in cells)
+            {
+                for (int i = 0; i < cell.Polygon.Points.Count; i++)
+                {
+                    cell.Polygon.Points[i] = RotatePoint(cell.Polygon.Points[i], rotate);
+                }
+
+                cell.Center = RotatePoint(cell.Center, rotate);
+            }
+
+
+            return cells;
+        }
+
+        public List<CellItem> CreateBoardCellsForRed()
+        {
+            var cells = CreateBoardCellsForBlack();
+
+            int rotate = 240;
+
+            foreach (var cell in cells)
+            {
+                for (int i = 0; i < cell.Polygon.Points.Count; i++)
+                {
+                    cell.Polygon.Points[i] = RotatePoint(cell.Polygon.Points[i], rotate);
+                }
+
+                cell.Center = RotatePoint(cell.Center, rotate);
+            }
+
+
+            return cells;
+        }
+
+        public List<CellItem> CreateBoardCellsForBlack()
         {
             var rightCells = GetUpperLeftTriangleCells();
 
@@ -271,11 +311,8 @@ namespace ThreeChess.Services
                     + nums[!isMainNums ? i % 4 : i / 4].ToString(),
                     Polygon = new Polygon
                     {
-                        Points = rightCells[i].Polygon.Points.Select(p => new Point
-                        {
-                            X = p.X * Math.Cos(DegreesToRadians(rotate)) - p.Y * Math.Sin(DegreesToRadians(rotate)),
-                            Y = p.X * Math.Sin(DegreesToRadians(rotate)) + p.Y * Math.Cos(DegreesToRadians(rotate)),
-                        }).ToList()
+                        Points = rightCells[i].Polygon.Points
+                            .Select(p => RotatePoint(p, rotate)).ToList()
                     },
                     IsWhite = cnt % 2 == 0
                 });
@@ -292,6 +329,15 @@ namespace ThreeChess.Services
 
 
             return resultCells;
+        }
+
+        private Point RotatePoint(Point point, int rotate)
+        {
+            return new Point
+            {
+                X = point.X * Math.Cos(DegreesToRadians(rotate)) - point.Y * Math.Sin(DegreesToRadians(rotate)),
+                Y = point.X * Math.Sin(DegreesToRadians(rotate)) + point.Y * Math.Cos(DegreesToRadians(rotate)),
+            };
         }
 
         private void AddedCenters(List<CellItem> cells)

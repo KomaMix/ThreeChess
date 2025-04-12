@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+﻿using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace ThreeChess.Data
@@ -14,7 +15,5 @@ namespace ThreeChess.Data
         {
             base.OnModelCreating(builder);
         }
-
-
     }
 }
