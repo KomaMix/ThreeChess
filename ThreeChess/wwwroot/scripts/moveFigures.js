@@ -64,6 +64,7 @@
     cellTo.elements.figure.figureImage.setAttribute('x', cellTo.center.x - 25);
     cellTo.elements.figure.figureImage.setAttribute('y', cellTo.center.y - 25);
 
+    replaceCurrentTurnColor();
     console.log('Moved successfully');
 }
 
@@ -80,4 +81,10 @@ function localMove(startId, endId) {
 
     moveFigure(startId, endId);
     hubConnection.invoke("HandleMove", startId, endId);
+}
+
+function replaceCurrentTurnColor() {
+    const colors = ["White", "Black", "Red"];
+    const currentIndex = colors.indexOf(gameConfig.currentTurnColor);
+    gameConfig.currentTurnColor = colors[(currentIndex + 1) % colors.length];
 }

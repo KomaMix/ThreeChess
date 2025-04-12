@@ -83,6 +83,7 @@ namespace ThreeChess.Controllers
             InitializingGameDto gameConfig = new InitializingGameDto
             {
                 ControlledColor = GetFigureColor(),
+                CurrentTurnColor = FigureColor.White,
                 CellsLocation = GetBoardCells(),
                 FiguresLocation = _boardCreateService.CreateFigures(),
                 Diagonals = _moveElementsService.GetDiagonals(),

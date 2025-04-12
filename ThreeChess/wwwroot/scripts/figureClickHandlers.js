@@ -30,7 +30,10 @@ function secondClickHandler(cell) {
             }
         }
 
-        localMove(last_click_id, cell.id);
+        if (gameConfig.currentTurnColor === gameConfig.controlledColor) {
+            localMove(last_click_id, cell.id);
+        }
+        
 
         last_click_id = undefined;
         clearHighlightedCells();
