@@ -416,6 +416,25 @@ function highlightPawnMoves(cellId) {
         }
     }
 
+    // Подсветка двойного хода вперёд (на две клетки)
+    if (!pawn.hasPassedHalfBoard && mainLineIndex === 1) {
+        const doubleTargetIndex = mainLineIndex + 2;
+        if (doubleTargetIndex < pawnMainLine.length) {
+            const firstStepCell = pawnMainLine[mainLineIndex + 1];
+            const doubleForwardCell = pawnMainLine[doubleTargetIndex];
+
+            const firstStepCellState = boardElementsState.cells[firstStepCell];
+            const doubleForwardCellState = boardElementsState.cells[doubleForwardCell];
+
+            if (firstStepCellState && !firstStepCellState.elements.figure &&
+                doubleForwardCellState && !doubleForwardCellState.elements.figure) {
+                doubleForwardCellState.elements.path.classList.add('cell-highlighted');
+                console.log("Пешка может пойти на две клетки вперёд в " + doubleForwardCell);
+            }
+        }
+    }
+
+
     // Подсветка диагональных ходов (взятие):
     // Подсвечиваем, если в клетке имеется фигура (здесь можно добавить проверку на противника)
     captureMoves.forEach(targetCellId => {
