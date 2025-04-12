@@ -1,4 +1,38 @@
-﻿function highlightDiagonalMoves(cellId, figureType) {
+﻿function highlightMoves(cell) {
+    const piece = boardElementsState.cells[cell.id].elements.figure;
+    // Проверяем тип фигуры (сравнение с ожидаемыми строковыми значениями, например 'Queen' или 'Bishop')
+    if (piece.figureInfo.figureType === 'Queen'
+        || piece.figureInfo.figureType === 'Bishop'
+        || piece.figureInfo.figureType === 'King') {
+        // Выделяем диагональные ячейки, доступные для хода
+        highlightDiagonalMoves(cell.id, piece.figureInfo.figureType);
+    }
+
+    if (piece.figureInfo.figureType === 'Queen'
+        || piece.figureInfo.figureType == 'Rook'
+        || piece.figureInfo.figureType === 'King') {
+        highlightMainLinesMoves(cell.id, piece.figureInfo.figureType);
+    }
+
+    if (piece.figureInfo.figureType === 'Queen'
+        || piece.figureInfo.figureType == 'Rook'
+        || piece.figureInfo.figureType === 'King') {
+        highlightSecondaryLinesMoves(cell.id, piece.figureInfo.figureType);
+    }
+
+    if (piece.figureInfo.figureType === 'Knight') {
+        highlightKnightMoves(cell.id);
+    }
+
+    if (piece.figureInfo.figureType === 'Pawn') {
+        highlightPawnMoves(cell.id);
+    }
+
+    last_click_id = cell.id;
+}
+
+
+function highlightDiagonalMoves(cellId, figureType) {
     isKing = false;
 
     if (figureType === 'King') {
