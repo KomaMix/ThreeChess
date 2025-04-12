@@ -1,9 +1,10 @@
 ﻿using ThreeChess.Enums;
 using ThreeChess.Models;
+using ThreeChess.Models.CellElements;
 
 namespace ThreeChess.Services
 {
-    public class BoardCreateService
+    public class BoardElementsService
     {
         public Dictionary<string, FigureInfo> CreateFigures()
         {

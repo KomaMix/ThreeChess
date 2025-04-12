@@ -33,7 +33,7 @@ builder.Services.AddIdentity<AppUser, IdentityRole>()
     .AddDefaultTokenProviders();
 
 
-builder.Services.AddTransient<BoardCreateService>();
+builder.Services.AddTransient<BoardElementsService>();
 builder.Services.AddTransient<MoveLogicalElementsService>();
 builder.Services.AddTransient<IMoveHandlerService, MoveHandlerService>();
 

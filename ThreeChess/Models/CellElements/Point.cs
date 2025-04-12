@@ -1,4 +1,4 @@
-﻿namespace ThreeChess.Models
+﻿namespace ThreeChess.Models.CellElements
 {
     public class Point
     {

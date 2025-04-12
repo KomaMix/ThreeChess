@@ -1,8 +1,9 @@
 ﻿using ThreeChess.Enums;
+using ThreeChess.Models.CellElements;
 
 namespace ThreeChess.Models
 {
-    public class GameConfig
+    public class InitializingGameDto
     {
         public FigureColor Color { get; set; }
         public List<CellItem> CellsLocation { get; set; }

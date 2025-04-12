@@ -7,7 +7,7 @@ namespace ThreeChess.Tests
         [Fact]
         public void CheckCellCount()
         {
-            BoardCreateService boardCreateService = new BoardCreateService();
+            BoardElementsService boardCreateService = new BoardElementsService();
 
             var cells = boardCreateService.CreateBoardCellsForRed();
 
