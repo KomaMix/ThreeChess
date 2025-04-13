@@ -58,10 +58,10 @@
         if (figureInfo) {
             figureImage = document.createElementNS('http://www.w3.org/2000/svg', 'image');
             figureImage.setAttributeNS('http://www.w3.org/1999/xlink', 'xlink:href', figureInfo.path);
-            figureImage.setAttribute('x', centroid.x - 25);
-            figureImage.setAttribute('y', centroid.y - 25);
-            figureImage.setAttribute('width', '50');
-            figureImage.setAttribute('height', '50');
+            figureImage.setAttribute('x', centroid.x - FIGURE_SIZE / 2);
+            figureImage.setAttribute('y', centroid.y - FIGURE_SIZE / 2);
+            figureImage.setAttribute('width', FIGURE_SIZE);
+            figureImage.setAttribute('height', FIGURE_SIZE);
             figureImage.classList.add('cell-figure');
         }
 
