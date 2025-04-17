@@ -1,0 +1,104 @@
+﻿/* Общие стили header и body из auth.css */
+@import url('/styles/auth.css');
+
+/* Стили для страницы лобби */
+.lobbies-wrapper {
+    max-width: 800px;
+    margin: 80px auto;
+    background-color: #E0E0E0;
+    border-radius: 10px;
+    padding: 30px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+    .lobbies-wrapper h2 {
+        color: #333;
+        margin-bottom: 20px;
+        text-align: center;
+    }
+
+.lobbies-container {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.lobby-card {
+    background-color: #fff;
+    border-radius: 8px;
+    padding: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease;
+}
+
+    .lobby-card:hover {
+        transform: translateY(-2px);
+    }
+
+.lobby-info h3 {
+    color: #333;
+    margin-bottom: 8px;
+    font-size: 1.2rem;
+}
+
+.lobby-info p {
+    color: #666;
+    margin: 4px 0;
+    font-size: 0.9rem;
+}
+
+.btn-join {
+    background-color: #333;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 1rem;
+}
+
+    .btn-join:hover:not(:disabled) {
+        background-color: #444;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    }
+
+    .btn-join:disabled {
+        background-color: #999;
+        cursor: not-allowed;
+        opacity: 0.7;
+    }
+
+.loading {
+    text-align: center;
+    color: #333;
+    padding: 20px;
+    font-style: italic;
+}
+
+.error {
+    color: #dc3545;
+    text-align: center;
+    padding: 20px;
+    font-weight: bold;
+}
+
+@media (max-width: 768px) {
+    .lobbies-wrapper {
+        margin: 40px 20px;
+        padding: 20px;
+    }
+
+    .lobby-card {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+    }
+
+    .btn-join {
+        width: 100%;
+    }
+}

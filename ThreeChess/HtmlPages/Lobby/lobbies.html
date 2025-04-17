@@ -1,0 +1,80 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Chess for Three - Лобби</title>
+    <link rel="stylesheet" href="/styles/lobbies.css?v=1.0">
+</head>
+<body>
+    <header>
+        <div class="logo">Chess for Three</div>
+        <nav>
+            <a href="#" class="nav-link">Обучение</a>
+            <a href="#" class="nav-link">Правила игры</a>
+            <a href="#" class="nav-link">Личный кабинет</a>
+            <a href="/Account/Register" class="signup">Регистрация</a>
+        </nav>
+    </header>
+
+    <main>
+        <section class="lobbies-wrapper">
+            <h2>Доступные лобби</h2>
+            <div id="lobbies-container" class="lobbies-container">
+                <!-- Лобби будут загружены через JavaScript -->
+                <div class="loading">Загрузка лобби...</div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        async function loadLobbies() {
+            try {
+                const response = await fetch('/all-lobbies');
+                if (!response.ok) throw new Error('Ошибка загрузки лобби');
+                const lobbies = await response.json();
+
+                const container = document.getElementById('lobbies-container');
+                container.innerHTML = lobbies.map(lobby => `
+                    <div class="lobby-card">
+                        <div class="lobby-info">
+                            <h3>Лобби #${lobby.id}</h3>
+                            <p>Игроков: ${lobby.playersCount}/3</p>
+                            <p>Статус: ${lobby.status === 'InGame' ? 'Игра идет' : 'Ожидание'}</p>
+                        </div>
+                        <button class="btn-join"
+                                data-lobby-id="${lobby.id}"
+                                ${lobby.playersCount >= 3 || lobby.status === 'InGame' ? 'disabled' : ''}>
+                            Присоединиться
+                        </button>
+                    </div>
+                `).join('');
+
+                // Добавляем обработчики для кнопок
+                document.querySelectorAll('.btn-join').forEach(button => {
+                    button.addEventListener('click', joinLobby);
+                });
+            } catch (error) {
+                document.getElementById('lobbies-container').innerHTML = `
+                    <div class="error">${error.message}</div>
+                `;
+            }
+        }
+
+        async function joinLobby(event) {
+            const lobbyId = event.target.dataset.lobbyId;
+            try {
+                // Здесь должна быть логика присоединения к лобби
+                alert(`Попытка присоединиться к лобби ${lobbyId}`);
+                // После успешного присоединения можно обновить список
+                await loadLobbies();
+            } catch (error) {
+                console.error('Ошибка присоединения:', error);
+                alert('Не удалось присоединиться к лобби');
+            }
+        }
+
+        // Загружаем лобби при загрузке страницы
+        document.addEventListener('DOMContentLoaded', loadLobbies);
+    </script>
+</body>
+</html>
