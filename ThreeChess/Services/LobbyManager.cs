@@ -1,0 +1,38 @@
+﻿using System.Collections.Concurrent;
+using ThreeChess.Models;
+
+namespace ThreeChess.Services
+{
+    public class LobbyManager
+    {
+        private readonly List<Lobby> _lobbies = new();
+
+        public LobbyManager()
+        {
+            CreateLobby();
+            CreateLobby();
+            CreateLobby();
+        }
+
+        public IEnumerable<Lobby> GetAllLobbies() => _lobbies;
+
+        public bool JoinLobby(int lobbyId, string playerId)
+        {
+            var lobby = _lobbies.FirstOrDefault(l => l.Id == lobbyId);
+            if (lobby == null || lobby.PlayerIds.Count >= 3) return false;
+
+            if (lobby.PlayerIds.Contains(playerId)) return false;
+
+            lobby.PlayerIds.Add(playerId);
+            return true;
+        }
+
+        public void CreateLobby()
+        {
+            _lobbies.Add(new Lobby());
+        }
+    }
+
+
+
+}

@@ -7,9 +7,9 @@ namespace ThreeChess.Hubs
 {
     public class MoveHub : Hub
     {
-        private readonly GameManager _gameManager;
+        private readonly LobbyManager _gameManager;
 
-        public MoveHub(GameManager gameManager)
+        public MoveHub(LobbyManager gameManager)
         {
             _gameManager = gameManager;
         }
@@ -22,15 +22,6 @@ namespace ThreeChess.Hubs
             await Clients.Others.SendAsync("handleMove", startCellId, endCellId);
 
 
-        }
-
-        public override async Task OnConnectedAsync()
-        {
-            await base.OnConnectedAsync();
-        }
-        public override async Task OnDisconnectedAsync(Exception? exception)
-        {
-            await base.OnDisconnectedAsync(exception);
         }
     }
 }

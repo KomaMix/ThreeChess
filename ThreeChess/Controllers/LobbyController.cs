@@ -8,19 +8,19 @@ namespace ThreeChess.Controllers
     [Authorize]
     public class LobbyController : Controller
     {
-        private readonly GameManager _gameManager;
+        private readonly LobbyManager _lobbyManager;
         IWebHostEnvironment _env;
 
-        public LobbyController(GameManager gameManager, IWebHostEnvironment env)
+        public LobbyController(LobbyManager lobbyManager, IWebHostEnvironment env)
         {
-            _gameManager = gameManager;
+            _lobbyManager = lobbyManager;
             _env = env;
         }
 
         [HttpGet("all-lobbies")]
         public IActionResult GetAllLobbies()
         {
-            return Ok(_gameManager.GetAllLobbies());
+            return Ok(_lobbyManager.GetAllLobbies());
         }
 
 

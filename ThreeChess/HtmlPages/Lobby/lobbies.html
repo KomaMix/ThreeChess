@@ -11,7 +11,6 @@
         <nav>
             <a href="#" class="nav-link">Обучение</a>
             <a href="#" class="nav-link">Правила игры</a>
-            <a href="#" class="nav-link">Личный кабинет</a>
             <a href="/Account/Register" class="signup">Регистрация</a>
         </nav>
     </header>
@@ -26,55 +25,54 @@
         </section>
     </main>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/6.0.1/signalr.js"></script>
     <script>
-        async function loadLobbies() {
-            try {
-                const response = await fetch('/all-lobbies');
-                if (!response.ok) throw new Error('Ошибка загрузки лобби');
-                const lobbies = await response.json();
+        const lobbyHub = new signalR.HubConnectionBuilder()
+            .withUrl("/lobbyHub")
+            .build();
 
-                const container = document.getElementById('lobbies-container');
-                container.innerHTML = lobbies.map(lobby => `
-                    <div class="lobby-card">
-                        <div class="lobby-info">
-                            <h3>Лобби #${lobby.id}</h3>
-                            <p>Игроков: ${lobby.playersCount}/3</p>
-                            <p>Статус: ${lobby.status === 'InGame' ? 'Игра идет' : 'Ожидание'}</p>
-                        </div>
-                        <button class="btn-join"
-                                data-lobby-id="${lobby.id}"
-                                ${lobby.playersCount >= 3 || lobby.status === 'InGame' ? 'disabled' : ''}>
-                            Присоединиться
-                        </button>
+        lobbyHub.on("LobbiesUpdated", (lobbies) => {
+            updateLobbiesList(lobbies);
+        });
+
+        async function start() {
+            await lobbyHub.start();
+            const lobbies = await lobbyHub.invoke("GetAllLobbies");
+            updateLobbiesList(lobbies);
+        }
+
+        function updateLobbiesList(lobbies) {
+            const container = document.getElementById('lobbies-container');
+            container.innerHTML = lobbies.map(lobby => `
+                <div class="lobby-card">
+                    <div class="lobby-info">
+                        <h3>Лобби #${lobby.id}</h3>
+                        <p>Игроков: ${lobby.playerIds.length}/3</p>
+                        <p>Создано: ${new Date(lobby.createdAt).toLocaleTimeString()}</p>
                     </div>
-                `).join('');
+                    <button class="btn-join"
+                            data-lobby-id="${lobby.id}"
+                            ${lobby.playerIds.length >= 3 ? 'disabled' : ''}>
+                        Присоединиться
+                    </button>
+                </div>
+            `).join('');
 
-                // Добавляем обработчики для кнопок
-                document.querySelectorAll('.btn-join').forEach(button => {
-                    button.addEventListener('click', joinLobby);
-                });
-            } catch (error) {
-                document.getElementById('lobbies-container').innerHTML = `
-                    <div class="error">${error.message}</div>
-                `;
-            }
+            document.querySelectorAll('.btn-join').forEach(btn => {
+                btn.addEventListener('click', joinLobby);
+            });
         }
 
-        async function joinLobby(event) {
-            const lobbyId = event.target.dataset.lobbyId;
+        async function joinLobby(e) {
+            const lobbyId = parseInt(e.target.dataset.lobbyId);
             try {
-                // Здесь должна быть логика присоединения к лобби
-                alert(`Попытка присоединиться к лобби ${lobbyId}`);
-                // После успешного присоединения можно обновить список
-                await loadLobbies();
+                await lobbyHub.invoke("JoinLobby", lobbyId);
             } catch (error) {
-                console.error('Ошибка присоединения:', error);
-                alert('Не удалось присоединиться к лобби');
+                alert("Не удалось присоединиться: " + error);
             }
         }
 
-        // Загружаем лобби при загрузке страницы
-        document.addEventListener('DOMContentLoaded', loadLobbies);
+        document.addEventListener('DOMContentLoaded', start);
     </script>
 </body>
 </html>

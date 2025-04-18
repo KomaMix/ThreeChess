@@ -34,7 +34,7 @@ builder.Services.AddIdentity<AppUser, IdentityRole>()
 
 builder.Services.AddTransient<BoardElementsService>();
 builder.Services.AddTransient<MoveLogicalElementsService>();
-builder.Services.AddSingleton<GameManager>();
+builder.Services.AddSingleton<LobbyManager>();
 
 
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
@@ -48,7 +48,8 @@ var app = builder.Build();
 app.UseDefaultFiles();
 app.UseStaticFiles();
 
-app.MapHub<MoveHub>("/move");
+app.MapHub<MoveHub>("/moveHub");
+app.MapHub<LobbyHub>("/lobbyHub");
 
 app.UseRouting();
 

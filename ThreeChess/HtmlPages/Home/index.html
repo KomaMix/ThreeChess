@@ -13,8 +13,8 @@
         <nav>
             <a href="#" class="nav-link">Обучение</a>
             <a href="#" class="nav-link">Правила игры</a>
-            <a href="#" class="nav-link">Личный кабинет</a>
-            <a href="#" class="signup">Регистрация</a>
+            <a href="/Lobby/Index" class="nav-link">Список игр</a>
+            <a href="/Account/Register" class="signup">Регистрация</a>
         </nav>
     </header>
 
@@ -74,7 +74,7 @@
         let last_click_id = undefined;
 
         const hubConnection = new signalR.HubConnectionBuilder()
-            .withUrl("/move")
+            .withUrl("/moveHub")
             .build();
 
         hubConnection.on("handleMove", function (startId, endId) {
