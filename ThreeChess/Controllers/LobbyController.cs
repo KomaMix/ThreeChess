@@ -6,6 +6,7 @@ using ThreeChess.Services;
 namespace ThreeChess.Controllers
 {
     [Authorize]
+    [Route("[controller]")]
     public class LobbyController : Controller
     {
         private readonly LobbyManager _lobbyManager;
@@ -17,14 +18,9 @@ namespace ThreeChess.Controllers
             _env = env;
         }
 
-        [HttpGet("all-lobbies")]
-        public IActionResult GetAllLobbies()
-        {
-            return Ok(_lobbyManager.GetAllLobbies());
-        }
 
-
-        public IActionResult Index()
+        [HttpGet("AllLobbies")]
+        public IActionResult GetAllLobbiesPage()
         {
             var filePath = Path.Combine(_env.ContentRootPath, "HtmlPages/Lobby/lobbies.html");
             return PhysicalFile(filePath, "text/html");

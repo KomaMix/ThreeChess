@@ -6,6 +6,7 @@ namespace ThreeChess.Services
     public class LobbyManager
     {
         private readonly List<Lobby> _lobbies = new();
+        private readonly Dictionary<string, int> _playerLobbyMap = new();
 
         public LobbyManager()
         {
@@ -18,12 +19,37 @@ namespace ThreeChess.Services
 
         public bool JoinLobby(int lobbyId, string playerId)
         {
+            if (_playerLobbyMap.ContainsKey(playerId))
+            {
+                return false;
+            }
+
             var lobby = _lobbies.FirstOrDefault(l => l.Id == lobbyId);
             if (lobby == null || lobby.PlayerIds.Count >= 3) return false;
 
-            if (lobby.PlayerIds.Contains(playerId)) return false;
-
             lobby.PlayerIds.Add(playerId);
+            _playerLobbyMap[playerId] = lobbyId;
+
+            return true;
+        }
+
+        public bool LeaveLobby(int lobbyId, string playerId)
+        {
+            if (!_playerLobbyMap.ContainsKey(playerId) || _playerLobbyMap[playerId] != lobbyId)
+            {
+                return false;
+            }
+
+            var lobby = _lobbies.FirstOrDefault(l => l.Id == lobbyId);
+
+            if (lobby == null)
+            {
+                return false;
+            }
+            
+            lobby.PlayerIds.Remove(playerId);
+            _playerLobbyMap.Remove(playerId);
+
             return true;
         }
 

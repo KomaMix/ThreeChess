@@ -6,22 +6,34 @@ namespace ThreeChess.Hubs
 {
     public class LobbyHub : Hub
     {
-        private readonly LobbyManager _gameManager;
+        private readonly LobbyManager _lobbyManager;
 
-        public LobbyHub(LobbyManager gameManager)
+        public LobbyHub(LobbyManager lobbyManager)
         {
-            _gameManager = gameManager;
+            _lobbyManager = lobbyManager;
         }
 
         public async Task JoinLobby(int lobbyId)
         {
             var playerId = Context.UserIdentifier;
-            if (_gameManager.JoinLobby(lobbyId, playerId))
+            if (_lobbyManager.JoinLobby(lobbyId, playerId))
             {
-                await Clients.All.SendAsync("LobbiesUpdated", _gameManager.GetAllLobbies());
+                await Clients.All.SendAsync("LobbiesUpdated", _lobbyManager.GetAllLobbies());
             }
         }
 
-        public IEnumerable<Lobby> GetAllLobbies() => _gameManager.GetAllLobbies();
+        public async Task LeaveLobby(int lobbyId)
+        {
+            var playerId = Context.UserIdentifier;
+            if (_lobbyManager.LeaveLobby(lobbyId, playerId))
+            {
+                await Clients.All.SendAsync("LobbiesUpdated", _lobbyManager.GetAllLobbies());
+            }
+        }
+
+        public IEnumerable<Lobby> GetAllLobbies() 
+        { 
+            return _lobbyManager.GetAllLobbies(); 
+        }
     }
 }

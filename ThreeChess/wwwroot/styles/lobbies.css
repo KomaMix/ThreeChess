@@ -1,6 +1,4 @@
-﻿/* Общие стили header и body из auth.css */
-@import url('/styles/auth.css');
-
+﻿
 /* Стили для страницы лобби */
 .lobbies-wrapper {
     max-width: 800px;

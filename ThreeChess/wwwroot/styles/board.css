@@ -11,37 +11,6 @@ body {
     min-height: 100vh;
 }
 
-/* Шапка */
-header {
-    background-color: #3F3F3F;
-    padding: 10px 20px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.logo {
-    font-size: 1.4rem;
-    font-weight: bold;
-}
-
-nav {
-    display: flex;
-    gap: 30px;
-}
-
-.nav-link,
-header a.signup {
-    color: #ccc;
-    text-decoration: none;
-    font-size: 1rem;
-    transition: color 0.2s ease;
-}
-
-    .nav-link:hover,
-    header a.signup:hover {
-        color: #fff;
-    }
 
 /* Контейнер для основной области: доска и информация по игре */
 .content-container {
