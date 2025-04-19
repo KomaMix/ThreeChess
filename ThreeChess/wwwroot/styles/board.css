@@ -1,18 +1,4 @@
-﻿* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
-body {
-    font-family: Arial, sans-serif;
-    background-color: #4F4F4F;
-    color: #fff;
-    min-height: 100vh;
-}
-
-
-/* Контейнер для основной области: доска и информация по игре */
+﻿/* Контейнер для основной области: доска и информация по игре */
 .content-container {
     display: flex;
     justify-content: center;

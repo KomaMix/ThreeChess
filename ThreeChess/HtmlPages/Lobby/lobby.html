@@ -1,0 +1,87 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Chess for Three — Лобби</title>
+    <link rel="stylesheet" href="/styles/header.css?v=1.4">
+    <link rel="stylesheet" href="/styles/lobby.css?v=1.9">
+</head>
+<body>
+    <header>
+        <div class="logo">Chess for Three</div>
+        <nav>
+            <a href="/Lobby/AllLobbies" class="nav-link">Все лобби</a>
+            <a href="#" class="nav-link">Обучение</a>
+            <a href="#" class="nav-link">Правила игры</a>
+            <a href="/Account/Logout" class="signup">Выйти</a>
+        </nav>
+    </header>
+
+    <main>
+        <section class="lobby-detail">
+            <h2>Лобби #<span id="lobby-id">—</span></h2>
+            <p>Создано: <span id="lobby-created">—</span></p>
+            <p>Игроков: <span id="players-count">0</span>/3</p>
+            <ul id="players-list"></ul>
+            <button id="leave-btn" disabled>Покинуть лобби</button>
+        </section>
+    </main>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/6.0.1/signalr.js"></script>
+    <script>
+        (function () {
+            const parts = window.location.pathname.split('/');
+            const lobbyId = parseInt(parts[parts.length - 1], 10);
+
+            const connection = new signalR.HubConnectionBuilder()
+                .withUrl("/lobbyHub")
+                .build();
+
+            // Регистрируем обработчик заранее
+            connection.on("LobbyUpdated", renderLobby);
+
+            async function handleExit() {
+                try {
+                    await connection.invoke("LeaveLobby", lobbyId);
+                } catch (err) {
+                    console.error("Exit error:", err);
+                }
+            }
+
+            window.addEventListener('beforeunload', async (e) => {
+                await handleExit();
+            });
+
+            document.addEventListener('DOMContentLoaded', async () => {
+                try {
+                    await connection.start();
+
+                    // Только подписываемся, не меняя состояние
+                    await connection.invoke("SubscribeLobby", lobbyId);
+
+                    // Разрешаем кнопку выхода
+                    document.getElementById('leave-btn').disabled = false;
+                } catch (err) {
+                    console.error(err);
+                    alert("Ошибка соединения: " + err);
+                }
+
+                document.getElementById('leave-btn').addEventListener('click', async () => {
+                    await connection.invoke("LeaveLobby", lobbyId);
+                    window.location.href = "/Lobby/AllLobbies";
+                });
+            });
+
+            function renderLobby(lobby) {
+                document.getElementById('lobby-id').textContent = lobby.id;
+                document.getElementById('lobby-created').textContent =
+                    new Date(lobby.createdAt).toLocaleString();
+                document.getElementById('players-count').textContent =
+                    `${lobby.playerIds.length}`;
+                document.getElementById('players-list').innerHTML =
+                    lobby.playerIds.map(pid => `<li>Игрок ${pid}</li>`).join('');
+            }
+        })();
+    </script>
+</body>
+</html>

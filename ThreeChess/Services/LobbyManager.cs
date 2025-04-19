@@ -24,6 +24,7 @@ namespace ThreeChess.Services
                 return false;
             }
 
+
             var lobby = _lobbies.FirstOrDefault(l => l.Id == lobbyId);
             if (lobby == null || lobby.PlayerIds.Count >= 3) return false;
 
@@ -56,6 +57,32 @@ namespace ThreeChess.Services
         public void CreateLobby()
         {
             _lobbies.Add(new Lobby());
+        }
+
+        public Lobby GetLobby(int lobbyId)
+        {
+            return _lobbies.FirstOrDefault(l => l.Id == lobbyId);
+        }
+
+        public bool PlayerExist(int lobbyId, string playerId)
+        {
+            if (_playerLobbyMap.ContainsKey(playerId) && _playerLobbyMap[playerId] == lobbyId)
+            {
+                return true;
+            } else
+            {
+                return false;
+            }
+        }
+
+        public int? GetLobbyIdForPlayer(string playerId)
+        {
+            if (!_playerLobbyMap.ContainsKey(playerId))
+            {
+                return null;
+            }
+
+            return _playerLobbyMap[playerId];
         }
     }
 

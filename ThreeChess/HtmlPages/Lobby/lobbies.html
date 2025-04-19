@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <title>Chess for Three - Лобби</title>
-    <link rel="stylesheet" href="/styles/lobbies.css?v=1.0">
-    <link rel="stylesheet" href="/styles/header.css?v=1.0">
+    <link rel="stylesheet" href="/styles/lobbies.css?v=1.2">
+    <link rel="stylesheet" href="/styles/header.css?v=1.4">
 </head>
 <body>
     <header>
@@ -32,9 +32,7 @@
             .withUrl("/lobbyHub")
             .build();
 
-        lobbyHub.on("LobbiesUpdated", (lobbies) => {
-            updateLobbiesList(lobbies);
-        });
+        lobbyHub.on("LobbiesUpdated", updateLobbiesList);
 
         async function start() {
             await lobbyHub.start();
@@ -45,32 +43,32 @@
         function updateLobbiesList(lobbies) {
             const container = document.getElementById('lobbies-container');
             container.innerHTML = lobbies.map(lobby => `
-                <div class="lobby-card">
-                    <div class="lobby-info">
-                        <h3>Лобби #${lobby.id}</h3>
-                        <p>Игроков: ${lobby.playerIds.length}/3</p>
-                        <p>Создано: ${new Date(lobby.createdAt).toLocaleTimeString()}</p>
+                    <div class="lobby-card">
+                        <div class="lobby-info">
+                            <h3>Лобби #${lobby.id}</h3>
+                            <p>Игроков: ${lobby.playerIds.length}/3</p>
+                            <p>Создано: ${new Date(lobby.createdAt).toLocaleTimeString()}</p>
+                        </div>
+                        <button class="btn-join"
+                                data-lobby-id="${lobby.id}"
+                                ${lobby.playerIds.length >= 3 ? 'disabled' : ''}>
+                            Присоединиться
+                        </button>
                     </div>
-                    <button class="btn-join"
-                            data-lobby-id="${lobby.id}"
-                            ${lobby.playerIds.length >= 3 ? 'disabled' : ''}>
-                        Присоединиться
-                    </button>
-                </div>
-            `).join('');
+                `).join('');
 
-            document.querySelectorAll('.btn-join').forEach(btn => {
-                btn.addEventListener('click', joinLobby);
-            });
-        }
-
-        async function joinLobby(e) {
-            const lobbyId = parseInt(e.target.dataset.lobbyId);
-            try {
-                await lobbyHub.invoke("JoinLobby", lobbyId);
-            } catch (error) {
-                alert("Не удалось присоединиться: " + error);
-            }
+            document.querySelectorAll('.btn-join').forEach(btn =>
+                btn.addEventListener('click', async e => {
+                    const id = parseInt(e.target.dataset.lobbyId, 10);
+                    const success = await lobbyHub.invoke("JoinLobby", id);
+                    if (success) {
+                        // Перенаправляем в своё лобби
+                        window.location.href = `/Lobby/${id}`;
+                    } else {
+                        alert("Не удалось присоединиться к лобби");
+                    }
+                })
+            );
         }
 
         document.addEventListener('DOMContentLoaded', start);

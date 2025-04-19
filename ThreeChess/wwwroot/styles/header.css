@@ -1,4 +1,17 @@
-﻿.logo {
+﻿* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #4F4F4F;
+    color: #fff;
+    min-height: 100vh;
+}
+
+.logo {
     font-size: 1.4rem;
     font-weight: bold;
 }
