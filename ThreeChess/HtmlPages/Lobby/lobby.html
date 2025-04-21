@@ -32,10 +32,19 @@
         (function () {
             const parts = window.location.pathname.split('/');
             const lobbyId = parseInt(parts[parts.length - 1], 10);
+            let countdownInterval;
 
             const connection = new signalR.HubConnectionBuilder()
                 .withUrl("/lobbyHub")
                 .build();
+
+            connection.on("GameStarted", (gameId) => {
+                clearInterval(countdownInterval);
+                window.location.href = `/Game/Play/${gameId}`;
+            });
+
+            connection.on("StartCountdown", startCountdown);
+            connection.on("CancelCountdown", cancelCountdown);
 
             // Регистрируем обработчик заранее
             connection.on("LobbyUpdated", renderLobby);
@@ -80,6 +89,36 @@
                     `${lobby.playerIds.length}`;
                 document.getElementById('players-list').innerHTML =
                     lobby.playerIds.map(pid => `<li>Игрок ${pid}</li>`).join('');
+            }
+
+            function startCountdown() {
+                cancelCountdown();
+                let seconds = 10;
+
+                const timer = document.createElement('div');
+                timer.id = 'countdown-timer';
+                // ... (стили остаются прежними)
+
+                function update() {
+                    timer.textContent = `До начала игры: ${seconds} сек.`;
+                    if (seconds-- <= 0) {
+                        clearInterval(countdownInterval);
+                        timer.textContent = "Запуск игры...";
+                    }
+                }
+
+                update();
+                countdownInterval = setInterval(update, 1000);
+                document.body.appendChild(timer);
+            }
+
+            function cancelCountdown() {
+                if (countdownInterval) {
+                    clearInterval(countdownInterval);
+                    countdownInterval = null;
+                }
+                const timer = document.getElementById('countdown-timer');
+                if (timer) timer.remove();
             }
         })();
     </script>

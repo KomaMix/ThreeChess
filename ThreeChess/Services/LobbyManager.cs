@@ -75,6 +75,18 @@ namespace ThreeChess.Services
             }
         }
 
+        public bool RemoveLobby(int lobbyId)
+        {
+            var lobby = _lobbies.FirstOrDefault(l => l.Id == lobbyId);
+            if (lobby == null) return false;
+
+            foreach (var playerId in lobby.PlayerIds)
+                _playerLobbyMap.Remove(playerId);
+
+            return _lobbies.Remove(lobby);
+            
+        }
+
         public int? GetLobbyIdForPlayer(string playerId)
         {
             if (!_playerLobbyMap.ContainsKey(playerId))

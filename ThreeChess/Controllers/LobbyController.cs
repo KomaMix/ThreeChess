@@ -1,5 +1,7 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using ThreeChess.Services;
 
@@ -30,6 +32,13 @@ namespace ThreeChess.Controllers
         [HttpGet("{lobbyId}")]
         public IActionResult GetLobbyPage(int lobbyId)
         {
+            var playerId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (!_lobbyManager.PlayerExist(lobbyId, playerId))
+            {
+                return NotFound();
+            }
+
             // Можно при желании проверять, что такое лобби существует
             var filePath = Path.Combine(_env.ContentRootPath, "HtmlPages/Lobby/lobby.html");
             return PhysicalFile(filePath, "text/html");

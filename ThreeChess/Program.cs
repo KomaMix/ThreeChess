@@ -36,6 +36,7 @@ builder.Services.AddTransient<BoardElementsService>();
 builder.Services.AddTransient<MoveLogicalElementsService>();
 builder.Services.AddSingleton<LobbyManager>();
 builder.Services.AddSingleton<GameManager>();
+builder.Services.AddSingleton<LobbyService>();
 
 
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
