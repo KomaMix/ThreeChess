@@ -5,6 +5,7 @@ namespace ThreeChess.Models
 {
     public class InitializingGameDto
     {
+        public Guid GameId { get; set; }
         public FigureColor ControlledColor { get; set; }
         public FigureColor CurrentTurnColor { get; set; }
         public List<CellItem> CellsLocation { get; set; }

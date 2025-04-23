@@ -1,0 +1,90 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chess for Three - Игровая доска</title>
+    <link rel="stylesheet" href="/styles/board.css?v=1.7" />
+    <link rel="stylesheet" href="/styles/header.css?v=1.1">
+</head>
+<body>
+    <!-- Основной контейнер для контента страницы -->
+    <div class="content-container">
+        <!-- Контейнер для доски -->
+        <div class="board-container">
+            <svg width="702"
+                 height="702"
+                 viewBox="0 0 700 700"
+                 alignment-baseline="central">
+                <g id="cells-layer"></g>
+                <g id="labels-layer"></g>
+                <g id="figures-layer"></g>
+            </svg>
+        </div>
+
+        <!-- Боковое меню с информацией о игре -->
+        <!--<aside class="game-info">
+            <h2>Информация по игре</h2>
+            <ul>
+                <li>Игрок 1: Активен</li>
+                <li>Игрок 2: Ожидание хода</li>
+                <li>Игрок 3: Подключен</li>
+            </ul>
+            <p>Здесь можно отображать дополнительные сведения: текущий счёт, таймер, историю ходов и т.д.</p>
+        </aside>-->
+    </div>
+
+    <!-- Скрипты остаются без изменений -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/6.0.1/signalr.js"></script>
+    <script src="/scripts/highlightMoves.js?v=1.5"></script>
+    <script src="/scripts/renderBoard.js?v=1.4"></script>
+    <script src="/scripts/loadCells.js?v=2.0"></script>
+    <script src="/scripts/validatePolygon.js?v=1.2"></script>
+    <script src="/scripts/moveFigures.js?v=1.5"></script>
+    <script src="/scripts/figureClickHandlers.js?v=1.8"></script>
+    <script>
+        const VIEWBOX_SIZE = 698;
+        const CENTER_OFFSET = 350;
+        const FIGURE_SIZE = 46;
+
+        const boardElementsState = {
+            cells: {}
+        };
+
+        const movedElements = {
+            diagonals: {},
+            mainLines: {},
+            secondaryLines: {}
+        };
+
+        const gameConfig = {
+            color: undefined,
+        };
+
+        let last_click_id = undefined;
+
+        const hubConnection = new signalR.HubConnectionBuilder()
+            .withUrl("/moveHub?gameId=${gameId}")
+            .build();
+
+        hubConnection.on("handleMove", function (startId, endId) {
+            try {
+                moveFigure(startId, endId);
+            } catch (error) {
+                console.error('Error in Receive handler:', error);
+            }
+        });
+
+        window.addEventListener('DOMContentLoaded', async () => {
+            const pathParts = window.location.pathname.split('/');
+            const gameId = pathParts[pathParts.length - 1];
+            loadCells(gameId)
+        });
+
+        hubConnection.start()
+            .catch(function (err) {
+                console.error(err.toString());
+            });
+    </script>
+</body>
+</html>

@@ -288,6 +288,21 @@ namespace ThreeChess.Services
             return rightCells;
         }
 
+        public List<CellItem>  CreateBoardCellsForColor(FigureColor color)
+        {
+            switch (color)
+            {
+                case FigureColor.White:
+                    return CreateBoardCellsForWhite();
+                case FigureColor.Black:
+                    return CreateBoardCellsForBlack();
+                case FigureColor.Red:
+                    return CreateBoardCellsForRed();
+            }
+
+            return CreateBoardCellsForWhite();
+        }
+
 
         private List<CellItem> GetTriangleCells(char[] alphs, int[] nums, int rotate, bool isMainNums, bool isFirstWhite)
         {

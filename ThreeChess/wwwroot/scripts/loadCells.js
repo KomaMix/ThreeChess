@@ -1,7 +1,7 @@
-﻿async function loadCells() {
+﻿async function loadCells(gameId) {
     try {
         const [gameConfigResponse] = await Promise.all([
-            fetch('/api/game-config')
+            fetch(`/Game/game-config?gameId=${gameId}`)
         ]);
 
         const gameConf = await gameConfigResponse.json();
