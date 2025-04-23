@@ -10,5 +10,6 @@ namespace ThreeChess.Models
         public GameStatus GameStatus { get; set; }
         public List<string> ActivePlayerIds { get; set; }
         public Dictionary<string, FigureInfo> FiguresLocation { get; set; }
+        public Dictionary<string, FigureColor> PlayerColors { get; set; }
     }
 }

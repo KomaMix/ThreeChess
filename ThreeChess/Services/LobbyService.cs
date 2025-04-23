@@ -12,15 +12,18 @@ namespace ThreeChess.Services
         private readonly LobbyManager _lobbyManager;
         private readonly GameManager _gameManager;
         private readonly ConcurrentDictionary<int, Timer> _countdownTimers = new();
+        private readonly BoardElementsService _boardElementsService;
 
         public LobbyService(
             IHubContext<LobbyHub> hubContext,
             LobbyManager lobbyManager,
-            GameManager gameManager)
+            GameManager gameManager,
+            BoardElementsService boardElementsService)
         {
             _hubContext = hubContext;
             _lobbyManager = lobbyManager;
             _gameManager = gameManager;
+            _boardElementsService = boardElementsService;
         }
 
         public void StartCountdown(int lobbyId)
@@ -39,15 +42,26 @@ namespace ThreeChess.Services
             {
                 timer.Dispose();
                 var lobby = _lobbyManager.GetLobby(lobbyId);
+
+                
+
                 if (lobby?.PlayerIds.Count == 3)
                 {
+                    Dictionary<string, FigureColor> playerColors = new Dictionary<string, FigureColor>();
+                    playerColors[lobby.PlayerIds[0]] = FigureColor.White;
+                    playerColors[lobby.PlayerIds[1]] = FigureColor.Black;
+                    playerColors[lobby.PlayerIds[2]] = FigureColor.Red;
+
                     var game = new GameState
                     {
                         Id = Guid.NewGuid(),
                         ActivePlayerIds = lobby.PlayerIds.ToList(),
-                        GameStatus = GameStatus.WaitingToStart
+                        GameStatus = GameStatus.InProgress,
+                        CurrentTurnColor = FigureColor.White,
+                        FiguresLocation = _boardElementsService.CreateFigures(),
+                        PlayerColors = playerColors
                     };
-
+                    
                     _gameManager.CreateGame(game);
                     _lobbyManager.RemoveLobby(lobbyId);
 

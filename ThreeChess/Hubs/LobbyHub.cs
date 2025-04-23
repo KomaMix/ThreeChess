@@ -1,5 +1,8 @@
 ﻿using System.Collections.Concurrent;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.SignalR;
+using ThreeChess.Data;
+using ThreeChess.DTOs;
 using ThreeChess.Enums;
 using ThreeChess.Models;
 using ThreeChess.Services;
@@ -11,15 +14,40 @@ namespace ThreeChess.Hubs
         private readonly LobbyManager _lobbyManager;
         private readonly GameManager _gameManager;
         private readonly LobbyService _lobbyService;
+        private readonly UserManager<AppUser> _userManager;
 
         public LobbyHub(
             LobbyManager lobbyManager, 
             GameManager gameManager,
-            LobbyService lobbyService)
+            LobbyService lobbyService,
+            UserManager<AppUser> userManager)
         {
             _lobbyManager = lobbyManager;
             _gameManager = gameManager;
             _lobbyService = lobbyService;
+            _userManager = userManager;
+        }
+
+        private async Task<LobbyDto> ConvertToDto(Lobby lobby)
+        {
+            var dto = new LobbyDto
+            {
+                Id = lobby.Id,
+                CreatedAt = lobby.CreatedAt,
+                Players = new List<PlayerDto>()
+            };
+
+            foreach (var userId in lobby.PlayerIds)
+            {
+                var user = await _userManager.FindByIdAsync(userId);
+                dto.Players.Add(new PlayerDto
+                {
+                    UserId = userId,
+                    Nickname = user?.UserName ?? "Аноним" // Или ваше поле с ником
+                });
+            }
+
+            return dto;
         }
 
         // Сохраняем GetAllLobbies
@@ -45,6 +73,7 @@ namespace ThreeChess.Hubs
 
             // Уведомляем участников этого лобби
             var lobby = _lobbyManager.GetLobby(lobbyId);
+            var dto = await ConvertToDto(lobby);
 
             if (lobby.PlayerIds.Count == 3)
             {
@@ -52,7 +81,7 @@ namespace ThreeChess.Hubs
             }
 
             await Clients.Group($"lobby-{lobbyId}")
-                         .SendAsync("LobbyUpdated", lobby);
+                         .SendAsync("LobbyUpdated", dto);
 
             // И уведомляем всех об изменении списка (для страницы AllLobbies)
             await Clients.All.SendAsync("LobbiesUpdated", _lobbyManager.GetAllLobbies());
@@ -96,7 +125,8 @@ namespace ThreeChess.Hubs
             // просто добавляем текущее соединение в группу
             await Groups.AddToGroupAsync(Context.ConnectionId, $"lobby-{lobbyId}");
             var lobby = _lobbyManager.GetLobby(lobbyId);
-            await Clients.Caller.SendAsync("LobbyUpdated", lobby);
+            var dto = await ConvertToDto(lobby);
+            await Clients.Caller.SendAsync("LobbyUpdated", dto);
             return true;
         }
 

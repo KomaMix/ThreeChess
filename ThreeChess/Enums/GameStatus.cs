@@ -2,7 +2,6 @@
 {
     public enum GameStatus
     {
-        WaitingToStart,
         InProgress,
         Completed
     }

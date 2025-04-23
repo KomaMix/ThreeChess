@@ -57,9 +57,9 @@
                 }
             }
 
-            window.addEventListener('beforeunload', async (e) => {
-                await handleExit();
-            });
+            //window.addEventListener('beforeunload', async (e) => {
+            //    await handleExit();
+            //});
 
             document.addEventListener('DOMContentLoaded', async () => {
                 try {
@@ -81,19 +81,24 @@
                 });
             });
 
-            function renderLobby(lobby) {
-                document.getElementById('lobby-id').textContent = lobby.id;
+            function renderLobby(lobbyDto) {
+                document.getElementById('lobby-id').textContent = lobbyDto.id;
                 document.getElementById('lobby-created').textContent =
-                    new Date(lobby.createdAt).toLocaleString();
+                    new Date(lobbyDto.createdAt).toLocaleString();
                 document.getElementById('players-count').textContent =
-                    `${lobby.playerIds.length}`;
-                document.getElementById('players-list').innerHTML =
-                    lobby.playerIds.map(pid => `<li>Игрок ${pid}</li>`).join('');
+                    `${lobbyDto.players.length}`;
+
+                const playersHTML = lobbyDto.players.map(pid => {
+                    const nickname = pid.nickname;
+                    return `<li>${nickname}</li>`;
+                }).join('');
+
+                document.getElementById('players-list').innerHTML = playersHTML;
             }
 
             function startCountdown() {
                 cancelCountdown();
-                let seconds = 10;
+                let seconds = 10; 
 
                 const timer = document.createElement('div');
                 timer.id = 'countdown-timer';
