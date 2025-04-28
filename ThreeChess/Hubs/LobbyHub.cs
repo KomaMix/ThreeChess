@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.SignalR;
 using ThreeChess.Data;
 using ThreeChess.DTOs;
 using ThreeChess.Enums;
+using ThreeChess.Interfaces;
 using ThreeChess.Models;
 using ThreeChess.Services;
 
@@ -12,19 +13,16 @@ namespace ThreeChess.Hubs
     public class LobbyHub : Hub
     {
         private readonly LobbyManager _lobbyManager;
-        private readonly GameManager _gameManager;
-        private readonly LobbyService _lobbyService;
+        private readonly ILobbyWaitingService _lobbyWaitingService;
         private readonly UserManager<AppUser> _userManager;
 
         public LobbyHub(
-            LobbyManager lobbyManager, 
-            GameManager gameManager,
-            LobbyService lobbyService,
+            LobbyManager lobbyManager,
+            ILobbyWaitingService lobbyWaitingService,
             UserManager<AppUser> userManager)
         {
             _lobbyManager = lobbyManager;
-            _gameManager = gameManager;
-            _lobbyService = lobbyService;
+            _lobbyWaitingService = lobbyWaitingService;
             _userManager = userManager;
         }
 
@@ -43,14 +41,13 @@ namespace ThreeChess.Hubs
                 dto.Players.Add(new PlayerDto
                 {
                     UserId = userId,
-                    Nickname = user?.UserName ?? "Аноним" // Или ваше поле с ником
+                    Nickname = user?.UserName ?? "Аноним"
                 });
             }
 
             return dto;
         }
 
-        // Сохраняем GetAllLobbies
         public IEnumerable<Lobby> GetAllLobbies()
         {
             return _lobbyManager.GetAllLobbies();
@@ -68,22 +65,19 @@ namespace ThreeChess.Hubs
             if (!_lobbyManager.JoinLobby(lobbyId, playerId))
                 return false;
 
-            // Группа для конкретного лобби
             await Groups.AddToGroupAsync(Context.ConnectionId, $"lobby-{lobbyId}");
 
-            // Уведомляем участников этого лобби
             var lobby = _lobbyManager.GetLobby(lobbyId);
             var dto = await ConvertToDto(lobby);
 
             if (lobby.PlayerIds.Count == 3)
             {
-                _lobbyService.StartCountdown(lobbyId);
+                _lobbyWaitingService.StartCountdown(lobbyId);
             }
 
             await Clients.Group($"lobby-{lobbyId}")
                          .SendAsync("LobbyUpdated", dto);
 
-            // И уведомляем всех об изменении списка (для страницы AllLobbies)
             await Clients.All.SendAsync("LobbiesUpdated", _lobbyManager.GetAllLobbies());
 
             return true;
@@ -108,12 +102,14 @@ namespace ThreeChess.Hubs
 
             if (lobby.PlayerIds.Count == 2)
             {
-                _lobbyService.CancelCountdown(lobbyId);
+                _lobbyWaitingService.CancelCountdown(lobbyId);
                 await Clients.Group($"lobby-{lobbyId}").SendAsync("CancelCountdown");
             }
 
+            var dto = await ConvertToDto(lobby);
+
             await Clients.Group($"lobby-{lobbyId}")
-                         .SendAsync("LobbyUpdated", lobby);
+                         .SendAsync("LobbyUpdated", dto);
 
             await Clients.All.SendAsync("LobbiesUpdated", _lobbyManager.GetAllLobbies());
 
@@ -122,7 +118,6 @@ namespace ThreeChess.Hubs
 
         public async Task<bool> SubscribeLobby(int lobbyId)
         {
-            // просто добавляем текущее соединение в группу
             await Groups.AddToGroupAsync(Context.ConnectionId, $"lobby-{lobbyId}");
             var lobby = _lobbyManager.GetLobby(lobbyId);
             var dto = await ConvertToDto(lobby);
@@ -140,7 +135,10 @@ namespace ThreeChess.Hubs
         {
             if (_lobbyManager.LeaveLobby(lobbyId, playerId))
             {
-                await Clients.Group($"lobby-{lobbyId}").SendAsync("LobbyUpdated", _lobbyManager.GetLobby(lobbyId));
+                var lobby = _lobbyManager.GetLobby(lobbyId);
+                var dto = await ConvertToDto(lobby);
+
+                await Clients.Group($"lobby-{lobbyId}").SendAsync("LobbyUpdated", dto);
                 await Clients.All.SendAsync("LobbiesUpdated", _lobbyManager.GetAllLobbies());
             }
         }

@@ -2,27 +2,28 @@
 using System.Collections.Concurrent;
 using ThreeChess.Enums;
 using ThreeChess.Hubs;
+using ThreeChess.Interfaces;
 using ThreeChess.Models;
 
 namespace ThreeChess.Services
 {
-    public class LobbyService
+    public class LobbyWaitingService : ILobbyWaitingService
     {
         private readonly IHubContext<LobbyHub> _hubContext;
         private readonly LobbyManager _lobbyManager;
-        private readonly GameManager _gameManager;
+        private readonly IGameRepository _gameRepository;
         private readonly ConcurrentDictionary<int, Timer> _countdownTimers = new();
-        private readonly BoardElementsService _boardElementsService;
+        private readonly IBoardElementsService _boardElementsService;
 
-        public LobbyService(
+        public LobbyWaitingService(
             IHubContext<LobbyHub> hubContext,
             LobbyManager lobbyManager,
-            GameManager gameManager,
-            BoardElementsService boardElementsService)
+            IGameRepository gameRepository,
+            IBoardElementsService boardElementsService)
         {
             _hubContext = hubContext;
             _lobbyManager = lobbyManager;
-            _gameManager = gameManager;
+            _gameRepository = gameRepository;
             _boardElementsService = boardElementsService;
         }
 
@@ -62,7 +63,7 @@ namespace ThreeChess.Services
                         PlayerColors = playerColors
                     };
                     
-                    _gameManager.CreateGame(game);
+                    _gameRepository.CreateGame(game);
                     _lobbyManager.RemoveLobby(lobbyId);
 
                     await _hubContext.Clients.Group($"lobby-{lobbyId}")

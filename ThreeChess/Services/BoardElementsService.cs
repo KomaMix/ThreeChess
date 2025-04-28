@@ -1,10 +1,11 @@
 ﻿using ThreeChess.Enums;
+using ThreeChess.Interfaces;
 using ThreeChess.Models;
 using ThreeChess.Models.CellElements;
 
 namespace ThreeChess.Services
 {
-    public class BoardElementsService
+    public class BoardElementsService : IBoardElementsService
     {
         public Dictionary<string, FigureInfo> CreateFigures()
         {
@@ -356,6 +357,11 @@ namespace ThreeChess.Services
             };
         }
 
+        private double DegreesToRadians(double degrees)
+        {
+            return Math.PI * degrees / 180.0;
+        }
+
         private void AddedCenters(List<CellItem> cells)
         {
             foreach (var cell in cells)
@@ -384,12 +390,6 @@ namespace ThreeChess.Services
             };
 
             return LineIntersection(line1 , line2); 
-        }
-
-        private class Line
-        {
-            public Point Start { get; set; }
-            public Point End { get; set; }
         }
 
         private Point GetMidPoint(Point p1, Point p2)
@@ -481,11 +481,6 @@ namespace ThreeChess.Services
             AddedCenters(cellItems);
 
             return cellItems;
-        }
-
-        private double DegreesToRadians(double degrees)
-        {
-            return Math.PI * degrees / 180.0;
         }
 
         private Point[] GetBetweenPoints(Point p1, Point p2, int countPoints)

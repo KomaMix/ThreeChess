@@ -1,3 +1,5 @@
+using ThreeChess.Enums;
+using ThreeChess.Interfaces;
 using ThreeChess.Services;
 
 namespace ThreeChess.Tests
@@ -7,9 +9,9 @@ namespace ThreeChess.Tests
         [Fact]
         public void CheckCellCount()
         {
-            BoardElementsService boardCreateService = new BoardElementsService();
+            IBoardElementsService boardCreateService = new BoardElementsService();
 
-            var cells = boardCreateService.CreateBoardCellsForRed();
+            var cells = boardCreateService.CreateBoardCellsForColor(FigureColor.Red);
 
             Assert.Equal(96, cells.Count);
         }

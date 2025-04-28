@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using ThreeChess.Data;
 using ThreeChess.Hubs;
+using ThreeChess.Interfaces;
 using ThreeChess.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -12,7 +13,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.WebHost.UseUrls(
     $"http://0.0.0.0:{7288}"
 );
-
+  
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
     {
@@ -32,11 +33,11 @@ builder.Services.AddIdentity<AppUser, IdentityRole>()
     .AddDefaultTokenProviders();
 
 
-builder.Services.AddTransient<BoardElementsService>();
-builder.Services.AddTransient<MoveLogicalElementsService>();
+builder.Services.AddTransient<IBoardElementsService, BoardElementsService>();
+builder.Services.AddTransient<IMoveLogicalElementsService, MoveLogicalElementsService>();
 builder.Services.AddSingleton<LobbyManager>();
-builder.Services.AddSingleton<GameManager>();
-builder.Services.AddSingleton<LobbyService>();
+builder.Services.AddSingleton<IGameRepository, GameRepository>();
+builder.Services.AddSingleton<ILobbyWaitingService, LobbyWaitingService>();
 
 
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)

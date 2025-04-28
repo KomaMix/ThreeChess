@@ -45,7 +45,7 @@ namespace ThreeChess.Controllers
                 }
             }
 
-            return Unauthorized(new { message = "Неверная пара логин/пароль" });
+            return Unauthorized(new { message = "Error login/password" });
         }
 
         [AllowAnonymous]

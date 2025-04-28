@@ -10,9 +10,10 @@ namespace ThreeChess.Services
 
         public LobbyManager()
         {
-            CreateLobby();
-            CreateLobby();
-            CreateLobby();
+            for (int i = 0; i < 10; i++)
+            {
+                CreateLobby();
+            }
         }
 
         public IEnumerable<Lobby> GetAllLobbies() => _lobbies;

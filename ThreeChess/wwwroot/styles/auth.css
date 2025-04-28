@@ -75,3 +75,34 @@ body {
         font-size: 0.9rem;
     }
 }
+
+.error-message {
+    color: #ff4444;
+    font-size: 1.2rem;
+    margin: 3px;
+    display: none;
+    min-height: 20px;
+}
+
+    .error-message.active {
+        display: block;
+    }
+
+.login-form input.error-input {
+    border: 2px solid #ff4444 !important;
+    animation: shake 0.5s ease-in-out;
+}
+
+@keyframes shake {
+    0%, 100% {
+        transform: translateX(0);
+    }
+
+    25% {
+        transform: translateX(5px);
+    }
+
+    75% {
+        transform: translateX(-5px);
+    }
+}

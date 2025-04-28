@@ -1,9 +1,10 @@
 ﻿using System.Collections.Concurrent;
+using ThreeChess.Interfaces;
 using ThreeChess.Models;
 
 namespace ThreeChess.Services
 {
-    public class GameManager
+    public class GameRepository : IGameRepository
     {
         private readonly ConcurrentDictionary<Guid, GameState> _games = new();
 

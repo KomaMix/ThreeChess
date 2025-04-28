@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <title>Chess for Three - Вход</title>
-    <link rel="stylesheet" href="/styles/auth.css?v=1.1" />
+    <link rel="stylesheet" href="/styles/auth.css?v=1.6" />
     <link rel="stylesheet" href="/styles/header.css?v=1.1">
 </head>
 <body>
@@ -20,6 +20,9 @@
     <main>
         <section class="login-wrapper">
             <form class="login-form" id="loginForm">
+                <!-- Общая ошибка -->
+
+
                 <div class="form-group">
                     <label for="email">Email:</label>
                     <input type="email"
@@ -27,6 +30,8 @@
                            name="email"
                            placeholder="Введите email"
                            required />
+                    <!-- Ошибка для email -->
+                    <div class="error-message" id="emailError"></div>
                 </div>
                 <div class="form-group">
                     <label for="password">Пароль:</label>
@@ -35,49 +40,73 @@
                            name="password"
                            placeholder="Введите пароль"
                            required />
+                    <!-- Ошибка для password -->
+                    <div class="error-message" id="passwordError"></div>
                 </div>
+                <div class="error-message" id="generalError"></div>
                 <button type="submit" class="btn-submit">Войти</button>
             </form>
         </section>
     </main>
 
     <script>
+        function clearErrors() {
+            document.querySelectorAll('.error-message').forEach(el => {
+                el.textContent = '';
+                el.classList.remove('active');
+            });
+            document.querySelectorAll('.login-form input').forEach(input => {
+                input.classList.remove('error-input');
+            });
+        }
+
+        function showError(elementId, message) {
+            const element = document.getElementById(elementId);
+            if (element) {
+                element.textContent = message;
+                element.classList.add('active');
+                const input = element.closest('.form-group')?.querySelector('input');
+                if (input) input.classList.add('error-input');
+            }
+        }
+
         document.getElementById('loginForm').addEventListener('submit', async function (e) {
             e.preventDefault();
+            clearErrors();
 
-            // Получаем значения из формы. Обратите внимание, что поле теперь "email"
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
 
             try {
                 const response = await fetch('/Account/Login', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    credentials: 'include', // для отправки/приёма cookie
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
                     body: JSON.stringify({ email, password })
                 });
 
                 const data = await response.json();
+
                 if (response.ok) {
-                    // Получаем ReturnUrl из параметров запроса
                     const urlParams = new URLSearchParams(window.location.search);
-                    let returnUrl = urlParams.get('ReturnUrl');
-
-                    // Если нет ReturnUrl, используем дефолтный путь
-                    if (!returnUrl || returnUrl === '/') {
-                        returnUrl = '/Home/Index';
-                    }
-
-                    // Декодируем URL и перенаправляем
+                    let returnUrl = urlParams.get('ReturnUrl') || '/Home/Index';
                     window.location.href = decodeURIComponent(returnUrl);
                 } else {
-                    alert(data.message || 'Ошибка аутентификации');
+                    // Обработка ошибок валидации
+                    if (data.errors) {
+                        Object.entries(data.errors).forEach(([key, messages]) => {
+                            const errorId = `${key.toLowerCase()}Error`;
+                            showError(errorId, messages[0]);
+                        });
+                    }
+                    // Общая ошибка аутентификации
+                    if (data.message) {
+                        showError('generalError', data.message);
+                    }
                 }
             } catch (error) {
-                console.error('Ошибка при выполнении запроса:', error);
-                alert('Ошибка при выполнении запроса');
+                console.error('Ошибка:', error);
+                showError('generalError', 'Ошибка соединения с сервером');
             }
         });
     </script>

@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using ThreeChess.Data;
 using ThreeChess.Enums;
+using ThreeChess.Interfaces;
 using ThreeChess.Models;
 using ThreeChess.Models.CellElements;
 using ThreeChess.Services;
@@ -14,14 +14,14 @@ namespace ThreeChess.Controllers
     [Authorize]
     public class BoardValuesController : ControllerBase
     {
-        private BoardElementsService _boardCreateService;
-        private MoveLogicalElementsService _moveElementsService;
+        private IBoardElementsService _boardCreateService;
+        private IMoveLogicalElementsService _moveElementsService;
         private AppDbContext _appContext;
         private static int _id = 0;
 
         public BoardValuesController(
-            BoardElementsService boardCreateService, 
-            MoveLogicalElementsService moveElementsService,
+            IBoardElementsService boardCreateService, 
+            IMoveLogicalElementsService moveElementsService,
             AppDbContext appContext)
         {
             _boardCreateService = boardCreateService;
@@ -52,17 +52,17 @@ namespace ThreeChess.Controllers
             if (_id % 3 == 0)
             {
                 _id++;
-                return _boardCreateService.CreateBoardCellsForWhite();
+                return _boardCreateService.CreateBoardCellsForColor(FigureColor.White);
             }
 
             if (_id % 3 == 1)
             {
                 _id++;
-                return _boardCreateService.CreateBoardCellsForBlack();
+                return _boardCreateService.CreateBoardCellsForColor(FigureColor.Black);
             }
 
             _id++;
-            return _boardCreateService.CreateBoardCellsForRed();
+            return _boardCreateService.CreateBoardCellsForColor(FigureColor.Red);
             
         }
 

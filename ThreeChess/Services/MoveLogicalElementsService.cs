@@ -1,9 +1,10 @@
 ﻿using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
+using ThreeChess.Interfaces;
 
 namespace ThreeChess.Services
 {
-    public class MoveLogicalElementsService
+    public class MoveLogicalElementsService : IMoveLogicalElementsService
     {
         public List<List<string>> GetDiagonals()
         {

@@ -1,6 +1,7 @@
 ﻿using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using ThreeChess.Interfaces;
 using ThreeChess.Models;
 using ThreeChess.Services;
 
@@ -11,18 +12,18 @@ namespace ThreeChess.Controllers
     public class GameController : Controller
     {
         IWebHostEnvironment _env;
-        private readonly GameManager _gameManager;
-        private readonly BoardElementsService _boardCreateService;
-        private readonly MoveLogicalElementsService _moveElementsService;
+        private readonly IGameRepository _gameRepository;
+        private readonly IBoardElementsService _boardCreateService;
+        private readonly IMoveLogicalElementsService _moveElementsService;
 
         public GameController(
             IWebHostEnvironment env,
-            GameManager gameManager,
-            BoardElementsService boardCreateService,
-            MoveLogicalElementsService moveElementsService)
+            IGameRepository gameRepository,
+            IBoardElementsService boardCreateService,
+            IMoveLogicalElementsService moveElementsService)
         {
             _env = env;
-            _gameManager = gameManager;
+            _gameRepository = gameRepository;
             _boardCreateService = boardCreateService;
             _moveElementsService = moveElementsService;
         }
@@ -38,7 +39,7 @@ namespace ThreeChess.Controllers
         [HttpGet("game-config")]
         public IActionResult GetGameConfig([FromQuery] Guid gameId)
         {
-            var game = _gameManager.GetGame(gameId);
+            var game = _gameRepository.GetGame(gameId);
             if (game == null)
                 return NotFound($"Game {gameId} not found.");
 
