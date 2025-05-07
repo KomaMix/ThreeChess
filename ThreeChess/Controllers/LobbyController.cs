@@ -3,6 +3,9 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using ThreeChess.Data;
+using ThreeChess.DTOs;
+using ThreeChess.Models;
 using ThreeChess.Services;
 
 namespace ThreeChess.Controllers
@@ -21,14 +24,13 @@ namespace ThreeChess.Controllers
         }
 
 
-        [HttpGet("AllLobbies")]
+        [HttpGet("AllLobbiesPage")]
         public IActionResult GetAllLobbiesPage()
         {
             var filePath = Path.Combine(_env.ContentRootPath, "HtmlPages/Lobby/lobbies.html");
             return PhysicalFile(filePath, "text/html");
         }
 
-        // Новая страница: конкретное лобби
         [HttpGet("{lobbyId}")]
         public IActionResult GetLobbyPage(int lobbyId)
         {
@@ -39,9 +41,9 @@ namespace ThreeChess.Controllers
                 return NotFound();
             }
 
-            // Можно при желании проверять, что такое лобби существует
             var filePath = Path.Combine(_env.ContentRootPath, "HtmlPages/Lobby/lobby.html");
             return PhysicalFile(filePath, "text/html");
         }
+
     }
 }

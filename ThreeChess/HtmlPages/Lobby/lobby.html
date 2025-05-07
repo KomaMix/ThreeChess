@@ -10,7 +10,7 @@
     <header>
         <div class="logo">Chess for Three</div>
         <nav>
-            <a href="/Lobby/AllLobbies" class="nav-link">Все лобби</a>
+            <a href="/Lobby/AllLobbiesPage" class="nav-link">Все лобби</a>
             <a href="#" class="nav-link">Обучение</a>
             <a href="#" class="nav-link">Правила игры</a>
             <a href="/Account/Logout" class="signup">Выйти</a>
@@ -34,52 +34,27 @@
             const lobbyId = parseInt(parts[parts.length - 1], 10);
             let countdownInterval;
 
-            const connection = new signalR.HubConnectionBuilder()
+            const lobbyHub = new signalR.HubConnectionBuilder()
                 .withUrl("/lobbyHub")
                 .build();
 
-            connection.on("GameStarted", (gameId) => {
+            lobbyHub.on("GameStarted", (gameId) => {
                 clearInterval(countdownInterval);
                 window.location.href = `/Game/Play/${gameId}`;
             });
 
-            connection.on("StartCountdown", startCountdown);
-            connection.on("CancelCountdown", cancelCountdown);
+            lobbyHub.on("StartCountdown", startCountdown);
+            lobbyHub.on("CancelCountdown", cancelCountdown);
 
-            // Регистрируем обработчик заранее
-            connection.on("LobbyUpdated", renderLobby);
+            lobbyHub.on("LobbyUpdated", renderLobby);
 
             async function handleExit() {
                 try {
-                    await connection.invoke("LeaveLobby", lobbyId);
+                    await lobbyHub.invoke("LeaveLobby", lobbyId);
                 } catch (err) {
                     console.error("Exit error:", err);
                 }
             }
-
-            //window.addEventListener('beforeunload', async (e) => {
-            //    await handleExit();
-            //});
-
-            document.addEventListener('DOMContentLoaded', async () => {
-                try {
-                    await connection.start();
-
-                    // Только подписываемся, не меняя состояние
-                    await connection.invoke("SubscribeLobby", lobbyId);
-
-                    // Разрешаем кнопку выхода
-                    document.getElementById('leave-btn').disabled = false;
-                } catch (err) {
-                    console.error(err);
-                    alert("Ошибка соединения: " + err);
-                }
-
-                document.getElementById('leave-btn').addEventListener('click', async () => {
-                    await connection.invoke("LeaveLobby", lobbyId);
-                    window.location.href = "/Lobby/AllLobbies";
-                });
-            });
 
             function renderLobby(lobbyDto) {
                 document.getElementById('lobby-id').textContent = lobbyDto.id;
@@ -102,7 +77,6 @@
 
                 const timer = document.createElement('div');
                 timer.id = 'countdown-timer';
-                // ... (стили остаются прежними)
 
                 function update() {
                     timer.textContent = `До начала игры: ${seconds} сек.`;
@@ -125,6 +99,24 @@
                 const timer = document.getElementById('countdown-timer');
                 if (timer) timer.remove();
             }
+
+            document.addEventListener('DOMContentLoaded', async () => {
+                try {
+                    await lobbyHub.start();
+                    const lobby = await lobbyHub.invoke("GetLobbyInfo", lobbyId);
+                    renderLobby(lobby);
+
+                    document.getElementById('leave-btn').disabled = false;
+                } catch (err) {
+                    console.error(err);
+                    alert("Ошибка соединения: " + err);
+                }
+
+                document.getElementById('leave-btn').addEventListener('click', async () => {
+                    await lobbyHub.invoke("LeaveLobby", lobbyId);
+                    window.location.href = "/Lobby/AllLobbiesPage";
+                });
+            });
         })();
     </script>
 </body>

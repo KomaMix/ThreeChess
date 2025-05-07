@@ -20,7 +20,6 @@
         <section class="lobbies-wrapper">
             <h2>Доступные лобби</h2>
             <div id="lobbies-container" class="lobbies-container">
-                <!-- Лобби будут загружены через JavaScript -->
                 <div class="loading">Загрузка лобби...</div>
             </div>
         </section>
@@ -32,21 +31,21 @@
             .withUrl("/lobbyHub")
             .build();
 
-        lobbyHub.on("LobbiesUpdated", updateLobbiesList);
+        lobbyHub.on("LobbyPlayerNumbersChanged", updateLobbyInfo);
 
         async function start() {
             await lobbyHub.start();
             const lobbies = await lobbyHub.invoke("GetAllLobbies");
-            updateLobbiesList(lobbies);
+            loadLobbiesList(lobbies);
         }
 
-        function updateLobbiesList(lobbies) {
+        function loadLobbiesList(lobbies) {
             const container = document.getElementById('lobbies-container');
             container.innerHTML = lobbies.map(lobby => `
-                    <div class="lobby-card">
+                    <div class="lobby-card" data-lobby-id="${lobby.id}">
                         <div class="lobby-info">
                             <h3>Лобби #${lobby.id}</h3>
-                            <p>Игроков: ${lobby.playerIds.length}/3</p>
+                            <p class="player-count">Игроков: ${lobby.playerIds.length}/3</p>
                             <p>Создано: ${new Date(lobby.createdAt).toLocaleTimeString()}</p>
                         </div>
                         <button class="btn-join"
@@ -62,13 +61,32 @@
                     const id = parseInt(e.target.dataset.lobbyId, 10);
                     const success = await lobbyHub.invoke("JoinLobby", id);
                     if (success) {
-                        // Перенаправляем в своё лобби
                         window.location.href = `/Lobby/${id}`;
                     } else {
                         alert("Не удалось присоединиться к лобби");
                     }
                 })
             );
+        }
+
+        function updateLobbyInfo(lobbyId, playersCount) {
+            const lobbyCard = document.querySelector(`.lobby-card[data-lobby-id="${lobbyId}"]`);
+
+            if (!lobbyCard) {
+                console.error(`Карточка лобби #${lobbyId} не найдена`);
+                return;
+            }
+
+            const playerCountElement = lobbyCard.querySelector('p:first-of-type');
+            const joinButton = lobbyCard.querySelector('.btn-join');
+
+            if (playerCountElement) {
+                playerCountElement.textContent = `Игроков: ${playersCount}/3`;
+            }
+
+            if (joinButton) {
+                joinButton.disabled = playersCount >= 3;
+            }
         }
 
         document.addEventListener('DOMContentLoaded', start);

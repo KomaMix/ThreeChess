@@ -1,5 +1,6 @@
 ﻿using System.Collections.Concurrent;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using ThreeChess.Data;
 using ThreeChess.DTOs;
@@ -25,6 +26,102 @@ namespace ThreeChess.Hubs
             _lobbyWaitingService = lobbyWaitingService;
             _userManager = userManager;
         }
+
+        public async Task<bool> JoinLobby(int lobbyId)
+        {
+            var playerId = Context.UserIdentifier;
+
+            if (_lobbyManager.PlayerExist(lobbyId, playerId))
+            {
+                return true;
+            }
+
+            if (!_lobbyManager.JoinLobby(lobbyId, playerId))
+                return false;
+
+
+            var lobby = _lobbyManager.GetLobby(lobbyId);
+
+            if (lobby.PlayerIds.Count == 3)
+            {
+                _lobbyWaitingService.StartCountdown(lobbyId);
+            }
+
+            await NotifyLobbyUpdated(lobbyId);
+
+            await Clients.All.SendAsync("LobbyPlayerNumbersChanged", lobby.Id, lobby.PlayerIds.Count);
+
+            return true;
+        }
+
+
+        public async Task<bool> LeaveLobby(int lobbyId)
+        {
+            var playerId = Context.UserIdentifier;
+
+            if (!_lobbyManager.PlayerExist(lobbyId, playerId))
+            {
+                return false;
+            }
+
+            if (!_lobbyManager.LeaveLobby(lobbyId, playerId))
+                return false;
+
+
+            var lobby = _lobbyManager.GetLobby(lobbyId);
+
+            if (lobby.PlayerIds.Count == 2)
+            {
+                _lobbyWaitingService.CancelCountdown(lobbyId);
+                await NotifyCancelCountdown(lobbyId);
+            }
+
+            await NotifyLobbyUpdated(lobbyId);
+
+            await Clients.All.SendAsync("LobbyPlayerNumbersChanged", lobby.Id, lobby.PlayerIds.Count);
+
+            return true;
+        }
+
+
+
+        public async Task HandleLeave(string playerId, int lobbyId)
+        {
+            if (_lobbyManager.LeaveLobby(lobbyId, playerId))
+            {
+                var lobby = _lobbyManager.GetLobby(lobbyId);
+
+                await NotifyLobbyUpdated(lobbyId);
+                await Clients.All.SendAsync("LobbiesUpdated", _lobbyManager.GetAllLobbies());
+            }
+        }
+
+        private async Task NotifyCancelCountdown(int lobbyId)
+        {
+            var lobby = _lobbyManager.GetLobby(lobbyId);
+
+            var userIds = lobby.PlayerIds;
+
+            foreach (var userId in userIds)
+            {
+                await Clients.User(userId).SendAsync("CancelCountdown");
+            }
+        }
+
+        private async Task NotifyLobbyUpdated(int lobbyId)
+        {
+            var lobby = _lobbyManager.GetLobby(lobbyId);
+            var dto = await ConvertToDto(lobby);
+
+            var userIds = lobby.PlayerIds;
+
+            foreach (var userId in userIds)
+            {
+                await Clients.User(userId).SendAsync("LobbyUpdated", dto);
+            }
+        }
+
+
 
         private async Task<LobbyDto> ConvertToDto(Lobby lobby)
         {
@@ -53,94 +150,17 @@ namespace ThreeChess.Hubs
             return _lobbyManager.GetAllLobbies();
         }
 
-        public async Task<bool> JoinLobby(int lobbyId)
-        {
-            var playerId = Context.UserIdentifier;
-
-            if (_lobbyManager.PlayerExist(lobbyId, playerId))
-            {
-                return true;
-            }
-
-            if (!_lobbyManager.JoinLobby(lobbyId, playerId))
-                return false;
-
-            await Groups.AddToGroupAsync(Context.ConnectionId, $"lobby-{lobbyId}");
-
-            var lobby = _lobbyManager.GetLobby(lobbyId);
-            var dto = await ConvertToDto(lobby);
-
-            if (lobby.PlayerIds.Count == 3)
-            {
-                _lobbyWaitingService.StartCountdown(lobbyId);
-            }
-
-            await Clients.Group($"lobby-{lobbyId}")
-                         .SendAsync("LobbyUpdated", dto);
-
-            await Clients.All.SendAsync("LobbiesUpdated", _lobbyManager.GetAllLobbies());
-
-            return true;
-        }
-
-
-        public async Task<bool> LeaveLobby(int lobbyId)
+        public async Task<LobbyDto> GetLobbyInfo(int lobbyId)
         {
             var playerId = Context.UserIdentifier;
 
             if (!_lobbyManager.PlayerExist(lobbyId, playerId))
             {
-                return false;
+                return null;
             }
-
-            if (!_lobbyManager.LeaveLobby(lobbyId, playerId))
-                return false;
-
-            await Groups.RemoveFromGroupAsync(Context.ConnectionId, $"lobby-{lobbyId}");
 
             var lobby = _lobbyManager.GetLobby(lobbyId);
-
-            if (lobby.PlayerIds.Count == 2)
-            {
-                _lobbyWaitingService.CancelCountdown(lobbyId);
-                await Clients.Group($"lobby-{lobbyId}").SendAsync("CancelCountdown");
-            }
-
-            var dto = await ConvertToDto(lobby);
-
-            await Clients.Group($"lobby-{lobbyId}")
-                         .SendAsync("LobbyUpdated", dto);
-
-            await Clients.All.SendAsync("LobbiesUpdated", _lobbyManager.GetAllLobbies());
-
-            return true;
-        }
-
-        public async Task<bool> SubscribeLobby(int lobbyId)
-        {
-            await Groups.AddToGroupAsync(Context.ConnectionId, $"lobby-{lobbyId}");
-            var lobby = _lobbyManager.GetLobby(lobbyId);
-            var dto = await ConvertToDto(lobby);
-            await Clients.Caller.SendAsync("LobbyUpdated", dto);
-            return true;
-        }
-
-        public Lobby GetLobby(int lobbyId)
-        {
-            return _lobbyManager.GetLobby(lobbyId);
-        }
-
-
-        public async Task HandleLeave(string playerId, int lobbyId)
-        {
-            if (_lobbyManager.LeaveLobby(lobbyId, playerId))
-            {
-                var lobby = _lobbyManager.GetLobby(lobbyId);
-                var dto = await ConvertToDto(lobby);
-
-                await Clients.Group($"lobby-{lobbyId}").SendAsync("LobbyUpdated", dto);
-                await Clients.All.SendAsync("LobbiesUpdated", _lobbyManager.GetAllLobbies());
-            }
+            return await ConvertToDto(lobby);
         }
     }
 }
