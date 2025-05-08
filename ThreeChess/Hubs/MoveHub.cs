@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.SignalR;
 using ThreeChess.Enums;
+using ThreeChess.Interfaces;
 using ThreeChess.Services;
 
 
@@ -8,9 +9,9 @@ namespace ThreeChess.Hubs
     public class MoveHub : Hub
     {
         private readonly LobbyManager _gameManager;
-        private readonly GameRepository _gameRepository;
+        private readonly IGameRepository _gameRepository;
 
-        public MoveHub(LobbyManager gameManager, GameRepository gameRepository)
+        public MoveHub(LobbyManager gameManager, IGameRepository gameRepository)
         {
             _gameManager = gameManager;
             _gameRepository = gameRepository;
