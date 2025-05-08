@@ -89,8 +89,6 @@ namespace ThreeChess.Hubs
         {
             if (_lobbyManager.LeaveLobby(lobbyId, playerId))
             {
-                var lobby = _lobbyManager.GetLobby(lobbyId);
-
                 await NotifyLobbyUpdated(lobbyId);
                 await Clients.All.SendAsync("LobbiesUpdated", _lobbyManager.GetAllLobbies());
             }

@@ -43,7 +43,6 @@
                 window.location.href = `/Game/Play/${gameId}`;
             });
 
-            lobbyHub.on("StartCountdown", startCountdown);
             lobbyHub.on("CancelCountdown", cancelCountdown);
 
             lobbyHub.on("LobbyUpdated", renderLobby);
@@ -63,6 +62,10 @@
                 document.getElementById('players-count').textContent =
                     `${lobbyDto.players.length}`;
 
+                if (lobbyDto.players.length === 3) {
+                    startCountdown();
+                }
+
                 const playersHTML = lobbyDto.players.map(pid => {
                     const nickname = pid.nickname;
                     return `<li>${nickname}</li>`;
@@ -72,7 +75,6 @@
             }
 
             function startCountdown() {
-                cancelCountdown();
                 let seconds = 10; 
 
                 const timer = document.createElement('div');

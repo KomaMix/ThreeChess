@@ -30,11 +30,7 @@ namespace ThreeChess.Services
         public void StartCountdown(int lobbyId)
         {
             var timer = new Timer(async _ => await FinishCountdown(lobbyId), null, 10000, Timeout.Infinite);
-
-            if (_countdownTimers.TryAdd(lobbyId, timer))
-            {
-                _hubContext.Clients.Group($"lobby-{lobbyId}").SendAsync("StartCountdown");
-            }
+            _countdownTimers[lobbyId] = timer;
         }
 
         private async Task FinishCountdown(int lobbyId)
@@ -64,10 +60,15 @@ namespace ThreeChess.Services
                     };
                     
                     _gameRepository.CreateGame(game);
-                    _lobbyManager.RemoveLobby(lobbyId);
 
-                    await _hubContext.Clients.Group($"lobby-{lobbyId}")
-                        .SendAsync("GameStarted", game.Id);
+                    var userIds = lobby.PlayerIds;
+
+                    foreach (var userId in userIds)
+                    {
+                        await _hubContext.Clients.User(userId).SendAsync("GameStarted", game.Id);
+                    }
+
+                    _lobbyManager.RemoveLobby(lobbyId);
                 }
             }
         }
