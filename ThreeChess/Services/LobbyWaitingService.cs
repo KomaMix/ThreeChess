@@ -45,18 +45,23 @@ namespace ThreeChess.Services
                 if (lobby?.PlayerIds.Count == 3)
                 {
                     Dictionary<string, FigureColor> playerColors = new Dictionary<string, FigureColor>();
-                    playerColors[lobby.PlayerIds[0]] = FigureColor.White;
-                    playerColors[lobby.PlayerIds[1]] = FigureColor.Black;
-                    playerColors[lobby.PlayerIds[2]] = FigureColor.Red;
+                    Dictionary<string, TimeSpan> playerGameTimes = new Dictionary<string, TimeSpan>();
+
+                    for (int i = 0; i < 3; i++)
+                    {
+                        playerColors[lobby.PlayerIds[i]] = (FigureColor)i;
+                        playerGameTimes[lobby.PlayerIds[i]] = lobby.GameDuration;
+                    }
 
                     var game = new GameState
                     {
                         Id = Guid.NewGuid(),
                         ActivePlayerIds = lobby.PlayerIds.ToList(),
-                        GameStatus = GameStatus.InProgress,
+                        GameStatus = GameStatus.Wait,
                         CurrentTurnColor = FigureColor.White,
                         FiguresLocation = _boardElementsService.CreateFigures(),
-                        PlayerColors = playerColors
+                        PlayerColors = playerColors,
+                        PlayerGameTimes = playerGameTimes
                     };
                     
                     _gameRepository.CreateGame(game);

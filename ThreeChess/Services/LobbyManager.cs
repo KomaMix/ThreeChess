@@ -57,7 +57,10 @@ namespace ThreeChess.Services
 
         public void CreateLobby()
         {
-            _lobbies.Add(new Lobby());
+            _lobbies.Add(new Lobby
+            {
+                GameDuration = TimeSpan.FromMinutes(10)
+            });
         }
 
         public Lobby GetLobby(int lobbyId)

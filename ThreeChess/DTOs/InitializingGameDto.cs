@@ -1,7 +1,8 @@
 ﻿using ThreeChess.Enums;
+using ThreeChess.Models;
 using ThreeChess.Models.CellElements;
 
-namespace ThreeChess.Models
+namespace ThreeChess.DTOs
 {
     public class InitializingGameDto
     {

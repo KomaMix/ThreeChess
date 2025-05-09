@@ -1,9 +1,9 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ThreeChess.Data;
+using ThreeChess.DTOs;
 using ThreeChess.Enums;
 using ThreeChess.Interfaces;
-using ThreeChess.Models;
 using ThreeChess.Models.CellElements;
 using ThreeChess.Services;
 
