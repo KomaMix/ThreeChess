@@ -61,8 +61,8 @@
     cellTo.elements.label.style.visibility = 'hidden';
 
     // Позиционируем фигуру в новой ячейке (центруем изображение)
-    cellTo.elements.figure.figureImage.setAttribute('x', cellTo.center.x - 25);
-    cellTo.elements.figure.figureImage.setAttribute('y', cellTo.center.y - 25);
+    cellTo.elements.figure.figureImage.setAttribute('x', cellTo.center.x - FIGURE_SIZE / 2);
+    cellTo.elements.figure.figureImage.setAttribute('y', cellTo.center.y - FIGURE_SIZE / 2);
 
     replaceCurrentTurnColor();
     console.log('Moved successfully');
@@ -80,7 +80,7 @@ function localMove(startId, endId) {
 
 
     moveFigure(startId, endId);
-    gameHub.invoke("HandleMove", startId, endId);
+    gameHub.invoke("HandleMove", startId, endId, gameId);
 }
 
 function replaceCurrentTurnColor() {

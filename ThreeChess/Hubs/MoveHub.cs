@@ -8,19 +8,20 @@ namespace ThreeChess.Hubs
 {
     public class MoveHub : Hub
     {
-        private readonly LobbyManager _gameManager;
-        private readonly IGameRepository _gameRepository;
+        private readonly LobbyManager _lobbyManager;
+        private readonly IGameManager _gameManager;
 
-        public MoveHub(LobbyManager gameManager, IGameRepository gameRepository)
+        public MoveHub(LobbyManager lobbyManager, IGameManager gameManager)
         {
+            _lobbyManager = lobbyManager;
             _gameManager = gameManager;
-            _gameRepository = gameRepository;
         }
 
-        public async Task HandleMove(string startCellId, string endCellId)
+        public async Task HandleMove(string startCellId, string endCellId, Guid gameId)
         {
             var playerId = Context.UserIdentifier;
 
+            var result = _gameManager.Move(gameId, startCellId, endCellId);
 
             await Clients.Others.SendAsync("handleMove", startCellId, endCellId);
 
