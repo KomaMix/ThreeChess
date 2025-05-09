@@ -80,7 +80,12 @@ function localMove(startId, endId) {
 
 
     moveFigure(startId, endId);
-    gameHub.invoke("HandleMove", startId, endId, gameId);
+    gameHub.invoke("HandleMove",
+    {
+        startCellId: startId,
+        endCellId: endId,
+        gameId: gameId
+    });
 }
 
 function replaceCurrentTurnColor() {

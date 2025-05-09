@@ -1,9 +1,9 @@
 ﻿using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using ThreeChess.DTOs;
 using ThreeChess.Interfaces;
-using ThreeChess.Models;
-using ThreeChess.Services;
+
 
 namespace ThreeChess.Controllers
 {

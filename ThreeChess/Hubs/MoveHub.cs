@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.SignalR;
+using ThreeChess.DTOs;
 using ThreeChess.Enums;
 using ThreeChess.Interfaces;
 using ThreeChess.Services;
@@ -17,13 +18,13 @@ namespace ThreeChess.Hubs
             _gameManager = gameManager;
         }
 
-        public async Task HandleMove(string startCellId, string endCellId, Guid gameId)
+        public async Task HandleMove(MoveRequest moveRequest)
         {
             var playerId = Context.UserIdentifier;
 
-            var result = _gameManager.Move(gameId, startCellId, endCellId);
+            var result = _gameManager.Move(moveRequest.GameId, moveRequest.StartCellId, moveRequest.EndCellId);
 
-            await Clients.Others.SendAsync("handleMove", startCellId, endCellId);
+            await Clients.Others.SendAsync("handleMove", moveRequest.StartCellId, moveRequest.EndCellId);
 
 
         }
