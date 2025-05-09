@@ -22,9 +22,17 @@ namespace ThreeChess.Hubs
         {
             var playerId = Context.UserIdentifier;
 
-            var result = _gameManager.Move(moveRequest.GameId, moveRequest.StartCellId, moveRequest.EndCellId);
+            var result = await _gameManager.Move(moveRequest.GameId, moveRequest.StartCellId, moveRequest.EndCellId);
 
-            await Clients.Others.SendAsync("handleMove", moveRequest.StartCellId, moveRequest.EndCellId);
+            if (result)
+            {
+                await Clients.Others.SendAsync("handleMove", new MoveResponse
+                {
+                    GameId = moveRequest.GameId,
+                    StartCellId = moveRequest.StartCellId,
+                    EndCellId = moveRequest.EndCellId
+                });
+            }
 
 
         }

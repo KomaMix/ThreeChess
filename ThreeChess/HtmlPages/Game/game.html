@@ -69,9 +69,9 @@
             .withUrl("/moveHub")
             .build();
 
-        gameHub.on("handleMove", function (startId, endId) {
+        gameHub.on("handleMove", function (moveResponse) {
             try {
-                moveFigure(startId, endId);
+                moveFigure(moveResponse.startCellId, moveResponse.endCellId);
             } catch (error) {
                 console.error('Error in Receive handler:', error);
             }
