@@ -24,6 +24,10 @@
         highlightKnightMoves(cell.id);
     }
 
+    if (piece.figureInfo.figureType === 'King') {
+        highlightKingCastlingMoves(cell.id);
+    }
+
     if (piece.figureInfo.figureType === 'Pawn') {
         highlightPawnMoves(cell.id);
     }
@@ -447,6 +451,85 @@ function highlightPawnMoves(cellId) {
     });
 }
 
+
+function highlightKingCastlingMoves(cellId) {
+    const cellState = boardElementsState.cells[cellId];
+    const king = cellState.elements.figure;
+
+    if (typeof king.hasMoved === 'undefined') {
+        king.hasMoved = false;
+    }
+
+    if (king.hasMoved) return;
+
+    // Шаг 1: Ищем побочную линию (secondary line) с королем
+    let kingSecondaryLine = null;
+    let secondaryLineIndex = -1;
+    for (let line of movedElements.secondaryLines) {
+        const idx = line.indexOf(cellId);
+        if (idx !== -1) {
+            kingSecondaryLine = line;
+            secondaryLineIndex = idx;
+            break;
+        }
+    }
+
+    if (!kingSecondaryLine) {
+        console.error("Побочная линия для короля не найдена.");
+        return;
+    }
+
+    // Шаг 2: Поиск ладей на этой же побочной линии
+    const directions = [
+        { side: 'right', delta: 1, steps: 2 },  // В одну сторону
+        { side: 'left', delta: -1, steps: 3 }   // В другую сторону
+    ];
+
+    directions.forEach(({ side, delta, steps }) => {
+        let currentIndex = secondaryLineIndex;
+        let pathClear = true;
+        let rookCell = null;
+        const cellsBetween = [];
+
+        // Проверяем путь к ладье
+        while (true) {
+            currentIndex += delta;
+            if (currentIndex < 0 || currentIndex >= kingSecondaryLine.length) break;
+
+            const cell = kingSecondaryLine[currentIndex];
+            const cellState = boardElementsState.cells[cell];
+
+            if (currentIndex === kingSecondaryLine.length - 1 || currentIndex === 0) { // Последний шаг - позиция ладьи
+                if (cellState?.elements?.figure?.figureInfo?.figureType === 'Rook') {
+                    rookCell = cell;
+                }
+            } else { // Проверяем промежуточные клетки
+                cellsBetween.push(cell);
+                if (cellState?.elements?.figure) pathClear = false;
+            }
+        }
+
+        // Проверяем условия для рокировки
+        if (rookCell && pathClear) {
+            const rook = boardElementsState.cells[rookCell].elements.figure;
+
+            if (!rook.hasMoved && !king.hasMoved) {
+                // Определяем целевую клетку для короля
+                const targetIndex = secondaryLineIndex + 2 * delta;
+
+                if (targetIndex >= 0 && targetIndex < kingSecondaryLine.length) {
+                    const castlingCell = kingSecondaryLine[targetIndex];
+                    const cellState = boardElementsState.cells[castlingCell];
+
+
+                    cellState.elements.path.classList.add('cell-highlighted');
+                    console.log(`Возможна ${side} рокировка в ${castlingCell}`);
+
+                }
+            }
+        }
+    });
+}
 
 
 function clearHighlightedCells() {
