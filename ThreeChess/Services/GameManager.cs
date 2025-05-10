@@ -1,4 +1,5 @@
 ﻿using System.Security.Claims;
+using ThreeChess.DTOs;
 using ThreeChess.Enums;
 using ThreeChess.Interfaces;
 
@@ -14,34 +15,48 @@ namespace ThreeChess.Services
             _httpContextAccessor = httpContextAccessor;
         }
 
-        public Task<bool> Move(Guid gameId, string startCellId, string endCellId)
+        public Task<MoveResponse> MoveHandle(MoveRequest moveRequest)
         {
             var user = _httpContextAccessor.HttpContext?.User;
             var userId = user?.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            var game = _gameRepository.GetGame(gameId);
+            var game = _gameRepository.GetGame(moveRequest.GameId);
 
             if (game == null || userId == null)
             {
-                return Task.FromResult(false);
+                throw new Exception("game not finding");
             }
 
             if (game.PlayerColors[userId] != game.CurrentTurnColor)
             {
-                return Task.FromResult(false);
+                throw new Exception("turn error");
             }
 
-            if (game.FiguresLocation.ContainsKey(endCellId))
+            if (game.FiguresLocation.ContainsKey(moveRequest.EndCellId))
             {
-                game.FiguresLocation.Remove(endCellId);
+                game.FiguresLocation.Remove(moveRequest.EndCellId);
             }
 
-            game.FiguresLocation[endCellId] = game.FiguresLocation[startCellId];
-            game.FiguresLocation.Remove(startCellId);
+            if (game.GameStatus == GameStatus.Wait)
+            {
+                game.GameStatus = GameStatus.InProgress;
+
+                game.LastMoveTime = DateTime.UtcNow;
+            }
+
+            game.FiguresLocation[moveRequest.EndCellId] = game.FiguresLocation[moveRequest.StartCellId];
+            game.FiguresLocation.Remove(moveRequest.StartCellId);
 
             game.CurrentTurnColor = game.CurrentTurnColor.NextColor();
 
-            return Task.FromResult(true);
+            game.PlayerGameTimes[userId] -= (DateTime.UtcNow - game.LastMoveTime);
+
+            return Task.FromResult(new MoveResponse
+            {
+                StartCellId = moveRequest.StartCellId,
+                EndCellId = moveRequest.EndCellId,
+                GameId = game.Id
+            });
         }
     }
 }

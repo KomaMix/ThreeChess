@@ -1,7 +1,9 @@
-﻿namespace ThreeChess.Interfaces
+﻿using ThreeChess.DTOs;
+
+namespace ThreeChess.Interfaces
 {
     public interface IGameManager
     {
-        Task<bool> Move(Guid gameId, string startCellId, string endCellId);
+        Task<MoveResponse> MoveHandle(MoveRequest moveRequest);
     }
 }
