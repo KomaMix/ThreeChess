@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ThreeChess.DTOs;
+using ThreeChess.Enums;
 using ThreeChess.Interfaces;
 
 
@@ -65,6 +66,43 @@ namespace ThreeChess.Controllers
             };
 
             return Ok(dto);
+        }
+
+        [HttpGet("ActiveGames")]
+        public IActionResult ActiveGames()
+        {
+            var filePath = Path.Combine(_env.ContentRootPath, "HtmlPages/Game/active-games.html");
+            return PhysicalFile(filePath, "text/html");
+        }
+
+        [HttpGet("active-games")]
+        public IActionResult GetAllActiveGames()
+        {
+            var games = _gameRepository.GetAllGames().ToList();
+
+            var filteredGames = games
+                .Where(g => g.GameStatus == GameStatus.InProgress || g.GameStatus == GameStatus.Wait)
+                .Select(g => new GameListItemDto
+                {
+                    Id = g.Id,
+                    CreatedAt = g.CreatedAt,
+                    PlayersCount = g.PlayerColors.Count,
+                    Status = g.GameStatus.ToString(),
+                    LastMoveTime = g.LastMoveTime,
+                    CurrentTurn = g.CurrentTurnColor.ToString()
+                }).ToList();
+
+            return Ok(filteredGames);
+        }
+
+        public class GameListItemDto
+        {
+            public Guid Id { get; set; }
+            public DateTime CreatedAt { get; set; }
+            public int PlayersCount { get; set; }
+            public string Status { get; set; }
+            public DateTime LastMoveTime { get; set; }
+            public string CurrentTurn { get; set; }
         }
     }
 }

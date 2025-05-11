@@ -36,7 +36,7 @@ builder.Services.AddIdentity<AppUser, IdentityRole>()
 builder.Services.AddTransient<IBoardElementsService, BoardElementsService>();
 builder.Services.AddTransient<IMoveLogicalElementsService, MoveLogicalElementsService>();
 builder.Services.AddSingleton<LobbyManager>();
-builder.Services.AddSingleton<IGameRepository, GameRepository>();
+builder.Services.AddSingleton<IGameRepository, RedisGameRepository>();
 builder.Services.AddSingleton<IGameManager, GameManager>();
 builder.Services.AddSingleton<ILobbyWaitingService, LobbyWaitingService>();
 builder.Services.AddHttpContextAccessor();

@@ -53,6 +53,8 @@ namespace ThreeChess.Services
 
             game.LastMoveTime = DateTime.UtcNow;
 
+            _gameRepository.UpdateGame(game);
+
             return Task.FromResult(new MoveResponse
             {
                 StartCellId = moveRequest.StartCellId,

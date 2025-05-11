@@ -1,0 +1,78 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Chess for Three - Активные игры</title>
+    <link rel="stylesheet" href="/styles/active-games.css?v=1.0">
+    <link rel="stylesheet" href="/styles/header.css?v=1.4">
+</head>
+<body>
+    <header>
+        <div class="logo">Chess for Three</div>
+        <nav>
+            <a href="/Lobby/AllLobbiesPage" class="nav-link">Все лобби</a>
+        </nav>
+    </header>
+
+    <main>
+        <section class="games-container">
+            <h1>Активные игры</h1>
+            <div class="games-list" id="games-list">
+                <div class="loading">Загрузка списка игр...</div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        async function loadGames() {
+            try {
+                const response = await fetch('/Game/active-games');
+                const games = await response.json();
+                renderGames(games);
+            } catch (error) {
+                document.getElementById('games-list').innerHTML =
+                    '<div class="error">Ошибка загрузки списка игр</div>';
+            }
+        }
+
+        function renderGames(games) {
+            const container = document.getElementById('games-list');
+
+            if (games.length === 0) {
+                container.innerHTML = '<div class="no-games">Нет активных игр</div>';
+                return;
+            }
+
+            container.innerHTML = games.map(game => `
+                <div class="game-card">
+                    <div class="game-header">
+                        <span class="game-id">#${game.id.substring(0,8)}</span>
+                        <span class="game-status ${game.status}">${game.status === 'InProgress' ? 'В процессе' : 'Ожидание'}</span>
+                    </div>
+                    <div class="game-info">
+                        <div class="info-item">
+                            <span>Игроков:</span>
+                            <span class="value">${game.playersCount}/3</span>
+                        </div>
+                        <div class="info-item">
+                            <span>Создана:</span>
+                            <span class="value">${game.createdAt}</span>
+                        </div>
+                        <div class="info-item">
+                            <span>Текущий ход:</span>
+                            <span class="value">${game.currentTurn}</span>
+                        </div>
+                        <div class="info-item">
+                            <span>Последний ход:</span>
+                            <span class="value">${game.lastMoveTime}</span>
+                        </div>
+                    </div>
+                    <a href="/Game/Play/${game.id}" class="observe-btn">Играть</a>
+                </div>
+            `).join('');
+        }
+
+        document.addEventListener('DOMContentLoaded', loadGames);
+    </script>
+</body>
+</html>

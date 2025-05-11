@@ -4,7 +4,9 @@ namespace ThreeChess.Interfaces
 {
     public interface IGameRepository
     {
-        public void CreateGame(GameState gameState);
-        public GameState GetGame(Guid gameId);
+        void CreateGame(GameState gameState);
+        GameState GetGame(Guid gameId);
+        void UpdateGame(GameState gameState);
+        IEnumerable<GameState> GetAllGames();
     }
 }
