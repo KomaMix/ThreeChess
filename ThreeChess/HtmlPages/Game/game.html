@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chess for Three - Игровая доска</title>
-    <link rel="stylesheet" href="/styles/board.css?v=1.7" />
+    <link rel="stylesheet" href="/styles/board.css?v=1.8" />
     <link rel="stylesheet" href="/styles/header.css?v=1.1">
 </head>
 <body>
@@ -23,22 +23,30 @@
         </div>
 
         <!-- Боковое меню с информацией о игре -->
-        <!--<aside class="game-info">
-            <h2>Информация по игре</h2>
-            <ul>
-                <li>Игрок 1: Активен</li>
-                <li>Игрок 2: Ожидание хода</li>
-                <li>Игрок 3: Подключен</li>
+        <aside class="game-info">
+            <h2>Таймер</h2>
+            <ul id="timers-list">
+                <li data-color="White">
+                    <span class="timer-label">Белый:</span>
+                    <span class="timer-value" id="timer-White">--:--</span>
+                </li>
+                <li data-color="Black">
+                    <span class="timer-label">Черный:</span>
+                    <span class="timer-value" id="timer-Black">--:--</span>
+                </li>
+                <li data-color="Red">
+                    <span class="timer-label">Красный:</span>
+                    <span class="timer-value" id="timer-Red">--:--</span>
+                </li>
             </ul>
-            <p>Здесь можно отображать дополнительные сведения: текущий счёт, таймер, историю ходов и т.д.</p>
-        </aside>-->
+        </aside>
     </div>
 
     <!-- Скрипты остаются без изменений -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/6.0.1/signalr.js"></script>
     <script src="/scripts/highlightMoves.js?v=2.5"></script>
     <script src="/scripts/renderBoard.js?v=1.6"></script>
-    <script src="/scripts/loadCells.js?v=2.2"></script>
+    <script src="/scripts/loadCells.js?v=2.6"></script>
     <script src="/scripts/validatePolygon.js?v=1.4"></script>
     <script src="/scripts/moveFigures.js?v=2.8"></script>
     <script src="/scripts/figureClickHandlers.js?v=2.0"></script>
@@ -71,7 +79,13 @@
 
         gameHub.on("handleMove", function (moveResponse) {
             try {
-                moveFigure(moveResponse.startCellId, moveResponse.endCellId);
+                if (moveResponse.userId !== gameConfig.userId) {
+                    moveFigure(moveResponse.startCellId, moveResponse.endCellId);
+                }
+                
+                gameConfig.playerGameTimes = moveResponse.playerGameTimes;
+
+                updateTimers();
             } catch (error) {
                 console.error('Error in Receive handler:', error);
             }
@@ -83,6 +97,33 @@
                 .catch(err => console.error('SignalR connection error:', err));
             loadCells(gameId);
         });
+
+        function formatTimeSpan(tsString) {
+            // .NET TimeSpan приходит в формате "hh:mm:ss.fffffff"
+            const [timePart, fractionPart] = tsString.split('.');
+            const [hh, mm, ss] = timePart.split(':').map(Number);
+            const totalSeconds = hh * 3600 + mm * 60 + ss;
+
+            let tenths = '0';
+            if (fractionPart) {
+                // Преобразуем строку в доли секунды и округляем до десятой
+                const ms = parseInt(fractionPart.padEnd(7, '0').slice(0, 7)); // до 7 цифр как в .NET
+                tenths = Math.floor(ms / 100_000).toString(); // десятые доли
+            }
+
+            const minutes = Math.floor(totalSeconds / 60).toString().padStart(2, '0');
+            const seconds = (totalSeconds % 60).toString().padStart(2, '0');
+
+            return `${minutes}:${seconds}.${tenths}`;
+        }
+
+        function updateTimers() {
+            gameConfig.activePlayerIds.forEach(userId => {
+                const el = document.getElementById(`timer-${gameConfig.playerColors[userId]}`);
+                const ts = gameConfig.playerGameTimes[userId];
+                if (el && ts) el.textContent = formatTimeSpan(ts);
+            });
+        }
 
         
     </script>

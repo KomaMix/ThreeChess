@@ -51,13 +51,17 @@ namespace ThreeChess.Controllers
             var dto = new InitializingGameDto
             {
                 GameId = game.Id,
+                UserId = userId,
                 ControlledColor = controlledColor,
                 CurrentTurnColor = game.CurrentTurnColor,
                 CellsLocation = _boardCreateService.CreateBoardCellsForColor(controlledColor),
                 FiguresLocation = game.FiguresLocation,
+                ActivePlayerIds = game.ActivePlayerIds,
                 Diagonals = _moveElementsService.GetDiagonals(),
                 MainLines = _moveElementsService.GetMainLines(),
-                SecondaryLines = _moveElementsService.GetSecondaryLines()
+                SecondaryLines = _moveElementsService.GetSecondaryLines(),
+                PlayerGameTimes = game.PlayerGameTimes,
+                PlayerColors = game.PlayerColors
             };
 
             return Ok(dto);

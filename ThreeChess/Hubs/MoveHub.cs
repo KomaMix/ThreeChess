@@ -33,7 +33,7 @@ namespace ThreeChess.Hubs
                 return;
             }
 
-            await Clients.Others.SendAsync("handleMove", moveResponse);
+            await Clients.All.SendAsync("handleMove", moveResponse);
 
 
 

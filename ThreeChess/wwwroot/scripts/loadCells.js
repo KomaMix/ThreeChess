@@ -6,11 +6,7 @@
 
         const gameConf = await gameConfigResponse.json();
 
-        console.log("Клетки:", gameConf.cellsLocation);
-        console.log("Фигуры:", gameConf.figuresLocation);
-        console.log("Диагонали:", gameConf.diagonals);
-        console.log("Главные линии:", gameConf.mainLines);
-        console.log("Побочные линии:", gameConf.secondaryLines);
+        console.log("Конфигурация игры:", gameConf);
 
         movedElements.diagonals = gameConf.diagonals;
         movedElements.mainLines = gameConf.mainLines;
@@ -19,9 +15,15 @@
         gameConfig.controlledColor = gameConf.controlledColor;
         gameConfig.currentTurnColor = gameConf.currentTurnColor;
 
+        gameConfig.activePlayerIds = gameConf.activePlayerIds;       
+        gameConfig.playerColors = gameConf.playerColors;
+        gameConfig.playerGameTimes = gameConf.playerGameTimes;
+        gameConfig.userId = gameConf.userId;
 
 
         renderBoard(gameConf.cellsLocation, gameConf.figuresLocation);
+
+        updateTimers();
     } catch (error) {
         console.error('Error:', error);
     }

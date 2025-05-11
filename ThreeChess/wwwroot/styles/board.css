@@ -4,7 +4,7 @@
     justify-content: center;
     align-items: flex-start;
     margin: 20px;
-    gap: 30px;
+    gap: 18px;
 }
 
 /* Стили для контейнера доски */
@@ -18,32 +18,60 @@
 /* Стили для бокового меню с информацией по игре */
 .game-info {
     background-color: #E0E0E0;
-    border-radius: 10px;
-    padding: 20px;
+    border-radius: 8px;
+    padding: 10px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    max-width: 300px;
+    max-width: 220px;
     width: 100%;
     color: #333;
 }
+
 
     .game-info h2 {
         margin-bottom: 15px;
         color: #333;
     }
 
-    .game-info ul {
-        list-style: none;
-        margin-bottom: 10px;
-    }
+#timers-list {
+    list-style: none;
+    padding: 0;
+}
 
-    .game-info li {
-        padding: 5px 0;
+    #timers-list li {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 8px 0;
         border-bottom: 1px solid #ccc;
     }
 
-        .game-info li:last-child {
+        #timers-list li:last-child {
             border-bottom: none;
         }
+
+.timer-label {
+    font-weight: bold;
+}
+
+.timer-value {
+    font-family: monospace;
+    min-width: 50px;
+    text-align: right;
+}
+
+/* Цветовые акценты */
+#timer-White {
+    color: rgb(255,255,255);
+    text-shadow: 0 0 3px #000;
+}
+
+#timer-Black {
+    color: rgb(0,0,0);
+}
+
+#timer-Red {
+    color: rgb(176,69,71);
+}
 
 
 svg {

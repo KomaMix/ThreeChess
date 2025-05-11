@@ -51,11 +51,15 @@ namespace ThreeChess.Services
 
             game.PlayerGameTimes[userId] -= (DateTime.UtcNow - game.LastMoveTime);
 
+            game.LastMoveTime = DateTime.UtcNow;
+
             return Task.FromResult(new MoveResponse
             {
                 StartCellId = moveRequest.StartCellId,
                 EndCellId = moveRequest.EndCellId,
-                GameId = game.Id
+                GameId = game.Id,
+                UserId = userId,
+                PlayerGameTimes = game.PlayerGameTimes
             });
         }
     }
