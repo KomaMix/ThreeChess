@@ -138,7 +138,8 @@ function localMove(startId, endId) {
     {
         startCellId: startId,
         endCellId: endId,
-        gameId: gameId
+        gameId: gameId,
+        userId: gameConfig.userId
     });
 }
 

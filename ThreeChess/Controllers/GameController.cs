@@ -16,17 +16,20 @@ namespace ThreeChess.Controllers
         private readonly IGameRepository _gameRepository;
         private readonly IBoardElementsService _boardCreateService;
         private readonly IMoveLogicalElementsService _moveElementsService;
+        private readonly IMoveHistoryService _moveHistoryService;
 
         public GameController(
             IWebHostEnvironment env,
             IGameRepository gameRepository,
             IBoardElementsService boardCreateService,
-            IMoveLogicalElementsService moveElementsService)
+            IMoveLogicalElementsService moveElementsService,
+            IMoveHistoryService moveHistoryService)
         {
             _env = env;
             _gameRepository = gameRepository;
             _boardCreateService = boardCreateService;
             _moveElementsService = moveElementsService;
+            _moveHistoryService = moveHistoryService;
         }
 
 
@@ -62,7 +65,8 @@ namespace ThreeChess.Controllers
                 MainLines = _moveElementsService.GetMainLines(),
                 SecondaryLines = _moveElementsService.GetSecondaryLines(),
                 PlayerGameTimes = game.PlayerGameTimes,
-                PlayerColors = game.PlayerColors
+                PlayerColors = game.PlayerColors,
+                MoveHistory = _moveHistoryService.GetMoveHistory(gameId).ToList()
             };
 
             return Ok(dto);
@@ -85,10 +89,10 @@ namespace ThreeChess.Controllers
                 .Select(g => new GameListItemDto
                 {
                     Id = g.Id,
-                    CreatedAt = g.CreatedAt,
+                    CreatedAt = g.CreatedAt.ToString(),
                     PlayersCount = g.PlayerColors.Count,
                     Status = g.GameStatus.ToString(),
-                    LastMoveTime = g.LastMoveTime,
+                    LastMoveTime = g.LastMoveTime.ToString(),
                     CurrentTurn = g.CurrentTurnColor.ToString()
                 }).ToList();
 
@@ -98,10 +102,10 @@ namespace ThreeChess.Controllers
         public class GameListItemDto
         {
             public Guid Id { get; set; }
-            public DateTime CreatedAt { get; set; }
+            public string CreatedAt { get; set; } = DateTime.UtcNow.ToString();
             public int PlayersCount { get; set; }
             public string Status { get; set; }
-            public DateTime LastMoveTime { get; set; }
+            public string LastMoveTime { get; set; }
             public string CurrentTurn { get; set; }
         }
     }

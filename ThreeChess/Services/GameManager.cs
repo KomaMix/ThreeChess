@@ -2,6 +2,7 @@
 using ThreeChess.DTOs;
 using ThreeChess.Enums;
 using ThreeChess.Interfaces;
+using ThreeChess.Models;
 
 namespace ThreeChess.Services
 {
@@ -9,10 +10,13 @@ namespace ThreeChess.Services
     {
         private readonly IGameRepository _gameRepository;
         private readonly IHttpContextAccessor _httpContextAccessor;
-        public GameManager(IGameRepository gameRepository, IHttpContextAccessor httpContextAccessor)
+        private readonly IMoveHistoryService _moveHistory;
+
+        public GameManager(IGameRepository gameRepository, IHttpContextAccessor httpContextAccessor, IMoveHistoryService moveHistory)
         {
             _gameRepository = gameRepository;
             _httpContextAccessor = httpContextAccessor;
+            _moveHistory = moveHistory;
         }
 
         public Task<MoveResponse> MoveHandle(MoveRequest moveRequest)
@@ -54,6 +58,11 @@ namespace ThreeChess.Services
             game.LastMoveTime = DateTime.UtcNow;
 
             _gameRepository.UpdateGame(game);
+            _moveHistory.AddMove(moveRequest.GameId, new Move
+            {
+                StartCellId = moveRequest.StartCellId,
+                EndCellId = moveRequest.EndCellId
+            });
 
             return Task.FromResult(new MoveResponse
             {

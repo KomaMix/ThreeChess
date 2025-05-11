@@ -20,7 +20,7 @@ namespace ThreeChess.Services
         public void CreateGame(GameState gameState)
         {
             // Формируем ключ вида "game:123e4567-e89b-12d3-a456-426614174000"
-            var key = $"game:{gameState.Id}";
+            var key = $"game:data:{gameState.Id}";
 
             // Сериализуем объект в JSON
             var json = JsonSerializer.Serialize(gameState);
@@ -31,7 +31,7 @@ namespace ThreeChess.Services
 
         public GameState GetGame(Guid gameId)
         {
-            var key = $"game:{gameId}";
+            var key = $"game:data:{gameId}";
 
             // Получаем данные из Redis
             var json = _db.StringGet(key);
@@ -55,7 +55,7 @@ namespace ThreeChess.Services
             var server = _redis.GetServer(endpoints.First());
 
             // Исправляем шаблон ключей (game:* вместо games:*)
-            var keys = server.Keys(pattern: "game:*");
+            var keys = server.Keys(pattern: "game:data:*");
 
             foreach (var key in keys)
             {

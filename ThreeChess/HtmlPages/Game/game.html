@@ -4,8 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chess for Three - Игровая доска</title>
-    <link rel="stylesheet" href="/styles/board.css?v=1.8" />
+    <link rel="stylesheet" href="/styles/board.css?v=2.1" />
     <link rel="stylesheet" href="/styles/header.css?v=1.1">
+    <link rel="stylesheet" href="/styles/move-history.css?v=1.7">
 </head>
 <body>
     <!-- Основной контейнер для контента страницы -->
@@ -39,6 +40,10 @@
                     <span class="timer-value" id="timer-Red">--:--</span>
                 </li>
             </ul>
+            <h2 style="margin-top: 30px;">История ходов</h2>
+            <div id="moves-history">
+                <div class="loading-moves">Загрузка истории ходов...</div>
+            </div>
         </aside>
     </div>
 
@@ -46,9 +51,9 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/6.0.1/signalr.js"></script>
     <script src="/scripts/highlightMoves.js?v=2.5"></script>
     <script src="/scripts/renderBoard.js?v=1.6"></script>
-    <script src="/scripts/loadCells.js?v=2.6"></script>
+    <script src="/scripts/loadCells.js?v=2.7"></script>
     <script src="/scripts/validatePolygon.js?v=1.4"></script>
-    <script src="/scripts/moveFigures.js?v=2.8"></script>
+    <script src="/scripts/moveFigures.js?v=2.9"></script>
     <script src="/scripts/figureClickHandlers.js?v=2.0"></script>
     <script>
         const parts = window.location.pathname.split('/');
@@ -86,6 +91,20 @@
                 gameConfig.playerGameTimes = moveResponse.playerGameTimes;
 
                 updateTimers();
+
+
+                const historyContainer = document.getElementById('moves-history');
+                const moveCount = historyContainer.children.length;
+                const turnColor = getTurnColorByIndex(moveCount);
+
+                const moveItem = document.createElement('div');
+                moveItem.className = 'move-item';
+                moveItem.innerHTML = `
+                    <span class="move-number">${moveCount + 1}.</span>
+                    <span class="move-cells ${turnColor}">${moveResponse.startCellId} → ${moveResponse.endCellId}</span>
+                `;
+
+                historyContainer.appendChild(moveItem);
             } catch (error) {
                 console.error('Error in Receive handler:', error);
             }
@@ -95,7 +114,8 @@
             gameHub.start()
                 .then(() => console.log('SignalR connection established'))
                 .catch(err => console.error('SignalR connection error:', err));
-            loadCells(gameId);
+            await loadCells(gameId);
+            updateMovesHistory(gameConfig.moveHistory);
         });
 
         function formatTimeSpan(tsString) {
@@ -123,6 +143,54 @@
                 const ts = gameConfig.playerGameTimes[userId];
                 if (el && ts) el.textContent = formatTimeSpan(ts);
             });
+        }
+
+        function updateMovesHistory(moves) {
+            const container = document.getElementById('moves-history');
+            container.innerHTML = moves.length > 0
+                ? moves.map((move, index) => {
+                    const turnColor = getTurnColorByIndex(index);
+                    return `
+                <div class="move-item">
+                    <span class="move-number">${index + 1}.</span>
+                    <span class="move-cells ${turnColor}">${move.startCellId} → ${move.endCellId}</span>
+                </div>
+            `;
+                }).join('')
+                : '<div class="no-moves">История ходов пуста</div>';
+        }
+
+        function getTurnColorByIndex(index) {
+            const colors = ['White', 'Black', 'Red'];
+            return colors[index % 3];
+        }
+
+        function getColorHex(color) {
+            const colors = {
+                'White': '#ffffff',
+                'Black': '#000000',
+                'Red': '#ff4444'
+            };
+            return colors[color] || '#ccc';
+        }
+
+        function formatTime(timestamp) {
+            const date = new Date(timestamp);
+            return `${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
+        }
+
+        function createMoveElement(move, number) {
+            const element = document.createElement('div');
+            element.className = 'move-item';
+            element.innerHTML = `
+                <span class="move-number">${number}.</span>
+                <span class="move-player" style="${getColorStyle(move.playerColor)}">
+                    ${move.playerColor}
+                </span>
+                <span class="move-notation">${move.startCell} → ${move.endCell}</span>
+                <span class="move-time">${formatTime(move.timestamp)}</span>
+            `;
+            return element;
         }
 
         

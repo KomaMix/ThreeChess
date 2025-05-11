@@ -1,0 +1,62 @@
+﻿#moves-history {
+    max-height: 498px;
+    overflow-y: auto;
+    margin-top: 15px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    padding: 10px;
+}
+
+.move-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid #eee;
+}
+
+    .move-item:last-child {
+        border-bottom: none;
+    }
+
+.move-number {
+    color: #666;
+    min-width: 40px;
+    font-weight: bold;
+}
+
+.move-cells {
+    flex-grow: 1;
+    margin: 0 10px;
+    font-family: monospace;
+    text-align: center;
+}
+
+    .move-cells.White {
+        color: rgb(255,255,255);
+        text-shadow: 0 0 3px #000;
+    }
+
+
+    .move-cells.Black {
+        color: #000;
+        font-weight: bold;
+    }
+
+    .move-cells.Red {
+        color: #b04547;
+    }
+
+.move-time {
+    color: #666;
+    min-width: 60px;
+    text-align: right;
+    font-family: monospace;
+}
+
+.no-moves {
+    color: #888;
+    text-align: center;
+    padding: 15px;
+    font-style: italic;
+}

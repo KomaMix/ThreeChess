@@ -18,5 +18,6 @@ namespace ThreeChess.DTOs
         public List<List<string>> SecondaryLines { get; set; }
         public Dictionary<string, FigureColor> PlayerColors { get; set; }
         public Dictionary<string, TimeSpan> PlayerGameTimes { get; set; }
+        public List<Move> MoveHistory { get; set; }
     }
 }

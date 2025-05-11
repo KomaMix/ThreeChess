@@ -19,6 +19,7 @@
         gameConfig.playerColors = gameConf.playerColors;
         gameConfig.playerGameTimes = gameConf.playerGameTimes;
         gameConfig.userId = gameConf.userId;
+        gameConfig.moveHistory = gameConf.moveHistory;
 
 
         renderBoard(gameConf.cellsLocation, gameConf.figuresLocation);

@@ -2,6 +2,7 @@ using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using StackExchange.Redis;
 using ThreeChess.Data;
 using ThreeChess.Hubs;
 using ThreeChess.Interfaces;
@@ -35,11 +36,19 @@ builder.Services.AddIdentity<AppUser, IdentityRole>()
 
 builder.Services.AddTransient<IBoardElementsService, BoardElementsService>();
 builder.Services.AddTransient<IMoveLogicalElementsService, MoveLogicalElementsService>();
+builder.Services.AddSingleton<IMoveHistoryService, MoveHistoryService>();
 builder.Services.AddSingleton<LobbyManager>();
 builder.Services.AddSingleton<IGameRepository, RedisGameRepository>();
 builder.Services.AddSingleton<IGameManager, GameManager>();
 builder.Services.AddSingleton<ILobbyWaitingService, LobbyWaitingService>();
 builder.Services.AddHttpContextAccessor();
+
+builder.Services.AddSingleton<IConnectionMultiplexer>(provider =>
+{
+    var configuration = ConfigurationOptions.Parse("localhost:6379");
+    configuration.AbortOnConnectFail = false;
+    return ConnectionMultiplexer.Connect(configuration);
+});
 
 
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
