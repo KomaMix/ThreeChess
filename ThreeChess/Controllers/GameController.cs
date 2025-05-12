@@ -82,7 +82,7 @@ namespace ThreeChess.Controllers
         [HttpGet("active-games")]
         public IActionResult GetAllActiveGames()
         {
-            var games = _gameRepository.GetAllGames().ToList();
+            var games = _gameRepository.GetAllGames().Take(1000).ToList();
 
             var filteredGames = games
                 .Where(g => g.GameStatus == GameStatus.InProgress || g.GameStatus == GameStatus.Wait)

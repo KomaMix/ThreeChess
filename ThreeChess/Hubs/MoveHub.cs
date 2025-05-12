@@ -33,20 +33,7 @@ namespace ThreeChess.Hubs
                 return;
             }
 
-            await Clients.All.SendAsync("handleMove", moveResponse);
 
-
-
-        }
-
-        public override Task OnConnectedAsync()
-        {
-            return base.OnConnectedAsync();
-        }
-
-        public override Task OnDisconnectedAsync(Exception? exception)
-        {
-            return base.OnDisconnectedAsync(exception);
         }
     }
 }

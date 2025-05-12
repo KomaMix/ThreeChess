@@ -94,6 +94,12 @@
 
 
                 const historyContainer = document.getElementById('moves-history');
+
+                const emptyMessage = historyContainer.querySelector('.no-moves, .loading-moves');
+                if (emptyMessage) {
+                    emptyMessage.remove();
+                }
+
                 const moveCount = historyContainer.children.length;
                 const turnColor = getTurnColorByIndex(moveCount);
 

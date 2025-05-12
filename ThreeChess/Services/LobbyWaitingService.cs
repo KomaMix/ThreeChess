@@ -63,8 +63,10 @@ namespace ThreeChess.Services
                         PlayerColors = playerColors,
                         PlayerGameTimes = playerGameTimes
                     };
-                    
+
+
                     _gameRepository.CreateGame(game);
+
 
                     var userIds = lobby.PlayerIds;
 

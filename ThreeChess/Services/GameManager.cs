@@ -1,6 +1,8 @@
 ﻿using System.Security.Claims;
+using Microsoft.AspNetCore.SignalR;
 using ThreeChess.DTOs;
 using ThreeChess.Enums;
+using ThreeChess.Hubs;
 using ThreeChess.Interfaces;
 using ThreeChess.Models;
 
@@ -11,15 +13,21 @@ namespace ThreeChess.Services
         private readonly IGameRepository _gameRepository;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IMoveHistoryService _moveHistory;
+        private readonly IHubContext<MoveHub> _moveContext;
 
-        public GameManager(IGameRepository gameRepository, IHttpContextAccessor httpContextAccessor, IMoveHistoryService moveHistory)
+        public GameManager(
+            IGameRepository gameRepository, 
+            IHttpContextAccessor httpContextAccessor, 
+            IMoveHistoryService moveHistory,
+            IHubContext<MoveHub> moveContext)
         {
             _gameRepository = gameRepository;
             _httpContextAccessor = httpContextAccessor;
             _moveHistory = moveHistory;
+            _moveContext = moveContext;
         }
 
-        public Task<MoveResponse> MoveHandle(MoveRequest moveRequest)
+        public async Task<MoveResponse> MoveHandle(MoveRequest moveRequest)
         {
             var user = _httpContextAccessor.HttpContext?.User;
             var userId = user?.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -64,14 +72,21 @@ namespace ThreeChess.Services
                 EndCellId = moveRequest.EndCellId
             });
 
-            return Task.FromResult(new MoveResponse
+            MoveResponse moveResponse = new MoveResponse
             {
                 StartCellId = moveRequest.StartCellId,
                 EndCellId = moveRequest.EndCellId,
                 GameId = game.Id,
                 UserId = userId,
                 PlayerGameTimes = game.PlayerGameTimes
-            });
+            };
+
+            foreach (var activeUserId in game.ActivePlayerIds)
+            {
+                await _moveContext.Clients.User(activeUserId).SendAsync("handleMove", moveResponse);
+            }
+
+            return moveResponse;
         }
     }
 }
