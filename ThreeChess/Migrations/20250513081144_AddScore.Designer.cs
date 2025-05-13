@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using ThreeChess.Data;
@@ -11,9 +12,11 @@ using ThreeChess.Data;
 namespace ThreeChess.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250513081144_AddScore")]
+    partial class AddScore
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -221,38 +224,6 @@ namespace ThreeChess.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
-            modelBuilder.Entity("ThreeChess.Data.PlayerProfileInfo", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("AppUserId")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<int>("NumberOfCompletedGames")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("NumberOfDraws")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("NumberOfLosses")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("NumberOfWins")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("AppUserId")
-                        .IsUnique();
-
-                    b.ToTable("PlayerProfileInfo");
-                });
-
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
@@ -301,23 +272,6 @@ namespace ThreeChess.Migrations
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("ThreeChess.Data.PlayerProfileInfo", b =>
-                {
-                    b.HasOne("ThreeChess.Data.AppUser", "AppUser")
-                        .WithOne("PlayerProfileInfo")
-                        .HasForeignKey("ThreeChess.Data.PlayerProfileInfo", "AppUserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("AppUser");
-                });
-
-            modelBuilder.Entity("ThreeChess.Data.AppUser", b =>
-                {
-                    b.Navigation("PlayerProfileInfo")
                         .IsRequired();
                 });
 #pragma warning restore 612, 618
