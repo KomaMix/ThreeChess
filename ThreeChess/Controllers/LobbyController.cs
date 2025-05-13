@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using ThreeChess.Data;
 using ThreeChess.DTOs;
+using ThreeChess.Interfaces;
 using ThreeChess.Models;
 using ThreeChess.Services;
 
@@ -14,10 +15,10 @@ namespace ThreeChess.Controllers
     [Route("[controller]")]
     public class LobbyController : Controller
     {
-        private readonly LobbyManager _lobbyManager;
+        private readonly ILobbyManager _lobbyManager;
         IWebHostEnvironment _env;
 
-        public LobbyController(LobbyManager lobbyManager, IWebHostEnvironment env)
+        public LobbyController(ILobbyManager lobbyManager, IWebHostEnvironment env)
         {
             _lobbyManager = lobbyManager;
             _env = env;

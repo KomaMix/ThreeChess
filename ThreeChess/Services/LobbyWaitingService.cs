@@ -10,14 +10,14 @@ namespace ThreeChess.Services
     public class LobbyWaitingService : ILobbyWaitingService
     {
         private readonly IHubContext<LobbyHub> _hubContext;
-        private readonly LobbyManager _lobbyManager;
+        private readonly ILobbyManager _lobbyManager;
         private readonly IGameRepository _gameRepository;
         private readonly ConcurrentDictionary<int, Timer> _countdownTimers = new();
         private readonly IBoardElementsService _boardElementsService;
 
         public LobbyWaitingService(
             IHubContext<LobbyHub> hubContext,
-            LobbyManager lobbyManager,
+            ILobbyManager lobbyManager,
             IGameRepository gameRepository,
             IBoardElementsService boardElementsService)
         {

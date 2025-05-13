@@ -13,12 +13,12 @@ namespace ThreeChess.Hubs
 {
     public class LobbyHub : Hub
     {
-        private readonly LobbyManager _lobbyManager;
+        private readonly ILobbyManager _lobbyManager;
         private readonly ILobbyWaitingService _lobbyWaitingService;
         private readonly UserManager<AppUser> _userManager;
 
         public LobbyHub(
-            LobbyManager lobbyManager,
+            ILobbyManager lobbyManager,
             ILobbyWaitingService lobbyWaitingService,
             UserManager<AppUser> userManager)
         {

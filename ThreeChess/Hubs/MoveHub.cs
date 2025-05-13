@@ -9,10 +9,10 @@ namespace ThreeChess.Hubs
 {
     public class MoveHub : Hub
     {
-        private readonly LobbyManager _lobbyManager;
+        private readonly ILobbyManager _lobbyManager;
         private readonly IGameManager _gameManager;
 
-        public MoveHub(LobbyManager lobbyManager, IGameManager gameManager)
+        public MoveHub(ILobbyManager lobbyManager, IGameManager gameManager)
         {
             _lobbyManager = lobbyManager;
             _gameManager = gameManager;

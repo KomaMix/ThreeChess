@@ -1,9 +1,10 @@
 ﻿using System.Collections.Concurrent;
+using ThreeChess.Interfaces;
 using ThreeChess.Models;
 
 namespace ThreeChess.Services
 {
-    public class LobbyManager
+    public class LobbyManager : ILobbyManager
     {
         private readonly List<Lobby> _lobbies = new();
         private readonly Dictionary<string, int> _playerLobbyMap = new();
@@ -48,14 +49,14 @@ namespace ThreeChess.Services
             {
                 return false;
             }
-            
+
             lobby.PlayerIds.Remove(playerId);
             _playerLobbyMap.Remove(playerId);
 
             return true;
         }
 
-        public void CreateLobby()
+        private void CreateLobby()
         {
             _lobbies.Add(new Lobby
             {
@@ -73,7 +74,8 @@ namespace ThreeChess.Services
             if (_playerLobbyMap.ContainsKey(playerId) && _playerLobbyMap[playerId] == lobbyId)
             {
                 return true;
-            } else
+            }
+            else
             {
                 return false;
             }
@@ -88,17 +90,7 @@ namespace ThreeChess.Services
                 _playerLobbyMap.Remove(playerId);
 
             return _lobbies.Remove(lobby);
-            
-        }
 
-        public int? GetLobbyIdForPlayer(string playerId)
-        {
-            if (!_playerLobbyMap.ContainsKey(playerId))
-            {
-                return null;
-            }
-
-            return _playerLobbyMap[playerId];
         }
     }
 
