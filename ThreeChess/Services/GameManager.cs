@@ -13,18 +13,15 @@ namespace ThreeChess.Services
         private readonly IGameRepository _gameRepository;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IMoveHistoryService _moveHistory;
-        private readonly IHubContext<MoveHub> _moveContext;
 
         public GameManager(
             IGameRepository gameRepository, 
             IHttpContextAccessor httpContextAccessor, 
-            IMoveHistoryService moveHistory,
-            IHubContext<MoveHub> moveContext)
+            IMoveHistoryService moveHistory)
         {
             _gameRepository = gameRepository;
             _httpContextAccessor = httpContextAccessor;
             _moveHistory = moveHistory;
-            _moveContext = moveContext;
         }
 
         public async Task<MoveResponse> MoveHandle(MoveRequest moveRequest)
@@ -80,11 +77,6 @@ namespace ThreeChess.Services
                 UserId = userId,
                 PlayerGameTimes = game.PlayerGameTimes
             };
-
-            foreach (var activeUserId in game.ActivePlayerIds)
-            {
-                await _moveContext.Clients.User(activeUserId).SendAsync("handleMove", moveResponse);
-            }
 
             return moveResponse;
         }

@@ -2,6 +2,7 @@
 using ThreeChess.DTOs;
 using ThreeChess.Enums;
 using ThreeChess.Interfaces;
+using ThreeChess.Models;
 using ThreeChess.Services;
 
 
@@ -27,6 +28,8 @@ namespace ThreeChess.Hubs
             try
             {
                 moveResponse = await _gameManager.MoveHandle(moveRequest);
+
+                await Clients.Group(moveResponse.GameId.ToString()).SendAsync("handleMove", moveResponse);
             }
             catch (Exception ex)
             {
@@ -34,6 +37,33 @@ namespace ThreeChess.Hubs
             }
 
 
+        }
+
+        public override async Task OnConnectedAsync()
+        {
+            var httpContext = Context.GetHttpContext();
+            var gameId = httpContext.Request.Query["gameId"];
+
+            if (!string.IsNullOrEmpty(gameId))
+            {
+                await Groups.AddToGroupAsync(Context.ConnectionId, gameId);
+
+            }
+
+            await base.OnConnectedAsync();
+        }
+
+        public override async Task OnDisconnectedAsync(Exception exception)
+        {
+            var httpContext = Context.GetHttpContext();
+            var gameId = httpContext.Request.Query["gameId"];
+
+            if (!string.IsNullOrEmpty(gameId))
+            {
+                await Groups.RemoveFromGroupAsync(Context.ConnectionId, gameId);
+            }
+
+            await base.OnDisconnectedAsync(exception);
         }
     }
 }

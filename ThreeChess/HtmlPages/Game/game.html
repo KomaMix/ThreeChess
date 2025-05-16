@@ -79,7 +79,7 @@
         let last_click_id = undefined;
 
         const gameHub = new signalR.HubConnectionBuilder()
-            .withUrl("/moveHub")
+            .withUrl(`/moveHub?gameId=${gameId}`)
             .build();
 
         gameHub.on("handleMove", function (moveResponse) {

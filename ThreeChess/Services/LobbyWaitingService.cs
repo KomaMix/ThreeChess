@@ -14,6 +14,8 @@ namespace ThreeChess.Services
         private readonly IGameRepository _gameRepository;
         private readonly ConcurrentDictionary<int, Timer> _countdownTimers = new();
         private readonly IBoardElementsService _boardElementsService;
+        private readonly TimeSpan dueTime = new TimeSpan(0, 0, 0, 0, 100);
+        private readonly TimeSpan period = new TimeSpan(1, 0, 0);
 
         public LobbyWaitingService(
             IHubContext<LobbyHub> hubContext,
@@ -29,7 +31,7 @@ namespace ThreeChess.Services
 
         public void StartCountdown(int lobbyId)
         {
-            var timer = new Timer(async _ => await FinishCountdown(lobbyId), null, 10000, Timeout.Infinite);
+            var timer = new Timer(async _ => await FinishCountdown(lobbyId), null, dueTime, period);
             _countdownTimers[lobbyId] = timer;
         }
 
