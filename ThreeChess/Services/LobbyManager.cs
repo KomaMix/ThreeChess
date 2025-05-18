@@ -7,7 +7,7 @@ namespace ThreeChess.Services
     public class LobbyManager : ILobbyManager
     {
         private readonly List<Lobby> _lobbies = new();
-        private readonly Dictionary<string, int> _playerLobbyMap = new();
+        private readonly ConcurrentDictionary<string, int> _playerLobbyMap = new();
 
         public LobbyManager()
         {
@@ -51,7 +51,7 @@ namespace ThreeChess.Services
             }
 
             lobby.PlayerIds.Remove(playerId);
-            _playerLobbyMap.Remove(playerId);
+            _playerLobbyMap.Remove(playerId, out int a);
 
             return true;
         }
@@ -87,7 +87,7 @@ namespace ThreeChess.Services
             if (lobby == null) return false;
 
             foreach (var playerId in lobby.PlayerIds)
-                _playerLobbyMap.Remove(playerId);
+                _playerLobbyMap.Remove(playerId, out int a);
 
             return _lobbies.Remove(lobby);
 
