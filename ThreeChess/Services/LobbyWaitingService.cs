@@ -14,7 +14,7 @@ namespace ThreeChess.Services
         private readonly IGameRepository _gameRepository;
         private readonly ConcurrentDictionary<int, Timer> _countdownTimers = new();
         private readonly IBoardElementsService _boardElementsService;
-        private readonly TimeSpan dueTime = new TimeSpan(0, 0, 0, 1);
+        private readonly TimeSpan dueTime = new TimeSpan(0, 0, 0, 3);
         private readonly TimeSpan period = new TimeSpan(1, 0, 0);
 
         public LobbyWaitingService(
@@ -74,6 +74,7 @@ namespace ThreeChess.Services
 
                     foreach (var userId in userIds)
                     {
+                        // To Do
                         await _hubContext.Clients.User(userId).SendAsync("GameStarted", game.Id);
                     }
 

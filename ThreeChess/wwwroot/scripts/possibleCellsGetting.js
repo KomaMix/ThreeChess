@@ -1,45 +1,10 @@
-﻿function highlightMoves(cell) {
-    const piece = boardElementsState.cells[cell.id].elements.figure;
-    // Проверяем тип фигуры (сравнение с ожидаемыми строковыми значениями, например 'Queen' или 'Bishop')
-    if (piece.figureInfo.figureType === 'Queen'
-        || piece.figureInfo.figureType === 'Bishop'
-        || piece.figureInfo.figureType === 'King') {
-        // Выделяем диагональные ячейки, доступные для хода
-        highlightDiagonalMoves(cell.id, piece.figureInfo.figureType);
-    }
+﻿function getDiagonalMoves(cellId) {
+    const possibleMoves = [];
+    const piece = boardElementsState.cells[cellId].elements.figure;
 
-    if (piece.figureInfo.figureType === 'Queen'
-        || piece.figureInfo.figureType == 'Rook'
-        || piece.figureInfo.figureType === 'King') {
-        highlightMainLinesMoves(cell.id, piece.figureInfo.figureType);
-    }
-
-    if (piece.figureInfo.figureType === 'Queen'
-        || piece.figureInfo.figureType == 'Rook'
-        || piece.figureInfo.figureType === 'King') {
-        highlightSecondaryLinesMoves(cell.id, piece.figureInfo.figureType);
-    }
-
-    if (piece.figureInfo.figureType === 'Knight') {
-        highlightKnightMoves(cell.id);
-    }
-
-    if (piece.figureInfo.figureType === 'King') {
-        highlightKingCastlingMoves(cell.id);
-    }
-
-    if (piece.figureInfo.figureType === 'Pawn') {
-        highlightPawnMoves(cell.id);
-    }
-
-    last_click_id = cell.id;
-}
-
-
-function highlightDiagonalMoves(cellId, figureType) {
     isKing = false;
 
-    if (figureType === 'King') {
+    if (piece.figureInfo.figureType === 'King') {
         isKing = true;
     }
 
@@ -48,22 +13,18 @@ function highlightDiagonalMoves(cellId, figureType) {
     // Фильтруем только те диагонали, в которых присутствует текущая ячейка
     const relevantDiagonals = diagonals.filter(diagonal => diagonal.includes(cellId));
 
-    console.log("relevantDiagonals:", relevantDiagonals);
-
     function processCell(targetCellId) {
         const cell = boardElementsState.cells[targetCellId];
         if (!cell) return true; // если клетка не найдена, прекращаем обход
         if (cell.elements.figure) {
             // Если клетка занята – проверяем цвет фигуры
-            if (cell.elements.figure.figureInfo.figureColor !== gameConfig.controlledColor) {
-                cell.elements.path.classList.add('cell-capture-highlight');
-                console.log(`Подсвечена клетка (атака) ${targetCellId}`);
+            if (cell.elements.figure.figureInfo.figureColor !== piece.figureInfo.figureColor) {
+                possibleMoves.push(targetCellId);
             }
             return true; // в любом случае прекращаем обход в этом направлении
         } else {
             // Если клетка пуста – обычная подсветка
-            cell.elements.path.classList.add('cell-highlighted');
-            console.log(`Подсвечена клетка ${targetCellId}`);
+            possibleMoves.push(targetCellId);
             return false; // продолжаем обход
         }
     }
@@ -88,12 +49,16 @@ function highlightDiagonalMoves(cellId, figureType) {
             if (isKing) break;
         }
     });
+
+    return possibleMoves;
 }
 
-function highlightMainLinesMoves(cellId, figureType) {
+function getMainLinesMoves(cellId) {
+    const possibleMoves = [];
+    const piece = boardElementsState.cells[cellId].elements.figure;
     isKing = false;
 
-    if (figureType === 'King') {
+    if (piece.figureInfo.figureType === 'King') {
         isKing = true;
     }
 
@@ -103,21 +68,19 @@ function highlightMainLinesMoves(cellId, figureType) {
     // Фильтруем только те диагонали, в которых присутствует текущая ячейка
     const relevantLines = mainLines.filter(line => line.includes(cellId));
 
-    console.log("relevantLines:", relevantLines);
-
     function processCell(targetCellId) {
         const cell = boardElementsState.cells[targetCellId];
-        if (!cell) return true;
+        if (!cell) return true; // если клетка не найдена, прекращаем обход
         if (cell.elements.figure) {
-            if (cell.elements.figure.figureInfo.figureColor !== gameConfig.controlledColor) {
-                cell.elements.path.classList.add('cell-capture-highlight');
-                console.log(`Подсвечена клетка (атака) ${targetCellId}`);
+            // Если клетка занята – проверяем цвет фигуры
+            if (cell.elements.figure.figureInfo.figureColor !== piece.figureInfo.figureColor) {
+                possibleMoves.push(targetCellId);
             }
-            return true;
+            return true; // в любом случае прекращаем обход в этом направлении
         } else {
-            cell.elements.path.classList.add('cell-highlighted');
-            console.log(`Подсвечена клетка ${targetCellId}`);
-            return false;
+            // Если клетка пуста – обычная подсветка
+            possibleMoves.push(targetCellId);
+            return false; // продолжаем обход
         }
     }
 
@@ -141,12 +104,16 @@ function highlightMainLinesMoves(cellId, figureType) {
             if (isKing) break;
         }
     });
+
+    return possibleMoves;
 }
 
-function highlightSecondaryLinesMoves(cellId, figureType) {
+function getSecondaryLinesMoves(cellId) {
+    const possibleMoves = [];
+    const piece = boardElementsState.cells[cellId].elements.figure;
     isKing = false;
 
-    if (figureType === 'King') {
+    if (piece.figureInfo.figureType === 'King') {
         isKing = true;
     }
 
@@ -156,21 +123,19 @@ function highlightSecondaryLinesMoves(cellId, figureType) {
     // Фильтруем только те диагонали, в которых присутствует текущая ячейка
     const relevantLines = secondaryLines.filter(line => line.includes(cellId));
 
-    console.log("relevantLines:", relevantLines);
-
     function processCell(targetCellId) {
         const cell = boardElementsState.cells[targetCellId];
-        if (!cell) return true; // если клетка не найдена, прерываем поиск
+        if (!cell) return true; // если клетка не найдена, прекращаем обход
         if (cell.elements.figure) {
-            if (cell.elements.figure.figureInfo.figureColor !== gameConfig.controlledColor) {
-                cell.elements.path.classList.add('cell-capture-highlight');
-                console.log(`Подсвечена клетка (атака) ${targetCellId}`);
+            // Если клетка занята – проверяем цвет фигуры
+            if (cell.elements.figure.figureInfo.figureColor !== piece.figureInfo.figureColor) {
+                possibleMoves.push(targetCellId);
             }
-            return true; // встретили фигуру – прекращаем поиск в этом направлении
+            return true; // в любом случае прекращаем обход в этом направлении
         } else {
-            cell.elements.path.classList.add('cell-highlighted');
-            console.log(`Подсвечена клетка ${targetCellId}`);
-            return false;
+            // Если клетка пуста – обычная подсветка
+            possibleMoves.push(targetCellId);
+            return false; // продолжаем обход
         }
     }
 
@@ -194,29 +159,31 @@ function highlightSecondaryLinesMoves(cellId, figureType) {
             if (isKing) break;
         }
     });
+
+    return possibleMoves;
 }
 
-function highlightKnightMoves(cellId) {
+function getKnightMoves(cellId) {
+    const possibleMoves = [];
+    const piece = boardElementsState.cells[cellId].elements.figure;
     const lineCombos = [
         { primary: movedElements.mainLines, secondary: movedElements.secondaryLines },
         { primary: movedElements.secondaryLines, secondary: movedElements.mainLines }
     ];
 
     // Функция-помощник: подсвечивает ячейку, если она существует на доске.
-    function highlightCell(targetCellId, note = '') {
+    function possibleMoveToCell(targetCellId) {
         const cell = boardElementsState.cells[targetCellId];
-        if (!cell) return;
+        if (!cell) return false;
         if (cell.elements.figure) {
             // Если в клетке есть фигура, проверяем её цвет
-            if (cell.elements.figure.figureInfo.figureColor !== gameConfig.controlledColor) {
-                // Если фигура чужая, подсвечиваем как возможность атаки
-                cell.elements.path.classList.add('cell-capture-highlight');
-                console.log(`Подсвечена клетка (атака) ${targetCellId} ${note}`);
+            if (cell.elements.figure.figureInfo.figureColor !== piece.figureInfo.figureColor) {
+                return true;
+            } else {
+                return false;
             }
         } else {
-            // Если клетка пуста – обычная подсветка
-            cell.elements.path.classList.add('cell-highlighted');
-            console.log(`Подсвечена клетка ${targetCellId} ${note}`);
+            return true;
         }
     }
 
@@ -250,47 +217,20 @@ function highlightKnightMoves(cellId) {
 
                     twoStepIndices.forEach(targetIndex => {
                         const targetCellId = secLine[targetIndex];
-                        highlightCell(targetCellId, '(вариант 1+2)');
-                    });
-                });
-            });
-        });
-
-        // --- Последовательность 2: 2 шага по primary, затем 1 шаг по secondary ---
-        primaryLines.forEach(line => {
-            const startIndex = line.indexOf(cellId);
-            if (startIndex === -1) return;
-
-            // Делаем 2 последовательных хода по линии primary: проверяем возможность для обоих направлений
-            const twoStepPrimaryIndices = [];
-            // Влево: убедимся, что есть ячейки на 1 и 2 шаге
-            if (startIndex - 2 >= 0) twoStepPrimaryIndices.push(startIndex - 2);
-            // Вправо:
-            if (startIndex + 2 < line.length) twoStepPrimaryIndices.push(startIndex + 2);
-
-            twoStepPrimaryIndices.forEach(primaryTargetIndex => {
-                const primaryTargetCellId = line[primaryTargetIndex];
-                // Теперь для полученной ячейки ищем линии secondary, где она встречается
-                secondaryLines.forEach(secLine => {
-                    const secIndex = secLine.indexOf(primaryTargetCellId);
-                    if (secIndex === -1) return;
-
-                    // Делаем 1 ход по линии secondary в обе стороны
-                    const oneStepSecIndices = [];
-                    if (secIndex - 1 >= 0) oneStepSecIndices.push(secIndex - 1);
-                    if (secIndex + 1 < secLine.length) oneStepSecIndices.push(secIndex + 1);
-
-                    oneStepSecIndices.forEach(targetIndex => {
-                        const targetCellId = secLine[targetIndex];
-                        highlightCell(targetCellId, '(вариант 2+1)');
+                        if (possibleMoveToCell(targetCellId)) {
+                            possibleMoves.push(targetCellId);
+                        }
                     });
                 });
             });
         });
     });
+
+    return possibleMoves;
 }
 
-function highlightPawnMoves(cellId) {
+function getPawnMoves(cellId) {
+    const possibleMoves = [];
     const cellState = boardElementsState.cells[cellId];
     const pawn = cellState.elements.figure;
     // По умолчанию, если не задано, считается, что пешка не прошла половину доски
@@ -299,7 +239,7 @@ function highlightPawnMoves(cellId) {
     }
 
 
-    // Шаг 1: Находим основную линию, где находится пешка
+    // Шаг 0: Находим основную линию, где находится пешка
     let pawnMainLine = null;
     let mainLineIndex = -1;
     for (let line of movedElements.mainLines) {
@@ -311,24 +251,18 @@ function highlightPawnMoves(cellId) {
         }
     }
     if (!pawnMainLine) {
-        console.error("Основная линия для пешки не найдена.");
         return;
     }
 
-    // Определяем, в каком направлении должна идти пешка
-    // Если пешка не прошла половину доски (hasPassedHalfBoard == false), то
-    // ожидается, что ход вперед — к увеличению индекса, иначе — к уменьшению.
+    // Шаг 1: Определение направления хода пешки
     if (!pawn.hasPassedHalfBoard) {
-        // Если пешка находится ближе к концу массива (то есть её индекс больше половины длины),
-        // переворачиваем массив, чтобы ход вперед был к увеличению индекса.
+        // Если пешка ближе к концу массива
         if (mainLineIndex > 3) {
             pawnMainLine = pawnMainLine.slice().reverse();
             mainLineIndex = pawnMainLine.indexOf(cellId);
         }
     } else {
-        // Если пешка уже прошла половину доски, ожидается ход в обратном направлении.
-        // Если её индекс меньше половины длины массива, переворачиваем, чтобы
-        // ход вперед был к увеличению индекса.
+        // Если пешка ближе к началу массива
         if (mainLineIndex < 4) {
             pawnMainLine = pawnMainLine.slice().reverse();
             mainLineIndex = pawnMainLine.indexOf(cellId);
@@ -347,7 +281,6 @@ function highlightPawnMoves(cellId) {
         }
     }
     if (!pawnSecondaryLine) {
-        console.error("Побочная линия для пешки не найдена.");
         return;
     }
 
@@ -374,16 +307,22 @@ function highlightPawnMoves(cellId) {
         });
     });
 
-    // Шаг 5: Определяем возможный ход вперед по основной линии.
-    // Вычисляем индекс целевой клетки по основной линии.
+    // Шаг 5: Определяем возможный ход вперед
     let possibleForwardCell = null;
     const targetIndex = mainLineIndex + 1;
     if (targetIndex >= 0 && targetIndex < pawnMainLine.length) {
         possibleForwardCell = pawnMainLine[targetIndex];
     }
 
-    // Определяем диагональные ходы (для взятия):
-    // Для каждой соседней основной линии (neighborMainLines) ищем клетку, находящуюся на шаг вперед.
+    // Добавление прямого хода
+    if (possibleForwardCell) {
+        const forwardCellState = boardElementsState.cells[possibleForwardCell];
+        if (forwardCellState && !forwardCellState.elements.figure) {
+            possibleMoves.push(possibleForwardCell);
+        }
+    }
+
+    // Определяем диагональные ходы для взятия
     const captureMoves = [];
     neighborMainLines.forEach(item => {
         const line = item.line;
@@ -396,6 +335,7 @@ function highlightPawnMoves(cellId) {
         }
     });
 
+    // Отдельно проверяем ходы через центр
     const centralCells = ['E4', 'D4', 'D5', 'I5', 'I9', 'E9'];
     if (!pawn.hasPassedHalfBoard && centralCells.includes(cellId)) {
         const centralIndex = centralCells.indexOf(cellId);
@@ -409,16 +349,7 @@ function highlightPawnMoves(cellId) {
         });
     }
 
-    // Шаг 6: Подсвечиваем найденные ходы
 
-    // Подсветка прямого хода – если клетка пуста
-    if (possibleForwardCell) {
-        const forwardCellState = boardElementsState.cells[possibleForwardCell];
-        if (forwardCellState && !forwardCellState.elements.figure) {
-            forwardCellState.elements.path.classList.add('cell-highlighted');
-            console.log("Пешка может пойти вперед в " + possibleForwardCell);
-        }
-    }
 
     // Подсветка двойного хода вперёд (на две клетки)
     if (!pawn.hasPassedHalfBoard && mainLineIndex === 1) {
@@ -432,27 +363,26 @@ function highlightPawnMoves(cellId) {
 
             if (firstStepCellState && !firstStepCellState.elements.figure &&
                 doubleForwardCellState && !doubleForwardCellState.elements.figure) {
-                doubleForwardCellState.elements.path.classList.add('cell-highlighted');
-                console.log("Пешка может пойти на две клетки вперёд в " + doubleForwardCell);
+                possibleMoves.push(doubleForwardCell);
             }
         }
     }
 
 
-    // Подсветка диагональных ходов (взятие):
-    // Подсвечиваем, если в клетке имеется фигура (здесь можно добавить проверку на противника)
+    // Добавление диагональных ходов
     captureMoves.forEach(targetCellId => {
         const targetCellState = boardElementsState.cells[targetCellId];
         if (targetCellState && targetCellState.elements.figure
             && targetCellState.elements.figure.figureInfo.figureColor !== gameConfig.controlledColor) {
-            targetCellState.elements.path.classList.add('cell-capture-highlight');
-            console.log("Пешка может взять в " + targetCellId);
+            possibleMoves.push(targetCellId);
         }
     });
+
+    return possibleMoves;
 }
 
-
-function highlightKingCastlingMoves(cellId) {
+function getKingCastlingMoves(cellId) {
+    const possibleMoves = [];
     const cellState = boardElementsState.cells[cellId];
     const king = cellState.elements.figure;
 
@@ -475,7 +405,6 @@ function highlightKingCastlingMoves(cellId) {
     }
 
     if (!kingSecondaryLine) {
-        console.error("Побочная линия для короля не найдена.");
         return;
     }
 
@@ -521,20 +450,11 @@ function highlightKingCastlingMoves(cellId) {
                     const castlingCell = kingSecondaryLine[targetIndex];
                     const cellState = boardElementsState.cells[castlingCell];
 
-
-                    cellState.elements.path.classList.add('cell-highlighted');
-                    console.log(`Возможна ${side} рокировка в ${castlingCell}`);
-
+                    possibleMoves.push(castlingCell);
                 }
             }
         }
     });
-}
 
-
-function clearHighlightedCells() {
-    document.querySelectorAll('path').forEach(path => {
-        path.classList.remove('cell-highlighted');
-        path.classList.remove('cell-capture-highlight');
-    });
+    return possibleMoves;
 }

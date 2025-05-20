@@ -68,15 +68,6 @@
             if (index !== -1) {
                 secondaryLine = line;
             }
-            // Если обе ячейки принадлежат одной главной линии
-            //if (startIndex !== -1 && endIndex !== -1) {
-            //    // Если пешка переходила между индексами 3 и 4 (в любом направлении)
-            //    if ((startIndex === 3 && endIndex === 4) || (startIndex === 4 && endIndex === 3)) {
-            //        figure.hasPassedHalfBoard = true;
-            //        console.log('Pawn has passed half board.');
-            //    }
-            //    break;
-            //}
         }
 
         const kingIndex = secondaryLine.indexOf(startId);
