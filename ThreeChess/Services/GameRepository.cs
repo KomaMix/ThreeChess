@@ -6,7 +6,7 @@ namespace ThreeChess.Services
 {
     public class GameRepository : IGameRepository
     {
-        private readonly ConcurrentDictionary<Guid, GameState> _games = new();
+        private readonly ConcurrentDictionary<Guid, GameState> _games = new ConcurrentDictionary<Guid, GameState>();
 
         public void CreateGame(GameState gameState)
         {
