@@ -56,6 +56,7 @@ namespace ThreeChess.Controllers
             {
                 GameId = game.Id,
                 UserId = userId,
+                GameStatus = game.GameStatus,
                 ControlledColor = controlledColor,
                 CurrentTurnColor = game.CurrentTurnColor,
                 CellsLocation = _boardCreateService.CreateBoardCellsForColor(controlledColor),
@@ -68,6 +69,15 @@ namespace ThreeChess.Controllers
                 PlayerColors = game.PlayerColors,
                 MoveHistory = _moveHistoryService.GetMoveHistory(gameId).ToList()
             };
+
+            if (game.GameStatus != GameStatus.Wait)
+            {
+                var currentTurnUser = game
+                    .ActivePlayerIds
+                    .FirstOrDefault(i => game.PlayerColors[i] == game.CurrentTurnColor);
+
+                dto.PlayerGameTimes[currentTurnUser] -= DateTime.UtcNow - game.LastMoveTime;
+            }
 
             return Ok(dto);
         }

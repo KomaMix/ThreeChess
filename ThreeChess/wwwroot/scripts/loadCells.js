@@ -21,10 +21,15 @@
         gameConfig.userId = gameConf.userId;
         gameConfig.moveHistory = gameConf.moveHistory;
 
+        if (gameConf.gameStatus !== "Wait") {
+            lastServerUpdateTime = new Date();
+        }
+
 
         renderBoard(gameConf.cellsLocation, gameConf.figuresLocation);
 
         updateTimers();
+        startTimerUpdates();
     } catch (error) {
         console.error('Error:', error);
     }

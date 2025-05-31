@@ -8,6 +8,7 @@ namespace ThreeChess.DTOs
     {
         public Guid GameId { get; set; }
         public string UserId { get; set; }
+        public GameStatus GameStatus { get; set; }
         public FigureColor ControlledColor { get; set; }
         public FigureColor CurrentTurnColor { get; set; }
         public List<CellItem> CellsLocation { get; set; }

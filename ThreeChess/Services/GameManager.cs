@@ -51,14 +51,15 @@ namespace ThreeChess.Services
                 game.GameStatus = GameStatus.InProgress;
 
                 game.LastMoveTime = DateTime.UtcNow;
+            } else
+            {
+                game.PlayerGameTimes[userId] -= (DateTime.UtcNow - game.LastMoveTime);
             }
 
-            game.FiguresLocation[moveRequest.EndCellId] = game.FiguresLocation[moveRequest.StartCellId];
+                game.FiguresLocation[moveRequest.EndCellId] = game.FiguresLocation[moveRequest.StartCellId];
             game.FiguresLocation.Remove(moveRequest.StartCellId);
 
             game.CurrentTurnColor = game.CurrentTurnColor.NextColor();
-
-            game.PlayerGameTimes[userId] -= (DateTime.UtcNow - game.LastMoveTime);
 
             game.LastMoveTime = DateTime.UtcNow;
 
