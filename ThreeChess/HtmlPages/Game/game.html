@@ -47,7 +47,6 @@
         </aside>
     </div>
 
-    <!-- Скрипты остаются без изменений -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/6.0.1/signalr.js"></script>
     <script src="/scripts/highlightMoves.js?v=4.1"></script>
     <script src="/scripts/possibleCellsGetting.js?v=1.5"></script>
@@ -56,6 +55,8 @@
     <script src="/scripts/validatePolygon.js?v=1.4"></script>
     <script src="/scripts/moveFigures.js?v=2.9"></script>
     <script src="/scripts/figureClickHandlers.js?v=2.0"></script>
+    <script src="/scripts/boardMoveHistory.js?v=1.0"></script>
+    <script src="/scripts/boardTimers.js?v=1.0"></script>
     <script>
         const parts = window.location.pathname.split('/');
         const gameId = parts[parts.length - 1];
@@ -86,48 +87,12 @@
             .withUrl(`/moveHub?gameId=${gameId}`)
             .build();
 
-        function startTimerUpdates() {
-            // Останавливаем предыдущий интервал, если был
-            if (timerUpdateInterval) clearInterval(timerUpdateInterval);
-
-            // Запускаем новый интервал обновления каждые 10 мс
-            timerUpdateInterval = setInterval(() => {
-                clientUpdateTimers();
-            }, 100);
-        }
-
-        function clientUpdateTimers() {
-            // Если нет времени последнего обновления - выходим
-            if (!lastServerUpdateTime) return;
-
-            // Рассчитываем прошедшее время
-            const now = new Date();
-            const elapsed = now - lastServerUpdateTime;
-
-            // Находим текущего игрока
-            const currentPlayerId = Object.keys(gameConfig.playerColors).find(
-                id => gameConfig.playerColors[id] === gameConfig.currentTurnColor
-            );
-
-            // Обновляем только таймер текущего игрока
-            if (currentPlayerId && gameConfig.playerGameTimes[currentPlayerId]) {
-                // Вычисляем новое значение времени
-                const currentTimeMs = timeSpanToMilliseconds(gameConfig.playerGameTimes[currentPlayerId]);
-                const newTime = currentTimeMs - elapsed;
-
-                // Обновляем отображение
-                const color = gameConfig.playerColors[currentPlayerId];
-                const el = document.getElementById(`timer-${color}`);
-                if (el) el.textContent = formatMilliseconds(newTime);
-            }
-        }
-
         gameHub.on("handleMove", function (moveResponse) {
             try {
                 if (moveResponse.userId !== gameConfig.userId) {
                     moveFigure(moveResponse.startCellId, moveResponse.endCellId);
                 }
-                
+
                 gameConfig.playerGameTimes = moveResponse.playerGameTimes;
 
                 updateTimers();
@@ -146,9 +111,9 @@
                 const moveItem = document.createElement('div');
                 moveItem.className = 'move-item';
                 moveItem.innerHTML = `
-                    <span class="move-number">${moveCount + 1}.</span>
-                    <span class="move-cells ${turnColor}">${moveResponse.startCellId} → ${moveResponse.endCellId}</span>
-                `;
+                        <span class="move-number">${moveCount + 1}.</span>
+                        <span class="move-cells ${turnColor}">${moveResponse.startCellId} → ${moveResponse.endCellId}</span>
+                    `;
 
                 historyContainer.appendChild(moveItem);
 
@@ -168,104 +133,8 @@
             updateMovesHistory(gameConfig.moveHistory);
         });
 
-        function formatTimeSpan(tsString) {
-            // .NET TimeSpan приходит в формате "hh:mm:ss.fffffff"
-            const [timePart, fractionPart] = tsString.split('.');
-            const [hh, mm, ss] = timePart.split(':').map(Number);
-            const totalSeconds = hh * 3600 + mm * 60 + ss;
 
-            let tenths = '0';
-            if (fractionPart) {
-                // Преобразуем строку в доли секунды и округляем до десятой
-                const ms = parseInt(fractionPart.padEnd(7, '0').slice(0, 7)); // до 7 цифр как в .NET
-                tenths = Math.floor(ms / 100_000).toString(); // десятые доли
-            }
 
-            const minutes = Math.floor(totalSeconds / 60).toString().padStart(2, '0');
-            const seconds = (totalSeconds % 60).toString().padStart(2, '0');
-
-            return `${minutes}:${seconds}.${tenths}`;
-        }
-
-        function formatMilliseconds(ms) {
-            if (ms <= 0) return "00:00.0";
-
-            const totalSeconds = ms / 1000;
-            const minutes = Math.floor(totalSeconds / 60);
-            const seconds = Math.floor(totalSeconds % 60);
-            const tenths = Math.floor((ms % 1000) / 100); // десятые доли
-
-            return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}.${tenths}`;
-        }
-
-        function timeSpanToMilliseconds(timeSpan) {
-            const parts = timeSpan.split(':');
-            const hours = parseInt(parts[0]);
-            const minutes = parseInt(parts[1]);
-            const secondsParts = parts[2].split('.');
-            const seconds = parseInt(secondsParts[0]);
-            const milliseconds = secondsParts[1] ? parseInt(secondsParts[1].substring(0, 3)) : 0;
-
-            return (hours * 3600 + minutes * 60 + seconds) * 1000 + milliseconds;
-        }
-
-        function updateTimers() {
-            gameConfig.activePlayerIds.forEach(userId => {
-                const el = document.getElementById(`timer-${gameConfig.playerColors[userId]}`);
-                const ts = gameConfig.playerGameTimes[userId];
-                if (el && ts) el.textContent = formatTimeSpan(ts);
-            });
-        }
-
-        function updateMovesHistory(moves) {
-            const container = document.getElementById('moves-history');
-            container.innerHTML = moves.length > 0
-                ? moves.map((move, index) => {
-                    const turnColor = getTurnColorByIndex(index);
-                    return `
-                <div class="move-item">
-                    <span class="move-number">${index + 1}.</span>
-                    <span class="move-cells ${turnColor}">${move.startCellId} → ${move.endCellId}</span>
-                </div>
-            `;
-                }).join('')
-                : '<div class="no-moves">История ходов пуста</div>';
-        }
-
-        function getTurnColorByIndex(index) {
-            const colors = ['White', 'Black', 'Red'];
-            return colors[index % 3];
-        }
-
-        function getColorHex(color) {
-            const colors = {
-                'White': '#ffffff',
-                'Black': '#000000',
-                'Red': '#ff4444'
-            };
-            return colors[color] || '#ccc';
-        }
-
-        function formatTime(timestamp) {
-            const date = new Date(timestamp);
-            return `${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
-        }
-
-        function createMoveElement(move, number) {
-            const element = document.createElement('div');
-            element.className = 'move-item';
-            element.innerHTML = `
-                <span class="move-number">${number}.</span>
-                <span class="move-player" style="${getColorStyle(move.playerColor)}">
-                    ${move.playerColor}
-                </span>
-                <span class="move-notation">${move.startCell} → ${move.endCell}</span>
-                <span class="move-time">${formatTime(move.timestamp)}</span>
-            `;
-            return element;
-        }
-
-        
     </script>
 </body>
 </html>
