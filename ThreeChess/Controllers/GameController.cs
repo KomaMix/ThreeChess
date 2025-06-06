@@ -12,11 +12,11 @@ namespace ThreeChess.Controllers
     [Route("[controller]")]
     public class GameController : Controller
     {
-        IWebHostEnvironment _env;
         private readonly IGameRepository _gameRepository;
         private readonly IBoardElementsService _boardCreateService;
         private readonly IMoveLogicalElementsService _moveElementsService;
         private readonly IMoveHistoryService _moveHistoryService;
+        IWebHostEnvironment _env;
 
         public GameController(
             IWebHostEnvironment env,

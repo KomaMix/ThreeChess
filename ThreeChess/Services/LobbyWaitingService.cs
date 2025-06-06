@@ -9,13 +9,13 @@ namespace ThreeChess.Services
 {
     public class LobbyWaitingService : ILobbyWaitingService
     {
-        private readonly IHubContext<LobbyHub> _hubContext;
-        private readonly ILobbyManager _lobbyManager;
-        private readonly IGameRepository _gameRepository;
-        private readonly ConcurrentDictionary<int, Timer> _countdownTimers = new();
-        private readonly IBoardElementsService _boardElementsService;
-        private readonly TimeSpan dueTime = new TimeSpan(0, 0, 0, 3);
-        private readonly TimeSpan period = new TimeSpan(1, 0, 0);
+        public readonly IHubContext<LobbyHub> _hubContext;
+        public readonly ILobbyManager _lobbyManager;
+        public readonly IGameRepository _gameRepository;
+        public readonly ConcurrentDictionary<int, Timer> _countdownTimers = new();
+        public readonly IBoardElementsService _boardElementsService;
+        public readonly TimeSpan dueTime = new TimeSpan(0, 0, 0, 3);
+        public readonly TimeSpan period = new TimeSpan(1, 0, 0);
 
         public LobbyWaitingService(
             IHubContext<LobbyHub> hubContext,
@@ -35,7 +35,7 @@ namespace ThreeChess.Services
             _countdownTimers[lobbyId] = timer;
         }
 
-        private async Task FinishCountdown(int lobbyId)
+        public async Task FinishCountdown(int lobbyId)
         {
             if (_countdownTimers.TryRemove(lobbyId, out var timer))
             {

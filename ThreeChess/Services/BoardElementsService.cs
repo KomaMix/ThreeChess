@@ -305,7 +305,7 @@ namespace ThreeChess.Services
         }
 
 
-        private List<CellItem> GetTriangleCells(char[] alphs, int[] nums, int rotate, bool isMainNums, bool isFirstWhite)
+        public List<CellItem> GetTriangleCells(char[] alphs, int[] nums, int rotate, bool isMainNums, bool isFirstWhite)
         {
             var rightCells = GetUpperLeftTriangleCells();
 
@@ -348,7 +348,7 @@ namespace ThreeChess.Services
             return resultCells;
         }
 
-        private Point RotatePoint(Point point, int rotate)
+        public Point RotatePoint(Point point, int rotate)
         {
             return new Point
             {
@@ -357,12 +357,12 @@ namespace ThreeChess.Services
             };
         }
 
-        private double DegreesToRadians(double degrees)
+        public double DegreesToRadians(double degrees)
         {
             return Math.PI * degrees / 180.0;
         }
 
-        private void AddedCenters(List<CellItem> cells)
+        public void AddedCenters(List<CellItem> cells)
         {
             foreach (var cell in cells)
             {
@@ -370,7 +370,7 @@ namespace ThreeChess.Services
             }
         }
 
-        private Point FindMidLinesIntersection(List<Point> points)
+        public Point FindMidLinesIntersection(List<Point> points)
         {
             Point mid1 = GetMidPoint(points[0], points[1]);
             Point mid2 = GetMidPoint(points[2], points[3]);
@@ -392,7 +392,7 @@ namespace ThreeChess.Services
             return LineIntersection(line1 , line2); 
         }
 
-        private Point GetMidPoint(Point p1, Point p2)
+        public Point GetMidPoint(Point p1, Point p2)
         {
             return new Point
             {
@@ -401,7 +401,7 @@ namespace ThreeChess.Services
             };
         }
 
-        private Point LineIntersection(Line line1, Line line2)
+        public Point LineIntersection(Line line1, Line line2)
         {
             double x1 = line1.Start.X, y1 = line1.Start.Y;
             double x2 = line1.End.X, y2 = line1.End.Y;
@@ -422,7 +422,7 @@ namespace ThreeChess.Services
             };
         }
 
-        private List<CellItem> GetUpperLeftTriangleCells()
+        public List<CellItem> GetUpperLeftTriangleCells()
         {
             List<CellItem> cellItems = new List<CellItem>();
 
@@ -483,7 +483,7 @@ namespace ThreeChess.Services
             return cellItems;
         }
 
-        private Point[] GetBetweenPoints(Point p1, Point p2, int countPoints)
+        public Point[] GetBetweenPoints(Point p1, Point p2, int countPoints)
         {
             double dx = p2.X - p1.X;
             double dy = p2.Y - p1.Y;
