@@ -46,12 +46,12 @@ function updateTimers() {
 function formatTimeSpan(tsString) {
     const [timePart, fractionPart] = tsString.split('.');
     const [hh, mm, ss] = timePart.split(':').map(Number);
-    const totalSeconds = hh * 3600 + mm * 60 + ss;
+    const totalSeconds = mm * 60 + ss;
 
     let tenths = '0';
     if (fractionPart) {
         const ms = parseInt(fractionPart.padEnd(7, '0').slice(0, 7));
-        tenths = Math.floor(ms / 100_000).toString();
+        tenths = Math.floor(ms / 1_000_000).toString();
     }
 
     const minutes = Math.floor(totalSeconds / 60).toString().padStart(2, '0');
