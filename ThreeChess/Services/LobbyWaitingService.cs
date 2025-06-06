@@ -12,7 +12,7 @@ namespace ThreeChess.Services
         public readonly IHubContext<LobbyHub> _hubContext;
         public readonly ILobbyManager _lobbyManager;
         public readonly IGameRepository _gameRepository;
-        public readonly ConcurrentDictionary<int, Timer> _countdownTimers = new();
+        public readonly ConcurrentDictionary<Guid, Timer> _countdownTimers = new();
         public readonly IBoardElementsService _boardElementsService;
         public readonly TimeSpan dueTime = new TimeSpan(0, 0, 0, 3);
         public readonly TimeSpan period = new TimeSpan(1, 0, 0);
@@ -29,13 +29,13 @@ namespace ThreeChess.Services
             _boardElementsService = boardElementsService;
         }
 
-        public void StartCountdown(int lobbyId)
+        public void StartCountdown(Guid lobbyId)
         {
             var timer = new Timer(async _ => await FinishCountdown(lobbyId), null, dueTime, period);
             _countdownTimers[lobbyId] = timer;
         }
 
-        public async Task FinishCountdown(int lobbyId)
+        public async Task FinishCountdown(Guid lobbyId)
         {
             if (_countdownTimers.TryRemove(lobbyId, out var timer))
             {
@@ -46,8 +46,8 @@ namespace ThreeChess.Services
 
                 if (lobby?.PlayerIds.Count == 3)
                 {
-                    Dictionary<string, FigureColor> playerColors = new Dictionary<string, FigureColor>();
-                    Dictionary<string, TimeSpan> playerGameTimes = new Dictionary<string, TimeSpan>();
+                    Dictionary<Guid, FigureColor> playerColors = new Dictionary<Guid, FigureColor>();
+                    Dictionary<Guid, TimeSpan> playerGameTimes = new Dictionary<Guid, TimeSpan>();
 
                     for (int i = 0; i < 3; i++)
                     {
@@ -58,7 +58,7 @@ namespace ThreeChess.Services
                     var game = new GameState
                     {
                         Id = Guid.NewGuid(),
-                        ActivePlayerIds = lobby.PlayerIds.ToList(),
+                        ActivePlayerIds = lobby.PlayerIds,
                         GameStatus = GameStatus.Wait,
                         CurrentTurnColor = FigureColor.White,
                         FiguresLocation = _boardElementsService.CreateFigures(),
@@ -75,7 +75,7 @@ namespace ThreeChess.Services
                     foreach (var userId in userIds)
                     {
                         // To Do
-                        await _hubContext.Clients.User(userId).SendAsync("GameStarted", game.Id);
+                        await _hubContext.Clients.User(userId.ToString()).SendAsync("GameStarted", game.Id);
                     }
 
                     _lobbyManager.RemoveLobby(lobbyId);
@@ -83,7 +83,7 @@ namespace ThreeChess.Services
             }
         }
 
-        public void CancelCountdown(int lobbyId)
+        public void CancelCountdown(Guid lobbyId)
         {
             if (_countdownTimers.TryRemove(lobbyId, out var timer))
             {

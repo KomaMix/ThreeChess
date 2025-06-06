@@ -31,7 +31,7 @@
     <script>
         (function () {
             const parts = window.location.pathname.split('/');
-            const lobbyId = parseInt(parts[parts.length - 1], 10);
+            const lobbyId = parts[parts.length - 1];
             let countdownInterval;
 
             const lobbyHub = new signalR.HubConnectionBuilder()
@@ -56,7 +56,7 @@
             }
 
             function renderLobby(lobbyDto) {
-                document.getElementById('lobby-id').textContent = lobbyDto.id;
+                document.getElementById('lobby-id').textContent = lobbyDto.id.substr(0, 8);
                 document.getElementById('lobby-created').textContent =
                     new Date(lobbyDto.createdAt).toLocaleString();
                 document.getElementById('players-count').textContent =

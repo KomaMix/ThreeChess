@@ -7,7 +7,7 @@ namespace ThreeChess.Services
     public class LobbyManager : ILobbyManager
     {
         private readonly List<Lobby> _lobbies = new();
-        private readonly ConcurrentDictionary<string, int> _playerLobbyMap = new();
+        private readonly ConcurrentDictionary<Guid, Guid> _playerLobbyMap = new();
 
         public LobbyManager()
         {
@@ -19,7 +19,7 @@ namespace ThreeChess.Services
 
         public IEnumerable<Lobby> GetAllLobbies() => _lobbies;
 
-        public bool JoinLobby(int lobbyId, string playerId)
+        public bool JoinLobby(Guid lobbyId, Guid playerId)
         {
             if (_playerLobbyMap.ContainsKey(playerId))
             {
@@ -36,7 +36,7 @@ namespace ThreeChess.Services
             return true;
         }
 
-        public bool LeaveLobby(int lobbyId, string playerId)
+        public bool LeaveLobby(Guid lobbyId, Guid playerId)
         {
             if (!_playerLobbyMap.ContainsKey(playerId) || _playerLobbyMap[playerId] != lobbyId)
             {
@@ -51,7 +51,7 @@ namespace ThreeChess.Services
             }
 
             lobby.PlayerIds.Remove(playerId);
-            _playerLobbyMap.Remove(playerId, out int a);
+            _playerLobbyMap.Remove(playerId, out var a);
 
             return true;
         }
@@ -64,12 +64,12 @@ namespace ThreeChess.Services
             });
         }
 
-        public Lobby GetLobby(int lobbyId)
+        public Lobby GetLobby(Guid lobbyId)
         {
             return _lobbies.FirstOrDefault(l => l.Id == lobbyId);
         }
 
-        public bool PlayerExist(int lobbyId, string playerId)
+        public bool PlayerExist(Guid lobbyId, Guid playerId)
         {
             if (_playerLobbyMap.ContainsKey(playerId) && _playerLobbyMap[playerId] == lobbyId)
             {
@@ -81,13 +81,13 @@ namespace ThreeChess.Services
             }
         }
 
-        public bool RemoveLobby(int lobbyId)
+        public bool RemoveLobby(Guid lobbyId)
         {
             var lobby = _lobbies.FirstOrDefault(l => l.Id == lobbyId);
             if (lobby == null) return false;
 
             foreach (var playerId in lobby.PlayerIds)
-                _playerLobbyMap.Remove(playerId, out int a);
+                _playerLobbyMap.Remove(playerId, out var a);
 
             return _lobbies.Remove(lobby);
 

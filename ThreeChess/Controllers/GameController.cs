@@ -48,7 +48,7 @@ namespace ThreeChess.Controllers
                 return NotFound($"Game {gameId} not found.");
 
             // Определяем, каким цветом играет текущий пользователь
-            var userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
+            var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value);
             if (!game.PlayerColors.TryGetValue(userId, out var controlledColor))
                 return Forbid();
 

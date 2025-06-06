@@ -27,9 +27,9 @@ namespace ThreeChess.Hubs
             _userManager = userManager;
         }
 
-        public async Task<bool> JoinLobby(int lobbyId)
+        public async Task<bool> JoinLobby(Guid lobbyId)
         {
-            var playerId = Context.UserIdentifier;
+            var playerId = Guid.Parse(Context.UserIdentifier);
 
             if (_lobbyManager.PlayerExist(lobbyId, playerId))
             {
@@ -55,9 +55,9 @@ namespace ThreeChess.Hubs
         }
 
 
-        public async Task<bool> LeaveLobby(int lobbyId)
+        public async Task<bool> LeaveLobby(Guid lobbyId)
         {
-            var playerId = Context.UserIdentifier;
+            var playerId = Guid.Parse(Context.UserIdentifier);
 
             if (!_lobbyManager.PlayerExist(lobbyId, playerId))
             {
@@ -85,7 +85,7 @@ namespace ThreeChess.Hubs
 
 
 
-        public async Task HandleLeave(string playerId, int lobbyId)
+        public async Task HandleLeave(Guid playerId, Guid lobbyId)
         {
             if (_lobbyManager.LeaveLobby(lobbyId, playerId))
             {
@@ -94,7 +94,7 @@ namespace ThreeChess.Hubs
             }
         }
 
-        private async Task NotifyCancelCountdown(int lobbyId)
+        private async Task NotifyCancelCountdown(Guid lobbyId)
         {
             var lobby = _lobbyManager.GetLobby(lobbyId);
 
@@ -102,11 +102,11 @@ namespace ThreeChess.Hubs
 
             foreach (var userId in userIds)
             {
-                await Clients.User(userId).SendAsync("CancelCountdown");
+                await Clients.User(userId.ToString()).SendAsync("CancelCountdown");
             }
         }
 
-        private async Task NotifyLobbyUpdated(int lobbyId)
+        private async Task NotifyLobbyUpdated(Guid lobbyId)
         {
             var lobby = _lobbyManager.GetLobby(lobbyId);
             var dto = await ConvertToDto(lobby);
@@ -115,7 +115,7 @@ namespace ThreeChess.Hubs
 
             foreach (var userId in userIds)
             {
-                await Clients.User(userId).SendAsync("LobbyUpdated", dto);
+                await Clients.User(userId.ToString()).SendAsync("LobbyUpdated", dto);
             }
         }
 
@@ -132,7 +132,7 @@ namespace ThreeChess.Hubs
 
             foreach (var userId in lobby.PlayerIds)
             {
-                var user = await _userManager.FindByIdAsync(userId);
+                var user = await _userManager.FindByIdAsync(userId.ToString());
                 dto.Players.Add(new PlayerDto
                 {
                     UserId = userId,
@@ -148,9 +148,9 @@ namespace ThreeChess.Hubs
             return _lobbyManager.GetAllLobbies();
         }
 
-        public async Task<LobbyDto> GetLobbyInfo(int lobbyId)
+        public async Task<LobbyDto> GetLobbyInfo(Guid lobbyId)
         {
-            var playerId = Context.UserIdentifier;
+            var playerId = Guid.Parse(Context.UserIdentifier);
 
             if (!_lobbyManager.PlayerExist(lobbyId, playerId))
             {

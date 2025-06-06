@@ -2,7 +2,7 @@
 {
     public class PlayerDto
     {
-        public string UserId { get; set; }
+        public Guid UserId { get; set; }
         public string Nickname { get; set; }
     }
 }

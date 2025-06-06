@@ -44,7 +44,7 @@
             container.innerHTML = lobbies.map(lobby => `
                     <div class="lobby-card" data-lobby-id="${lobby.id}">
                         <div class="lobby-info">
-                            <h3>Лобби #${lobby.id}</h3>
+                            <h3>Лобби #${ lobby.id.substr(0, 8) }</h3>
                             <p class="player-count">Игроков: ${lobby.playerIds.length}/3</p>
                             <p>Создано: ${new Date(lobby.createdAt).toLocaleTimeString()}</p>
                         </div>
@@ -58,7 +58,7 @@
 
             document.querySelectorAll('.btn-join').forEach(btn =>
                 btn.addEventListener('click', async e => {
-                    const id = parseInt(e.target.dataset.lobbyId, 10);
+                    const id = e.target.dataset.lobbyId;
                     const success = await lobbyHub.invoke("JoinLobby", id);
                     if (success) {
                         window.location.href = `/Lobby/${id}`;

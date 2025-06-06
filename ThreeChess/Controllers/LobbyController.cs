@@ -33,11 +33,11 @@ namespace ThreeChess.Controllers
         }
 
         [HttpGet("{lobbyId}")]
-        public IActionResult GetLobbyPage(int lobbyId)
+        public IActionResult GetLobbyPage(Guid lobbyId)
         {
             var playerId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-            if (!_lobbyManager.PlayerExist(lobbyId, playerId))
+            if (!_lobbyManager.PlayerExist(lobbyId, Guid.Parse(playerId)))
             {
                 return NotFound();
             }

@@ -5,10 +5,10 @@ namespace ThreeChess.Interfaces
     public interface ILobbyManager
     {
         IEnumerable<Lobby> GetAllLobbies();
-        Lobby GetLobby(int lobbyId);
-        bool JoinLobby(int lobbyId, string playerId);
-        bool LeaveLobby(int lobbyId, string playerId);
-        bool PlayerExist(int lobbyId, string playerId);
-        bool RemoveLobby(int lobbyId);
+        Lobby GetLobby(Guid lobbyId);
+        bool JoinLobby(Guid lobbyId, Guid playerId);
+        bool LeaveLobby(Guid lobbyId, Guid playerId);
+        bool PlayerExist(Guid lobbyId, Guid playerId);
+        bool RemoveLobby(Guid lobbyId);
     }
 }

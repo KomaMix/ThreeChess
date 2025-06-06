@@ -4,7 +4,7 @@ namespace ThreeChess.Interfaces
 {
     public interface ILobbyWaitingService
     {
-        public void StartCountdown(int lobbyId);
-        public void CancelCountdown(int lobbyId);
+        public void StartCountdown(Guid lobbyId);
+        public void CancelCountdown(Guid lobbyId);
     }
 }

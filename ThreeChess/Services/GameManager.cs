@@ -27,7 +27,7 @@ namespace ThreeChess.Services
         public async Task<MoveResponse> MoveHandle(MoveRequest moveRequest)
         {
             var user = _httpContextAccessor.HttpContext?.User;
-            var userId = user?.FindFirstValue(ClaimTypes.NameIdentifier);
+            var userId = Guid.Parse(user?.FindFirstValue(ClaimTypes.NameIdentifier));
 
             var game = _gameRepository.GetGame(moveRequest.GameId);
 

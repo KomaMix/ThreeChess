@@ -1,4 +1,5 @@
 ﻿using StackExchange.Redis;
+using System.Collections.Generic;
 using System.Text.Json;
 using ThreeChess.Interfaces;
 using ThreeChess.Models;
@@ -7,17 +8,17 @@ namespace ThreeChess.Services
 {
     public class RedisLobbyManager : ILobbyManager
     {
-        private readonly IDatabase _db;
+        private readonly IDatabase _redisDb;
         private readonly ConnectionMultiplexer _redis;
-        private const string LobbyKeyPrefix = "lobby:";
-        private const string LobbyPlayersPrefix = "lobby:players:";
-        private const string PlayerLobbyKeyPrefix = "player:lobby:";
-        private const string LobbyIdCounter = "counter:lobby:id";
+        private const string LOBBY_KEY_PREFIX = "lobby:";
+        private const string LOBBY_PLAYERS_PREFIX = "lobby:players:";
+        private const string PLAYER_LOBBY_KEY_PREFIX = "player:lobby:";
+        private const string LOBBY_ID_COUNTER = "counter:lobby:id";
 
         public RedisLobbyManager(IConfiguration configuration)
         {
             _redis = ConnectionMultiplexer.Connect(configuration.GetConnectionString("RedisConnection"));
-            _db = _redis.GetDatabase();
+            _redisDb = _redis.GetDatabase();
             InitializeLobbies();
         }
 
@@ -25,15 +26,17 @@ namespace ThreeChess.Services
         {
             // Проверяем, существует ли хотя бы одно лобби
             var server = _redis.GetServer(_redis.GetEndPoints().First());
-            bool lobbiesExist = server.Keys(pattern: $"{LobbyKeyPrefix}*").Any();
+            bool lobbiesExist = server.Keys(pattern: $"{LOBBY_KEY_PREFIX}*").Any();
+
+            var lobbyId = (int)_redisDb.StringGet(LOBBY_ID_COUNTER) + 1;
 
             // Если лобби нет и счетчик тоже отсутствует, инициализируем
-            if (!lobbiesExist && !_db.KeyExists(LobbyIdCounter))
+            if (!lobbiesExist)
             {
-                _db.StringSet(LobbyIdCounter, 0);
+                _redisDb.StringSet(LOBBY_ID_COUNTER, 0);
                 for (int i = 0; i < 10; i++)
                 {
-                    CreateLobby();
+                    CreateLobby(Guid.NewGuid());
                 }
             }
         }
@@ -42,9 +45,9 @@ namespace ThreeChess.Services
         {
             var server = _redis.GetServer(_redis.GetEndPoints().First());
 
-            var sortedLobbyIds = server.Keys(pattern: $"{LobbyKeyPrefix}*")
-                                      .Where(k => int.TryParse(k.ToString().Split(':')[1], out _))
-                                      .Select(k => int.Parse(k.ToString().Split(':')[1]))
+            var sortedLobbyIds = server.Keys(pattern: $"{LOBBY_KEY_PREFIX}*")
+                                      .Where(k => Guid.TryParse(k.ToString().Split(':')[1], out _))
+                                      .Select(k => Guid.Parse(k.ToString().Split(':')[1]))
                                       .OrderBy(id => id);
 
             foreach (var lobbyId in sortedLobbyIds)
@@ -53,76 +56,82 @@ namespace ThreeChess.Services
             }
         }
 
-        public bool JoinLobby(int lobbyId, string playerId)
+        public bool JoinLobby(Guid lobbyId, Guid playerId)
         {
-            var transaction = _db.CreateTransaction();
+            var transaction = _redisDb.CreateTransaction();
 
             // Проверка, что игрок не в другом лобби
-            transaction.AddCondition(Condition.KeyNotExists($"{PlayerLobbyKeyPrefix}{playerId}"));
+            transaction.AddCondition(Condition.KeyNotExists($"{PLAYER_LOBBY_KEY_PREFIX}{playerId}"));
             // Проверка свободных мест (максимум 3 игрока)
-            transaction.AddCondition(Condition.SetLengthLessThan($"{LobbyPlayersPrefix}{lobbyId}", 3));
+            transaction.AddCondition(Condition.SetLengthLessThan($"{LOBBY_PLAYERS_PREFIX}{lobbyId}", 3));
 
             // Добавление игрока в набор игроков лобби
-            transaction.SetAddAsync($"{LobbyPlayersPrefix}{lobbyId}", playerId);
+            transaction.SetAddAsync($"{LOBBY_PLAYERS_PREFIX}{lobbyId}", playerId.ToString());
             // Сохранение связи игрок -> лобби
-            transaction.StringSetAsync($"{PlayerLobbyKeyPrefix}{playerId}", lobbyId);
+            transaction.StringSetAsync($"{PLAYER_LOBBY_KEY_PREFIX}{playerId}", lobbyId.ToString());
 
             return transaction.Execute();
         }
 
-        public bool LeaveLobby(int lobbyId, string playerId)
+        public bool LeaveLobby(Guid lobbyId, Guid playerId)
         {
-            var transaction = _db.CreateTransaction();
+            var transaction = _redisDb.CreateTransaction();
 
-            transaction.AddCondition(Condition.KeyExists($"{PlayerLobbyKeyPrefix}{playerId}"));
-            transaction.AddCondition(Condition.StringEqual($"{PlayerLobbyKeyPrefix}{playerId}", lobbyId));
+            transaction.AddCondition(Condition.KeyExists($"{PLAYER_LOBBY_KEY_PREFIX}{playerId}"));
+            transaction.AddCondition(Condition.StringEqual($"{PLAYER_LOBBY_KEY_PREFIX}{playerId}", lobbyId.ToString()));
 
-            transaction.SetRemoveAsync($"{LobbyPlayersPrefix}{lobbyId}", playerId);
-            transaction.KeyDeleteAsync($"{PlayerLobbyKeyPrefix}{playerId}");
+            transaction.SetRemoveAsync($"{LOBBY_PLAYERS_PREFIX}{lobbyId}", playerId.ToString());
+            transaction.KeyDeleteAsync($"{PLAYER_LOBBY_KEY_PREFIX}{playerId}");
 
             return transaction.Execute();
         }
 
-        public Lobby GetLobby(int lobbyId)
+        public Lobby GetLobby(Guid lobbyId)
         {
-            var data = _db.HashGet($"{LobbyKeyPrefix}{lobbyId}", "data");
+            var data = _redisDb.HashGet($"{LOBBY_KEY_PREFIX}{lobbyId}", "data");
             if (data.IsNull) return null;
 
             var lobby = JsonSerializer.Deserialize<Lobby>(data);
-            lobby.PlayerIds = _db.SetMembers($"{LobbyPlayersPrefix}{lobbyId}").Select(x => x.ToString()).ToList();
+            lobby.PlayerIds = _redisDb.SetMembers($"{LOBBY_PLAYERS_PREFIX}{lobbyId}")
+                      .Select(x =>
+                      {
+                          Guid id;
+                          return Guid.TryParse(x.ToString(), out id) ? id : Guid.Empty;
+                      })
+                      .Where(g => g != Guid.Empty)
+                      .ToList();
             return lobby;
         }
 
-        public bool PlayerExist(int lobbyId, string playerId)
+        public bool PlayerExist(Guid lobbyId, Guid playerId)
         {
-            return _db.KeyExists($"{PlayerLobbyKeyPrefix}{playerId}")
-                && (int)_db.StringGet($"{PlayerLobbyKeyPrefix}{playerId}") == lobbyId;
+            return _redisDb.KeyExists($"{PLAYER_LOBBY_KEY_PREFIX}{playerId}")
+                && _redisDb.StringGet($"{PLAYER_LOBBY_KEY_PREFIX}{playerId}").ToString() == lobbyId.ToString();
         }
 
-        public bool RemoveLobby(int lobbyId)
+        public bool RemoveLobby(Guid lobbyId)
         {
-            var players = _db.SetMembers($"{LobbyPlayersPrefix}{lobbyId}");
-            var transaction = _db.CreateTransaction();
+            var players = _redisDb.SetMembers($"{LOBBY_PLAYERS_PREFIX}{lobbyId}");
+            var transaction = _redisDb.CreateTransaction();
 
             foreach (var player in players)
-                transaction.KeyDeleteAsync($"{PlayerLobbyKeyPrefix}{player}");
+                transaction.KeyDeleteAsync($"{PLAYER_LOBBY_KEY_PREFIX}{player}");
 
-            transaction.KeyDeleteAsync($"{LobbyKeyPrefix}{lobbyId}");
-            transaction.KeyDeleteAsync($"{LobbyPlayersPrefix}{lobbyId}");
+            transaction.KeyDeleteAsync($"{LOBBY_KEY_PREFIX}{lobbyId}");
+            transaction.KeyDeleteAsync($"{LOBBY_PLAYERS_PREFIX}{lobbyId}");
             return transaction.Execute();
         }
 
-        private void CreateLobby()
+        private void CreateLobby(Guid lobbyId)
         {
-            var lobbyId = (int)_db.StringIncrement(LobbyIdCounter);
             var lobby = new Lobby
             {
-                Id = Lobby.NewId(),
+                Id = lobbyId,
                 GameDuration = TimeSpan.FromMinutes(10),
             };
 
             // Сохраняем данные лобби в хэш
-            _db.HashSet($"{LobbyKeyPrefix}{lobbyId}",
+            _redisDb.HashSet($"{LOBBY_KEY_PREFIX}{lobbyId}",
                 new HashEntry[] { new("data", JsonSerializer.Serialize(lobby)) });
         }
     }
