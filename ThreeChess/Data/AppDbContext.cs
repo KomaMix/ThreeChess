@@ -16,10 +16,10 @@ namespace ThreeChess.Data
             base.OnModelCreating(builder);
 
             builder.Entity<AppUser>()
-            .HasOne(u => u.PlayerProfileInfo)
-            .WithOne(p => p.AppUser)
-            .HasForeignKey<PlayerProfileInfo>(p => p.AppUserId)
-            .OnDelete(DeleteBehavior.Cascade);
+                .HasOne(u => u.PlayerProfileInfo)
+                .WithOne(p => p.AppUser)
+                .HasForeignKey<PlayerProfileInfo>(p => p.AppUserId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             builder.Entity<PlayerProfileInfo>()
                 .HasIndex(p => p.AppUserId)

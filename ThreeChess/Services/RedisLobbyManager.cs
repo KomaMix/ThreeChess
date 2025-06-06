@@ -19,10 +19,10 @@ namespace ThreeChess.Services
         {
             _redis = ConnectionMultiplexer.Connect(configuration.GetConnectionString("RedisConnection"));
             _redisDb = _redis.GetDatabase();
-            InitializeLobbies();
+            InitializeLobbies(10);
         }
 
-        private void InitializeLobbies()
+        private void InitializeLobbies(int count)
         {
             // Проверяем, существует ли хотя бы одно лобби
             var server = _redis.GetServer(_redis.GetEndPoints().First());
@@ -34,7 +34,7 @@ namespace ThreeChess.Services
             if (!lobbiesExist)
             {
                 _redisDb.StringSet(LOBBY_ID_COUNTER, 0);
-                for (int i = 0; i < 10; i++)
+                for (int i = 0; i < count; i++)
                 {
                     CreateLobby(Guid.NewGuid());
                 }

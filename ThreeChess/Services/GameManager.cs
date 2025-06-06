@@ -26,37 +26,30 @@ namespace ThreeChess.Services
 
         public async Task<MoveResponse> MoveHandle(MoveRequest moveRequest)
         {
-            var user = _httpContextAccessor.HttpContext?.User;
-            var userId = Guid.Parse(user?.FindFirstValue(ClaimTypes.NameIdentifier));
+            var curUserId = GetCurUserId();
 
             var game = _gameRepository.GetGame(moveRequest.GameId);
 
-            if (game == null || userId == null)
+            if (game == null || curUserId == null)
             {
                 throw new Exception("game not finding");
             }
 
-            if (game.PlayerColors[userId] != game.CurrentTurnColor)
+            if (game.PlayerColors[curUserId] != game.CurrentTurnColor)
             {
                 throw new Exception("turn error");
             }
+
 
             if (game.FiguresLocation.ContainsKey(moveRequest.EndCellId))
             {
                 game.FiguresLocation.Remove(moveRequest.EndCellId);
             }
 
-            if (game.GameStatus == GameStatus.Wait)
-            {
-                game.GameStatus = GameStatus.InProgress;
+            UpdateGameStatus(game, curUserId);
 
-                game.LastMoveTime = DateTime.UtcNow;
-            } else
-            {
-                game.PlayerGameTimes[userId] -= (DateTime.UtcNow - game.LastMoveTime);
-            }
 
-                game.FiguresLocation[moveRequest.EndCellId] = game.FiguresLocation[moveRequest.StartCellId];
+            game.FiguresLocation[moveRequest.EndCellId] = game.FiguresLocation[moveRequest.StartCellId];
             game.FiguresLocation.Remove(moveRequest.StartCellId);
 
             game.CurrentTurnColor = game.CurrentTurnColor.NextColor();
@@ -75,11 +68,33 @@ namespace ThreeChess.Services
                 StartCellId = moveRequest.StartCellId,
                 EndCellId = moveRequest.EndCellId,
                 GameId = game.Id,
-                UserId = userId,
+                UserId = curUserId,
                 PlayerGameTimes = game.PlayerGameTimes
             };
 
             return moveResponse;
+        }
+
+        void UpdateGameStatus(GameState game, Guid curUser)
+        {
+            if (game.GameStatus == GameStatus.Wait)
+            {
+                game.GameStatus = GameStatus.InProgress;
+
+                game.LastMoveTime = DateTime.UtcNow;
+            }
+            else
+            {
+                game.PlayerGameTimes[curUser] -= (DateTime.UtcNow - game.LastMoveTime);
+            }
+        }
+
+        private Guid GetCurUserId()
+        {
+            var user = _httpContextAccessor.HttpContext?.User;
+            var userId = Guid.Parse(user?.FindFirstValue(ClaimTypes.NameIdentifier));
+
+            return userId;
         }
     }
 }

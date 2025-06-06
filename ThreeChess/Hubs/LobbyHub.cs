@@ -42,16 +42,21 @@ namespace ThreeChess.Hubs
 
             var lobby = _lobbyManager.GetLobby(lobbyId);
 
-            if (lobby.PlayerIds.Count == 3)
-            {
-                _lobbyWaitingService.StartCountdown(lobbyId);
-            }
+            CheckCountdown(lobby);
 
             await NotifyLobbyUpdated(lobbyId);
 
             await Clients.All.SendAsync("LobbyPlayerNumbersChanged", lobby.Id, lobby.PlayerIds.Count);
 
             return true;
+        }
+
+        void CheckCountdown(Lobby lobby)
+        {
+            if (lobby.PlayerIds.Count == 3)
+            {
+                _lobbyWaitingService.StartCountdown(lobby.Id);
+            }
         }
 
 

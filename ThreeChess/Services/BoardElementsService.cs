@@ -12,56 +12,48 @@ namespace ThreeChess.Services
             Dictionary<string, FigureInfo> figuresMap = new Dictionary<string, FigureInfo>();
 
             figuresMap["A8"] = new FigureInfo {
-                Path = "/images/white_rook.svg",
                 FigureType = FigureType.Rook,
                 FigureColor = FigureColor.White
             };
 
             figuresMap["L8"] = new FigureInfo
             {
-                Path = "/images/white_rook.svg",
                 FigureType = FigureType.Rook,
                 FigureColor = FigureColor.White
             };
 
             figuresMap["B8"] = new FigureInfo
             {
-                Path = "/images/white_knight.svg",
                 FigureType = FigureType.Knight,
                 FigureColor = FigureColor.White
             };
 
             figuresMap["K8"] = new FigureInfo
             {
-                Path = "/images/white_knight.svg",
                 FigureType = FigureType.Knight,
                 FigureColor = FigureColor.White
             };
 
             figuresMap["C8"] = new FigureInfo
             {
-                Path = "/images/white_bishop.svg",
                 FigureType = FigureType.Bishop,
                 FigureColor = FigureColor.White
             };
 
             figuresMap["J8"] = new FigureInfo
             {
-                Path = "/images/white_bishop.svg",
                 FigureType = FigureType.Bishop,
                 FigureColor = FigureColor.White
             };
 
             figuresMap["D8"] = new FigureInfo
             {
-                Path = "/images/white_king.svg",
                 FigureType = FigureType.King,
                 FigureColor = FigureColor.White
             };
 
             figuresMap["I8"] = new FigureInfo
             {
-                Path = "/images/white_queen.svg",
                 FigureType = FigureType.Queen,
                 FigureColor = FigureColor.White
             };
@@ -72,7 +64,6 @@ namespace ThreeChess.Services
 
                 figuresMap[id] = new FigureInfo
                 {
-                    Path = "/images/white_pawn.svg",
                     FigureType = FigureType.Pawn,
                     FigureColor = FigureColor.White
                 };
@@ -80,56 +71,48 @@ namespace ThreeChess.Services
 
             figuresMap["L12"] = new FigureInfo
             {
-                Path = "/images/black_rook.svg",
                 FigureType = FigureType.Rook,
                 FigureColor = FigureColor.Black
             };
 
             figuresMap["H12"] = new FigureInfo
             {
-                Path = "/images/black_rook.svg",
                 FigureType = FigureType.Rook,
                 FigureColor = FigureColor.Black
             };
 
             figuresMap["G12"] = new FigureInfo
             {
-                Path = "/images/black_knight.svg",
                 FigureType = FigureType.Knight,
                 FigureColor = FigureColor.Black
             };
 
             figuresMap["K12"] = new FigureInfo
             {
-                Path = "/images/black_knight.svg",
                 FigureType = FigureType.Knight,
                 FigureColor = FigureColor.Black
             };
 
             figuresMap["J12"] = new FigureInfo
             {
-                Path = "/images/black_bishop.svg",
                 FigureType = FigureType.Bishop,
                 FigureColor = FigureColor.Black
             };
 
             figuresMap["F12"] = new FigureInfo
             {
-                Path = "/images/black_bishop.svg",
                 FigureType = FigureType.Bishop,
                 FigureColor = FigureColor.Black
             };
 
             figuresMap["I12"] = new FigureInfo
             {
-                Path = "/images/black_king.svg",
                 FigureType = FigureType.King,
                 FigureColor = FigureColor.Black
             };
 
             figuresMap["E12"] = new FigureInfo
             {
-                Path = "/images/black_queen.svg",
                 FigureType = FigureType.Queen,
                 FigureColor = FigureColor.Black
             };
@@ -139,7 +122,6 @@ namespace ThreeChess.Services
                 string id = c + "11";
                 figuresMap[id] = new FigureInfo
                 {
-                    Path = "/images/black_pawn.svg",
                     FigureType = FigureType.Pawn,
                     FigureColor = FigureColor.Black
                 };
@@ -147,56 +129,48 @@ namespace ThreeChess.Services
 
             figuresMap["A1"] = new FigureInfo
             {
-                Path = "/images/red_rook.svg",
                 FigureType = FigureType.Rook,
                 FigureColor = FigureColor.Red
             };
 
             figuresMap["H1"] = new FigureInfo
             {
-                Path = "/images/red_rook.svg",
                 FigureType = FigureType.Rook,
                 FigureColor = FigureColor.Red
             };
 
             figuresMap["B1"] = new FigureInfo
             {
-                Path = "/images/red_knight.svg",
                 FigureType = FigureType.Knight,
                 FigureColor = FigureColor.Red
             };
 
             figuresMap["G1"] = new FigureInfo
             {
-                Path = "/images/red_knight.svg",
                 FigureType = FigureType.Knight,
                 FigureColor = FigureColor.Red
             };
 
             figuresMap["C1"] = new FigureInfo
             {
-                Path = "/images/red_bishop.svg",
                 FigureType = FigureType.Bishop,
                 FigureColor = FigureColor.Red
             };
 
             figuresMap["F1"] = new FigureInfo
             {
-                Path = "/images/red_bishop.svg",
                 FigureType = FigureType.Bishop,
                 FigureColor = FigureColor.Red
             };
 
             figuresMap["E1"] = new FigureInfo
             {
-                Path = "/images/red_king.svg",
                 FigureType = FigureType.King,
                 FigureColor = FigureColor.Red
             };
 
             figuresMap["D1"] = new FigureInfo
             {
-                Path = "/images/red_queen.svg",
                 FigureType = FigureType.Queen,
                 FigureColor = FigureColor.Red
             };
@@ -206,14 +180,22 @@ namespace ThreeChess.Services
                 string id = c + "2";
                 figuresMap[id] = new FigureInfo
                 {
-                    Path = "/images/red_pawn.svg",
                     FigureType = FigureType.Pawn,
                     FigureColor = FigureColor.Red
                 };
             }
 
+            foreach (var item in figuresMap)
+            {
+                item.Value.Path = GetFigureImagePath(item.Value.FigureType, item.Value.FigureColor);
+            }
 
             return figuresMap;
+        }
+
+        private string GetFigureImagePath(FigureType type, FigureColor color)
+        {
+            return $"/images/{color.ToString().ToLower()}_{type.ToString().ToLower()}.svg";
         }
 
         public List<CellItem> CreateBoardCellsForWhite()

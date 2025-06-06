@@ -35,8 +35,6 @@ namespace ThreeChess.Hubs
             {
                 return;
             }
-
-
         }
 
         public override async Task OnConnectedAsync()
