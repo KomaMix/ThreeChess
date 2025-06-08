@@ -373,7 +373,7 @@ function getPawnMoves(cellId) {
     captureMoves.forEach(targetCellId => {
         const targetCellState = boardElementsState.cells[targetCellId];
         if (targetCellState && targetCellState.elements.figure
-            && targetCellState.elements.figure.figureInfo.figureColor !== gameConfig.controlledColor) {
+            && targetCellState.elements.figure.figureInfo.figureColor !== pawn.figureInfo.figureColor) {
             possibleMoves.push(targetCellId);
         }
     });

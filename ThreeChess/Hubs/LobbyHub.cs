@@ -126,6 +126,24 @@ namespace ThreeChess.Hubs
 
 
 
+        public IEnumerable<Lobby> GetAllLobbies()
+        {
+            return _lobbyManager.GetAllLobbies();
+        }
+
+        public async Task<LobbyDto> GetLobbyInfo(Guid lobbyId)
+        {
+            var playerId = Guid.Parse(Context.UserIdentifier);
+
+            if (!_lobbyManager.PlayerExist(lobbyId, playerId))
+            {
+                return null;
+            }
+
+            var lobby = _lobbyManager.GetLobby(lobbyId);
+            return await ConvertToDto(lobby);
+        }
+
         private async Task<LobbyDto> ConvertToDto(Lobby lobby)
         {
             var dto = new LobbyDto
@@ -146,24 +164,6 @@ namespace ThreeChess.Hubs
             }
 
             return dto;
-        }
-
-        public IEnumerable<Lobby> GetAllLobbies()
-        {
-            return _lobbyManager.GetAllLobbies();
-        }
-
-        public async Task<LobbyDto> GetLobbyInfo(Guid lobbyId)
-        {
-            var playerId = Guid.Parse(Context.UserIdentifier);
-
-            if (!_lobbyManager.PlayerExist(lobbyId, playerId))
-            {
-                return null;
-            }
-
-            var lobby = _lobbyManager.GetLobby(lobbyId);
-            return await ConvertToDto(lobby);
         }
     }
 }
