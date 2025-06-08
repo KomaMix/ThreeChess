@@ -1,4 +1,46 @@
-﻿function getDiagonalMoves(cellId) {
+﻿
+function getPossibleMoves(cellId) {
+    const piece = boardElementsState.cells[cellId].elements.figure;
+    if (!piece) return [];
+
+    const possibleMoves = new Set();
+    const pieceType = piece.figureInfo.figureType;
+
+
+    if (pieceType === 'Queen' || pieceType === 'Bishop' || pieceType === 'King') {
+        const moves = getDiagonalMoves(cellId);
+        moves.forEach(move => possibleMoves.add(move));
+    }
+
+    if (pieceType === 'Queen' || pieceType === 'Rook' || pieceType === 'King') {
+        const moves = getMainLinesMoves(cellId);
+        moves.forEach(move => possibleMoves.add(move));
+    }
+
+    if (pieceType === 'Queen' || pieceType === 'Rook' || pieceType === 'King') {
+        const moves = getSecondaryLinesMoves(cellId);
+        moves.forEach(move => possibleMoves.add(move));
+    }
+
+    if (pieceType === 'Knight') {
+        const moves = getKnightMoves(cellId);
+        moves.forEach(move => possibleMoves.add(move));
+    }
+
+    if (pieceType === 'King') {
+        const moves = getKingCastlingMoves(cellId);
+        moves.forEach(move => possibleMoves.add(move));
+    }
+
+    if (pieceType === 'Pawn') {
+        const moves = getPawnMoves(cellId);
+        moves.forEach(move => possibleMoves.add(move));
+    }
+
+    return Array.from(possibleMoves);
+}
+
+function getDiagonalMoves(cellId) {
     const possibleMoves = [];
     const piece = boardElementsState.cells[cellId].elements.figure;
 

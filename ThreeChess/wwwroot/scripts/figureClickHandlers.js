@@ -14,6 +14,7 @@
 
 
         highlightMoves(cell);
+        last_click_id = cell.id;
     }
 }
 
@@ -26,6 +27,8 @@ function secondClickHandler(cell) {
             if (figure.figureInfo.figureColor === gameConfig.controlledColor) {
                 clearHighlightedCells();
                 highlightMoves(cell);
+
+                last_click_id = cell.id;
                 return;
             }
         }

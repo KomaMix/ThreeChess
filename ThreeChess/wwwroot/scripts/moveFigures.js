@@ -114,19 +114,20 @@
 }
 
 function localMove(startId, endId) {
-    const cellTo = boardElementsState.cells[endId];
+    // Получаем все возможные ходы для фигуры на стартовой клетке
+    const possibleMoves = getPossibleMoves(startId);
 
-    // Проверяем, что целевая клетка помечена как возможный ход (подсвечена)
-    if (!(cellTo.elements.path.classList.contains('cell-highlighted') ||
-        cellTo.elements.path.classList.contains('cell-capture-highlight'))) {
-        console.log('Invalid move: target cell is not highlighted as valid.');
+    // Проверяем, что целевая клетка есть в списке возможных ходов
+    if (!possibleMoves.includes(endId)) {
+        console.log(`Invalid move: ${endId} is not a valid move from ${startId}`);
         return;
     }
 
-
+    // Выполняем перемещение
     moveFigure(startId, endId);
-    gameHub.invoke("HandleMove",
-    {
+
+    // Отправляем ход на сервер
+    gameHub.invoke("HandleMove", {
         startCellId: startId,
         endCellId: endId,
         gameId: gameId,
