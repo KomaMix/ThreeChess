@@ -128,6 +128,11 @@ svg {
     cursor: pointer;
 }
 
+.cell-selected {
+    fill: #b0b0b0;
+    cursor: pointer;
+}
+
 /* Responsive стили */
 @media (max-width: 768px) {
     .content-container {
