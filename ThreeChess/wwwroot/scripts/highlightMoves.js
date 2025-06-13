@@ -1,14 +1,12 @@
 ﻿function highlightMoves(cell) {
     const piece = boardElementsState.cells[cell.id].elements.figure;
 
-    
-
     cellsIds = getPossibleMoves(cell.id);
     correctIds = filterCorrectMoves(cell.id, cellsIds);
 
     highlightCellsArray(correctIds)
 
-    if (correctIds.length == 0) {
+    if (correctIds.length > 0) {
         highlightStartCell(cell.id);
     }
 }

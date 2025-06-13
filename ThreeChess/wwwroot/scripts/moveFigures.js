@@ -155,25 +155,63 @@ function localMove(startId, endId) {
     });
 }
 
+function isCheckmate() {
+    const controlledColor = gameConfig.controlledColor;
+
+    if (!isKingInCheck(controlledColor)) {
+        return false;
+    }
+
+    const myCellIds = [];
+
+    for (const cellId in boardElementsState.cells) {
+        const cell = boardElementsState.cells[cellId];
+        const figure = cell.elements.figure;
+
+        if (figure && figure.figureInfo && figure.figureInfo.figureColor === controlledColor) {
+            myCellIds.push(cellId);
+        }
+    }
+
+    let result = true;
+    myCellIds.forEach(cellId => {
+        const possibleMoves = getPossibleMoves(cellId);
+        const correctMoves = filterCorrectMoves(cellId, possibleMoves);
+
+        if (correctMoves.length > 0) {
+            result = false;
+        }
+    });
+
+
+    return result;
+}
+
 function filterCorrectMoves(startId, possibleMoves) {
     const controlledColor = gameConfig.controlledColor;
     const correctIds = [];
+    const startCell = boardElementsState.cells[startId];
+    const startFigure = startCell.elements.figure;
 
-    possibleMoves.forEach(currId =>
-    {
-        let temp = boardElementsState.cells[startId];
-        boardElementsState.cells[startId] = boardElementsState.cells[currId];
-        boardElementsState.cells[currId] = temp;
+    possibleMoves.forEach(currId => {
+        const targetCell = boardElementsState.cells[currId];
 
-        let result = isKingInCheck(controlledColor);
+        // Сохраняем исходное состояние целевой клетки
+        const originalTargetFigure = targetCell.elements.figure;
+
+        // Временный ход: перемещаем фигуру
+        startCell.elements.figure = null;
+        targetCell.elements.figure = startFigure;
+
+        const result = isKingInCheck(controlledColor);
 
         if (!result) {
             correctIds.push(currId);
         }
 
-        temp = boardElementsState.cells[startId];
-        boardElementsState.cells[startId] = boardElementsState.cells[currId];
-        boardElementsState.cells[currId] = temp;
+        // Восстанавливаем исходное состояние
+        startCell.elements.figure = startFigure;
+        targetCell.elements.figure = originalTargetFigure;
     });
 
     return correctIds;
@@ -218,4 +256,10 @@ function replaceCurrentTurnColor() {
     const colors = ["White", "Black", "Red"];
     const currentIndex = colors.indexOf(gameConfig.currentTurnColor);
     gameConfig.currentTurnColor = colors[(currentIndex + 1) % colors.length];
+
+    if (gameConfig.currentTurnColor === gameConfig.controlledColor) {
+        if (isCheckmate()) {
+            alert("Вам объявлен мат!");
+        }
+    }
 }
