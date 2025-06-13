@@ -1,10 +1,16 @@
 ﻿function highlightMoves(cell) {
     const piece = boardElementsState.cells[cell.id].elements.figure;
 
-    highlightStartCell(cell.id);
+    
 
     cellsIds = getPossibleMoves(cell.id);
-    highlightCellsArray(cellsIds)
+    correctIds = filterCorrectMoves(cell.id, cellsIds);
+
+    highlightCellsArray(correctIds)
+
+    if (correctIds.length == 0) {
+        highlightStartCell(cell.id);
+    }
 }
 
 function highlightCellsArray(cellIds) {
@@ -33,10 +39,17 @@ function highlightCell(targetCellId) {
     }
 }
 
+function highlightKingRedColor(targetCellId) {
+    const cell = boardElementsState.cells[targetCellId];
+    cell.elements.path.classList.add('cell-king-red-highlighted');
+}
+
+
 function clearHighlightedCells() {
     document.querySelectorAll('path').forEach(path => {
         path.classList.remove('cell-highlighted');
         path.classList.remove('cell-capture-highlight');
         path.classList.remove('cell-selected');
+        path.classList.remove('cell-king-red-highlighted');
     });
 }

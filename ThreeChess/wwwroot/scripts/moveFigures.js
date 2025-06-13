@@ -117,11 +117,22 @@ function localMove(startId, endId) {
     // Получаем все возможные ходы для фигуры на стартовой клетке
     const possibleMoves = getPossibleMoves(startId);
 
+    const correctMoves = filterCorrectMoves(startId, possibleMoves);
+
+
+
     // Проверяем, что целевая клетка есть в списке возможных ходов
-    if (!possibleMoves.includes(endId)) {
+    if (!correctMoves.includes(endId)) {
         console.log(`Invalid move: ${endId} is not a valid move from ${startId}`);
         return;
     }
+
+    //if (isKingInCheck(gameConfig.controlledColor)) {
+    //    const kingCellId = findKing(gameConfig.controlledColor);
+
+    //    highlightKingRedColor(kingCellId);
+    //    return;
+    //}
 
     // Выполняем перемещение
     moveFigure(startId, endId);
@@ -134,6 +145,65 @@ function localMove(startId, endId) {
         userId: gameConfig.userId
     });
 }
+
+function filterCorrectMoves(startId, possibleMoves) {
+    const controlledColor = gameConfig.controlledColor;
+    const correctIds = [];
+
+    possibleMoves.forEach(currId =>
+    {
+        let temp = boardElementsState.cells[startId];
+        boardElementsState.cells[startId] = boardElementsState.cells[currId];
+        boardElementsState.cells[currId] = temp;
+
+        let result = isKingInCheck(controlledColor);
+
+        if (!result) {
+            correctIds.push(currId);
+        }
+
+        temp = boardElementsState.cells[startId];
+        boardElementsState.cells[startId] = boardElementsState.cells[currId];
+        boardElementsState.cells[currId] = temp;
+    });
+
+    return correctIds;
+}
+
+
+function isKingInCheck(kingColor) {
+    const kingCellId = findKing(kingColor);
+    if (!kingCellId) return false;
+
+    // Проверяем, может ли любая вражеская фигура атаковать короля
+    for (const cellId in boardElementsState.cells) {
+        const cell = boardElementsState.cells[cellId];
+
+        if (cell.elements.figure &&
+            cell.elements.figure.figureInfo.figureColor !== kingColor) {
+
+            const possibleMoves = getPossibleMoves(cellId);
+            if (possibleMoves.includes(kingCellId)) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+
+function findKing(color) {
+    for (const cellId in boardElementsState.cells) {
+        const cell = boardElementsState.cells[cellId];
+        if (cell.elements.figure &&
+            cell.elements.figure.figureInfo.figureType === 'King' &&
+            cell.elements.figure.figureInfo.figureColor === color) {
+            return cellId;
+        }
+    }
+    return null;
+}
+
 
 function replaceCurrentTurnColor() {
     const colors = ["White", "Black", "Red"];

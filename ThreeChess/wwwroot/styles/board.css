@@ -123,6 +123,11 @@ svg {
     cursor: pointer;
 }
 
+.cell-king-red-highlighted {
+    fill: #a9d18e;
+    cursor: pointer;
+}
+
 .cell-capture-highlight {
     fill: #e06666;
     cursor: pointer;
