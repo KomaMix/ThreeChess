@@ -78,11 +78,13 @@ namespace ThreeChess.Controllers
             return BadRequest(ModelState);
         }
 
-        [HttpPost("logout")]
+
         public async Task<IActionResult> Logout()
         {
             await _signInManager.SignOutAsync();
-            return Ok(new { message = "Вы успешно вышли" });
+
+            var filePath = Path.Combine(_env.ContentRootPath, "HtmlPages/Home/index.html");
+            return PhysicalFile(filePath, "text/html");
         }
     }
 }
