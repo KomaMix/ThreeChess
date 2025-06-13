@@ -30,7 +30,12 @@
 
         updateTimers();
         startTimerUpdates();
+        initialSetup();
     } catch (error) {
         console.error('Error:', error);
     }
+}
+
+function initialSetup() {
+    higlightKingAtCheck();
 }
