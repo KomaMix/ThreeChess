@@ -109,8 +109,17 @@
     cellTo.elements.figure.figureImage.setAttribute('x', cellTo.center.x - FIGURE_SIZE / 2);
     cellTo.elements.figure.figureImage.setAttribute('y', cellTo.center.y - FIGURE_SIZE / 2);
 
+    higlightKingAtCheck();
     replaceCurrentTurnColor();
     console.log('Moved successfully');
+}
+
+function higlightKingAtCheck() {
+    const controlledColor = gameConfig.controlledColor;
+
+    if (isKingInCheck(gameConfig.controlledColor)) {
+        highlightControlledKingRedColor();
+    }
 }
 
 function localMove(startId, endId) {

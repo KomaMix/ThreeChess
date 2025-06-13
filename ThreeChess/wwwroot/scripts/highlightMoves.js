@@ -39,8 +39,10 @@ function highlightCell(targetCellId) {
     }
 }
 
-function highlightKingRedColor(targetCellId) {
-    const cell = boardElementsState.cells[targetCellId];
+function highlightControlledKingRedColor() {
+    const kingId = findKing(gameConfig.controlledColor);
+
+    const cell = boardElementsState.cells[kingId];
     cell.elements.path.classList.add('cell-king-red-highlighted');
 }
 
