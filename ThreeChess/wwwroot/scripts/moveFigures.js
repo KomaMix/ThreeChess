@@ -109,14 +109,13 @@
     cellTo.elements.figure.figureImage.setAttribute('x', cellTo.center.x - FIGURE_SIZE / 2);
     cellTo.elements.figure.figureImage.setAttribute('y', cellTo.center.y - FIGURE_SIZE / 2);
 
+    clearHighlightedCells();
     higlightKingAtCheck();
     replaceCurrentTurnColor();
     console.log('Moved successfully');
 }
 
 function higlightKingAtCheck() {
-    const controlledColor = gameConfig.controlledColor;
-
     if (isKingInCheck(gameConfig.controlledColor)) {
         highlightControlledKingRedColor();
     }
@@ -222,12 +221,13 @@ function isKingInCheck(kingColor) {
     const kingCellId = findKing(kingColor);
     if (!kingCellId) return false;
 
-    // Проверяем, может ли любая вражеская фигура атаковать короля
+    // Проверяем, что есть вражеская фигура, способная атаковать короля
     for (const cellId in boardElementsState.cells) {
         const cell = boardElementsState.cells[cellId];
 
         if (cell.elements.figure &&
-            cell.elements.figure.figureInfo.figureColor !== kingColor) {
+            cell.elements.figure.figureInfo.figureColor !== kingColor &&
+            cell.elements.figure.figureInfo.figureType !== 'King') {
 
             const possibleMoves = getPossibleMoves(cellId);
             if (possibleMoves.includes(kingCellId)) {

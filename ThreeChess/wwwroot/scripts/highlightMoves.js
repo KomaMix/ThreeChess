@@ -4,11 +4,13 @@
     cellsIds = getPossibleMoves(cell.id);
     correctIds = filterCorrectMoves(cell.id, cellsIds);
 
-    highlightCellsArray(correctIds)
+    highlightCellsArray(correctIds);
 
-    if (correctIds.length > 0) {
+    if (correctIds.length > 0 && !isKingInCheck(gameConfig.controlledColor)) {
         highlightStartCell(cell.id);
     }
+
+    higlightKingAtCheck();
 }
 
 function highlightCellsArray(cellIds) {

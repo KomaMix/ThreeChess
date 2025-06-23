@@ -5,10 +5,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using ThreeChess.Services;
 
 var browsers = new IWebDriver[3];
 var random = new Random();
 const int TotalLobbies = 30;
+RedisLobbyManager redisLobbyManager = new RedisLobbyManager("localhost:6379,abortConnect=false,connectTimeout=5000");
+var allLobbies = redisLobbyManager.GetAllLobbies();
 
 try
 {

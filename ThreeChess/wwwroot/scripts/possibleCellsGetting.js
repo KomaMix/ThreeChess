@@ -432,7 +432,7 @@ function getKingCastlingMoves(cellId) {
         king.hasMoved = false;
     }
 
-    if (king.hasMoved) return [];
+    if (king.hasMoved || isKingInCheck(gameConfig.currentTurnColor)) return [];
 
     // Шаг 1: Ищем побочную линию (secondary line) с королем
     let kingSecondaryLine = null;
