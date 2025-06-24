@@ -14,4 +14,8 @@
     <PackageReference Include="Selenium.WebDriver.MSEdgeDriver" Version="136.0.3240.76" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\ThreeChess\ThreeChess.csproj" />
+  </ItemGroup>
+
 </Project>

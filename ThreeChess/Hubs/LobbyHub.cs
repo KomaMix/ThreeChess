@@ -128,7 +128,7 @@ namespace ThreeChess.Hubs
 
         public IEnumerable<Lobby> GetAllLobbies()
         {
-            return _lobbyManager.GetAllLobbies();
+            return _lobbyManager.GetAllLobbies().Take(100);
         }
 
         public async Task<LobbyDto> GetLobbyInfo(Guid lobbyId)

@@ -11,7 +11,7 @@ var browsers = new IWebDriver[3];
 var random = new Random();
 const int TotalLobbies = 30;
 RedisLobbyManager redisLobbyManager = new RedisLobbyManager("localhost:6379,abortConnect=false,connectTimeout=5000");
-var allLobbies = redisLobbyManager.GetAllLobbies();
+var allLobbies = redisLobbyManager.GetAllLobbies().ToList();
 
 try
 {
@@ -73,7 +73,8 @@ void ProcessLobbiesInOrder(IWebDriver driver, int playerNumber)
             var tabs = driver.WindowHandles;
             driver.SwitchTo().Window(tabs.Last());
 
-            JoinSpecificLobby(driver, lobbyId, playerNumber);
+            var lobby = allLobbies[lobbyId];
+            JoinSpecificLobby(driver, lobby.Id, playerNumber);
 
             // Возвращаемся к основной вкладке
             driver.SwitchTo().Window(tabs.First());
@@ -87,7 +88,7 @@ void ProcessLobbiesInOrder(IWebDriver driver, int playerNumber)
     driver.SwitchTo().Window(driver.WindowHandles.First());
 }
 
-void JoinSpecificLobby(IWebDriver driver, int targetLobbyId, int playerNumber)
+void JoinSpecificLobby(IWebDriver driver, Guid targetLobbyId, int playerNumber)
 {
     var wait = new WebDriverWait(driver, TimeSpan.FromSeconds(20));
 
@@ -100,11 +101,11 @@ void JoinSpecificLobby(IWebDriver driver, int targetLobbyId, int playerNumber)
 
             // Начало повторяемого блока (3 раза)
             var lobbies = driver.FindElements(By.CssSelector(".lobby-card"))
-                .OrderBy(e => int.Parse(e.GetAttribute("data-lobby-id")))
+                .OrderBy(e => e.GetAttribute("data-lobby-id"))
                 .ToList();
 
             var targetLobby = lobbies.FirstOrDefault(e =>
-                int.Parse(e.GetAttribute("data-lobby-id")) == targetLobbyId);
+                e.GetAttribute("data-lobby-id") == targetLobbyId.ToString());
 
             if (targetLobby == null)
                 throw new Exception($"Лобби {targetLobbyId} не найдено");
