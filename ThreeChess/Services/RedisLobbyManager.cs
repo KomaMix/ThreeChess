@@ -19,14 +19,14 @@ namespace ThreeChess.Services
         {
             _redis = ConnectionMultiplexer.Connect(configuration.GetConnectionString("RedisConnection"));
             _redisDb = _redis.GetDatabase();
-            InitializeLobbies(1000);
+            //InitializeLobbies(2);
         }
 
         public RedisLobbyManager(string connString)
         {
             _redis = ConnectionMultiplexer.Connect(connString);
             _redisDb = _redis.GetDatabase();
-            InitializeLobbies(1000);
+            //InitializeLobbies(2);
         }
 
         //public RedisLobbyManager(string connectionString)
@@ -40,7 +40,7 @@ namespace ThreeChess.Services
         {
             // Проверяем, существует ли хотя бы одно лобби
             //var allLobbies = GetAllLobbies().ToList();
-            bool lobbiesExist = true;
+            bool lobbiesExist = false;
 
             // Если лобби нет и счетчик тоже отсутствует, инициализируем
             if (!lobbiesExist)

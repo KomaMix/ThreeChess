@@ -1,4 +1,5 @@
-﻿using ThreeChess.Enums;
+﻿using ThreeChess.Data;
+using ThreeChess.Enums;
 using ThreeChess.Models;
 using ThreeChess.Models.CellElements;
 
@@ -19,6 +20,7 @@ namespace ThreeChess.DTOs
         public List<List<string>> SecondaryLines { get; set; }
         public Dictionary<Guid, FigureColor> PlayerColors { get; set; }
         public Dictionary<Guid, TimeSpan> PlayerGameTimes { get; set; }
+        public Dictionary<Guid, AppUser> PlayerInfos { get; set; }
         public List<Move> MoveHistory { get; set; }
     }
 }

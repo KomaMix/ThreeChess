@@ -14,7 +14,7 @@ namespace ThreeChess.Services
         public readonly IGameRepository _gameRepository;
         public readonly ConcurrentDictionary<Guid, Timer> _countdownTimers = new();
         public readonly IBoardElementsService _boardElementsService;
-        public readonly TimeSpan dueTime = new TimeSpan(0, 0, 0, 3);
+        public readonly TimeSpan dueTime = new TimeSpan(0, 0, 0, 10);
         public readonly TimeSpan period = new TimeSpan(1, 0, 0);
 
         public LobbyWaitingService(

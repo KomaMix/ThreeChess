@@ -1,88 +1,15 @@
+
+
 {
-    "movedElements": {
-        "diagonals": [
-            [ "A1", "B2", "C3" ],
-            [ "D4", "E5", "F6" ]
-        ],
-        "mainLines": [
-            [ "A1", "A2", "A3" ],
-            [ "B1", "B2", "B3" ]
-        ],
-        "secondaryLines": [
-            [ "C1", "D2", "E3" ],
-            [ "D1", "E2", "F3" ]
-        ]
-    },
-    "gameConfig": {
-        "controlledColor": "White",
-        "currentTurnColor": "Black",
-        "activePlayerIds": [ "player1-uuid", "player2-uuid", "player2-uuid" ],
-        "playerColors": {
-            "player1-uuid": "White",
-            "player2-uuid": "Black",
-            "player3-uuid": "Red"
-        },
-        "playerGameTimes": {
-            "player1-uuid": "00:10:00",
-            "player2-uuid": "00:09:30",
-            "player3-uuid": "00:12:00"
-        },
-        "userId": "current-user-uuid",
-        "moveHistory": [
-            {
-                "startCellId": "E2",
-                "endCellId": "E4"
-            },
-            {
-                "startCellId": "G8",
-                "endCellId": "F6"
-            }
-        ]
-    },
-    "boardElementsState": {
-        "cells": {
-            "A1": {
-                "id": "A1",
-                "center": {
-                    "x": 50,
-                    "y": 50
-                },
-                "elements": {
-                    "figure": {
-                        "figureInfo": {
-                            "path": "/images/white_rook.svg",
-                            "figureType": "Rook",
-                            "figureColor": "White"
-                        }
-                    }
-                }
-            },
-            "E4": {
-                "id": "E4",
-                "center": {
-                    "x": 250,
-                    "y": 250
-                },
-                "elements": {
-                    "figure": {
-                        "figureInfo": {
-                            "path": "/images/white_pawn.svg",
-                            "figureType": "Pawn",
-                            "figureColor": "White"
-                        }
-                    }
-                }
-            },
-            "B2": {
-                "id": "B2",
-                "center": {
-                    "x": 150,
-                    "y": 150
-                },
-                "elements": {
-                    "figure": null
-                }
-            }
-        }
+    "id": "1681234567890-0",
+    "values": {
+        "start": "string",
+        "end": "string",
+        "playerId": "UUID",
+        "piece": "int"
     }
 }
+
+
+
+

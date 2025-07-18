@@ -1,6 +1,8 @@
-﻿using System.Security.Claims;
+﻿using System.Linq;
+using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using ThreeChess.Data;
 using ThreeChess.DTOs;
 using ThreeChess.Enums;
 using ThreeChess.Interfaces;
@@ -16,6 +18,7 @@ namespace ThreeChess.Controllers
         private readonly IBoardElementsService _boardCreateService;
         private readonly IMoveLogicalElementsService _moveElementsService;
         private readonly IMoveHistoryService _moveHistoryService;
+        private readonly AppDbContext appDbContext;
         IWebHostEnvironment _env;
 
         public GameController(
@@ -23,13 +26,15 @@ namespace ThreeChess.Controllers
             IGameRepository gameRepository,
             IBoardElementsService boardCreateService,
             IMoveLogicalElementsService moveElementsService,
-            IMoveHistoryService moveHistoryService)
+            IMoveHistoryService moveHistoryService,
+            AppDbContext appDbContext)
         {
             _env = env;
             _gameRepository = gameRepository;
             _boardCreateService = boardCreateService;
             _moveElementsService = moveElementsService;
             _moveHistoryService = moveHistoryService;
+            this.appDbContext = appDbContext;
         }
 
 
@@ -52,6 +57,8 @@ namespace ThreeChess.Controllers
             if (!game.PlayerColors.TryGetValue(userId, out var controlledColor))
                 return Forbid();
 
+            var activePlayersStr = game.ActivePlayerIds.Select(p => p.ToString());
+
             var dto = new InitializingGameDto
             {
                 GameId = game.Id,
@@ -67,7 +74,10 @@ namespace ThreeChess.Controllers
                 SecondaryLines = _moveElementsService.GetSecondaryLines(),
                 PlayerGameTimes = game.PlayerGameTimes,
                 PlayerColors = game.PlayerColors,
-                MoveHistory = _moveHistoryService.GetMoveHistory(gameId).ToList()
+                MoveHistory = _moveHistoryService.GetMoveHistory(gameId).ToList(),
+                PlayerInfos = appDbContext.Users
+                    .Where(u => activePlayersStr.Contains(u.Id))
+                    .ToDictionary(u => Guid.Parse(u.Id), u => u)
             };
 
             if (game.GameStatus != GameStatus.Wait)
@@ -92,10 +102,12 @@ namespace ThreeChess.Controllers
         [HttpGet("active-games")]
         public IActionResult GetAllActiveGames()
         {
+            var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value);
             var games = _gameRepository.GetAllGames().Take(1000).ToList();
 
             var filteredGames = games
                 .Where(g => g.GameStatus == GameStatus.InProgress || g.GameStatus == GameStatus.Wait)
+                .Where(g => g.ActivePlayerIds.Contains(userId))
                 .Select(g => new GameListItemDto
                 {
                     Id = g.Id,

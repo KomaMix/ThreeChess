@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using ThreeChess.Models;
 
 namespace ThreeChess.Data
 {
@@ -10,6 +11,9 @@ namespace ThreeChess.Data
         : base(options)
         {
         }
+
+        public DbSet<OldGameInfo> OldGameInfos { get; set; }
+        public DbSet<UserOldGameInfo> UserOldGameInfos { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -24,6 +28,21 @@ namespace ThreeChess.Data
             builder.Entity<PlayerProfileInfo>()
                 .HasIndex(p => p.AppUserId)
                 .IsUnique();
+
+            builder.Entity<UserOldGameInfo>()
+                .HasKey(ug => new { ug.AppUserId, ug.OldGameInfoId }); // Составной ключ
+
+            builder.Entity<UserOldGameInfo>()
+                .HasOne(ug => ug.AppUser)
+                .WithMany() // Если в AppUser нет коллекции UserOldGameInfo, оставьте пустым
+                .HasForeignKey(ug => ug.AppUserId)
+                .OnDelete(DeleteBehavior.Cascade); // Каскадное удаление связей при удалении пользователя
+
+            builder.Entity<UserOldGameInfo>()
+                .HasOne(ug => ug.OldGameInfo)
+                .WithMany() // Если в OldGameInfo нет коллекции UserOldGameInfo, оставьте пустым
+                .HasForeignKey(ug => ug.OldGameInfoId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

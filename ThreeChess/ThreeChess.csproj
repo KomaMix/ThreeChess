@@ -7,6 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Content Include="Docs\game_example_data - Копировать.txt" />
     <Content Include="HtmlPages\Auth\login.html" />
     <Content Include="HtmlPages\Auth\register.html" />
     <Content Include="HtmlPages\Home\index.html" />
@@ -29,7 +30,6 @@
 
   <ItemGroup>
     <Folder Include="Migrations\" />
-    <Folder Include="Docs\" />
   </ItemGroup>
 
 </Project>

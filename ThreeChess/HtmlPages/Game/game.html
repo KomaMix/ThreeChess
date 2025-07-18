@@ -28,15 +28,15 @@
             <h2>Таймер</h2>
             <ul id="timers-list">
                 <li data-color="White">
-                    <span class="timer-label">Белый:</span>
+                    <span class="timer-label" id="player-name-White">Загрузка...</span>
                     <span class="timer-value" id="timer-White">--:--</span>
                 </li>
                 <li data-color="Black">
-                    <span class="timer-label">Черный:</span>
+                    <span class="timer-label" id="player-name-Black">Загрузка...</span>
                     <span class="timer-value" id="timer-Black">--:--</span>
                 </li>
                 <li data-color="Red">
-                    <span class="timer-label">Красный:</span>
+                    <span class="timer-label" id="player-name-Red">Загрузка...</span>
                     <span class="timer-value" id="timer-Red">--:--</span>
                 </li>
             </ul>
@@ -51,7 +51,7 @@
     <script src="/scripts/highlightMoves.js?v=5.9"></script>
     <script src="/scripts/possibleCellsGetting.js?v=2.3"></script>
     <script src="/scripts/renderBoard.js?v=1.6"></script>
-    <script src="/scripts/loadCells.js?v=3.1"></script>
+    <script src="/scripts/loadCells.js?v=3.2"></script>
     <script src="/scripts/validatePolygon.js?v=1.4"></script>
     <script src="/scripts/moveFigures.js?v=4.5"></script>
     <script src="/scripts/figureClickHandlers.js?v=2.1"></script>
@@ -130,10 +130,38 @@
                 .then(() => console.log('SignalR connection established'))
                 .catch(err => console.error('SignalR connection error:', err));
             await loadCells(gameId);
+            updatePlayerNames();
             updateMovesHistory(gameConfig.moveHistory);
         });
 
+        function updatePlayerNames() {
+            // Находим игроков по цветам
+            const whitePlayerId = Object.keys(gameConfig.playerColors).find(
+                id => gameConfig.playerColors[id] === 'White'
+            );
+            const blackPlayerId = Object.keys(gameConfig.playerColors).find(
+                id => gameConfig.playerColors[id] === 'Black'
+            );
+            const redPlayerId = Object.keys(gameConfig.playerColors).find(
+                id => gameConfig.playerColors[id] === 'Red'
+            );
 
+            // Обновляем имена игроков
+            if (whitePlayerId && gameConfig.playerInfos[whitePlayerId]) {
+                document.getElementById('player-name-White').textContent =
+                    gameConfig.playerInfos[whitePlayerId].userName;
+            }
+
+            if (blackPlayerId && gameConfig.playerInfos[blackPlayerId]) {
+                document.getElementById('player-name-Black').textContent =
+                    gameConfig.playerInfos[blackPlayerId].userName;
+            }
+
+            if (redPlayerId && gameConfig.playerInfos[redPlayerId]) {
+                document.getElementById('player-name-Red').textContent =
+                    gameConfig.playerInfos[redPlayerId].userName;
+            }
+        }
 
     </script>
 </body>

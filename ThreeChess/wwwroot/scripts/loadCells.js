@@ -20,6 +20,7 @@
         gameConfig.playerGameTimes = gameConf.playerGameTimes;
         gameConfig.userId = gameConf.userId;
         gameConfig.moveHistory = gameConf.moveHistory;
+        gameConfig.playerInfos = gameConf.playerInfos;
 
         if (gameConf.gameStatus !== "Wait") {
             lastServerUpdateTime = new Date();
