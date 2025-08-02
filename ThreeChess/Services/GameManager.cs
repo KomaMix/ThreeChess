@@ -43,7 +43,7 @@ namespace ThreeChess.Services
                 throw new Exception("turn error");
             }
 
-            if (_moveCheckService.MoveCheck(moveRequest))
+            if (!_moveCheckService.MoveCheck(moveRequest))
             {
                 throw new Exception("error move");
             }

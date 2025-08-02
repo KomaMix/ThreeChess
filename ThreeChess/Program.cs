@@ -39,6 +39,7 @@ builder.Services.AddTransient<IMoveLogicalElementsService, MoveLogicalElementsSe
 builder.Services.AddTransient<IMoveHistoryService, MoveHistoryService>();
 builder.Services.AddTransient<ILobbyManager, RedisLobbyManager>();
 builder.Services.AddTransient<IGameRepository, RedisGameRepository>();
+builder.Services.AddTransient<IMoveCheckService, MoveCheckService>();
 builder.Services.AddSingleton<IGameManager, GameManager>();
 builder.Services.AddSingleton<ILobbyWaitingService, LobbyWaitingService>();
 builder.Services.AddHttpContextAccessor();
