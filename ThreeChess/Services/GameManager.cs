@@ -13,15 +13,18 @@ namespace ThreeChess.Services
         private readonly IGameRepository _gameRepository;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IMoveHistoryService _moveHistory;
+        private readonly IMoveCheckService _moveCheckService;
 
         public GameManager(
             IGameRepository gameRepository, 
             IHttpContextAccessor httpContextAccessor, 
-            IMoveHistoryService moveHistory)
+            IMoveHistoryService moveHistory,
+            IMoveCheckService moveCheckService)
         {
             _gameRepository = gameRepository;
             _httpContextAccessor = httpContextAccessor;
             _moveHistory = moveHistory;
+            _moveCheckService = moveCheckService;
         }
 
         public async Task<MoveResponse> MoveHandle(MoveRequest moveRequest)
@@ -38,6 +41,11 @@ namespace ThreeChess.Services
             if (game.PlayerColors[curUserId] != game.CurrentTurnColor)
             {
                 throw new Exception("turn error");
+            }
+
+            if (_moveCheckService.MoveCheck(moveRequest))
+            {
+                throw new Exception("error move");
             }
 
 

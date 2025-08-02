@@ -30,17 +30,17 @@ namespace ThreeChess.Data
                 .IsUnique();
 
             builder.Entity<UserOldGameInfo>()
-                .HasKey(ug => new { ug.AppUserId, ug.OldGameInfoId }); // Составной ключ
+                .HasKey(ug => new { ug.AppUserId, ug.OldGameInfoId });
 
             builder.Entity<UserOldGameInfo>()
                 .HasOne(ug => ug.AppUser)
-                .WithMany() // Если в AppUser нет коллекции UserOldGameInfo, оставьте пустым
+                .WithMany()
                 .HasForeignKey(ug => ug.AppUserId)
-                .OnDelete(DeleteBehavior.Cascade); // Каскадное удаление связей при удалении пользователя
+                .OnDelete(DeleteBehavior.Cascade);
 
             builder.Entity<UserOldGameInfo>()
                 .HasOne(ug => ug.OldGameInfo)
-                .WithMany() // Если в OldGameInfo нет коллекции UserOldGameInfo, оставьте пустым
+                .WithMany()
                 .HasForeignKey(ug => ug.OldGameInfoId)
                 .OnDelete(DeleteBehavior.Cascade);
         }
